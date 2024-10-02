@@ -20,3 +20,7 @@ Chat Commands:
 - `!resetvotingblocklist`: Allows all users to submit new votes. These votes are added to the old votes.
 - `!hidevote`: Changes the visibility of the chart. Votes will be still counted.
 - `!showvote`: Changes the visibility of the chart. Votes will be still counted.
+
+## Feature Ideas
+- `!newvote A-D`
+- `!vote Text` e.g. Names
