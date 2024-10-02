@@ -92,7 +92,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		if (bg==null){bg="255,255,255,1"}
 		document.getElementById("plot").style.backgroundColor="rgba("+bg+")";
 		hidden=siteURL.searchParams.get("hidden");
-		if (hidden==1){document.getElementById("container").display="none"}
+		if (hidden*1==1){document.getElementById("container").display="none"}
 		
 		votes=[];
 		labels=[];
