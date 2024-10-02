@@ -14,6 +14,7 @@ You can click on the plot to open/close the config editor or edit the values man
 
 Chat Commands:
 - `!newvote`: Resets votes and user blacklist, shows the chart
+- `!newvote min-max`: Resets votes and user blacklist, shows the chart and set range. Example for negative values: `!newvote -3--1`
 - `!stopvote`: Disables new entries (freeze the current view)
 - `!continuevote`: Allows new entries, old votes are still valid and the old user blocklist will be used. 
 - `!resetvotingblacklist`: Allows all users to submit new votes. These votes are added to the old votes.

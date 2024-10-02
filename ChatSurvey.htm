@@ -229,7 +229,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		}else{
 			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].lower()==TwitchChannel.lower()){
 				//Authorised Users
-				switch (message){
+				switch (message.split(" ")[0]){
 					case StartNewVoteCommand:
 						//Reset Votes
 						for (var i=0;i<=(max-min);i++){
@@ -237,7 +237,42 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 						}
 						//Reset Userlist
 						Userlist=[];
+						
+						if (message.split(" ").length>1){
+							//Additional info?
+							werte=message.split(" ")[1].split("-");
+							switch (werte.length){
+								case 2:
+									if (werte[0]!=""){
+										min=werte[0]*1;
+									}
+									if (werte[1]!=""){
+										max=werte[1]*1;
+									}
+									break;
+								case 3:
+									if (werte[0]==""){//First is negative
+										if (werte[1]!=""){min=werte[1]*-1}
+										if (werte[2]!=""){max=werte[2]*1}
+									}//Else not valid (min>max or min--max)
+									break;
+								case 4:
+									if (werte[0]==""){//First is negative
+										if (werte[1]!=""){min=werte[1]*-1}
+										if (werte[3]!="" && werte[2]==""){max=werte[3]*-1}
+									}
+									break;
+							}
+							if (max<min){tmp=max;max=min;min=tmp;}
+							votes=[];
+							labels=[];
+							for (var i=0;i<=(max-min);i++){
+								votes.push(0);
+								labels.push((i+min));
+							}
+						}
 						myChart.data.datasets[0].data=votes;
+						myChart.config.data.labels=labels;
 						myChart.update();
 						allowvoting=true;
 						document.getElementById("container").style.display="flex";
