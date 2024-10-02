@@ -8,6 +8,7 @@ Config via URL-Parameters:
 - `max`: highest accepted value for vote [default=5]
 - `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1). Default is transparent (0,0,0,0)
 - `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands.
+
 You can click on the plot to open/close the config editor or edit the values manually. Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=Channelname&min=1&max=5&bg=50,70,100,0.3`
 
 
