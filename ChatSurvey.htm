@@ -118,9 +118,9 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 			urlout+=document.getElementById("fchannel").value;
 			urlout+="&min="+document.getElementById("fmin").value;
 			urlout+="&max="+document.getElementById("fmax").value;
-			urlout+="&bg=rgba(";
+			urlout+="&bg=";
 			color=document.getElementById("fbg").value;
-			urlout+=Number("0x"+color.substr(1,2))+","+Number("0x"+color.substr(3,2))+","+Number("0x"+color.substr(5,2))+","+document.getElementById("fbga").value/100+")";
+			urlout+=Number("0x"+color.substr(1,2))+","+Number("0x"+color.substr(3,2))+","+Number("0x"+color.substr(5,2))+","+document.getElementById("fbga").value/100;
 			urlout+="&hidden="+document.getElementById("fhidden").checked*1;
 			document.getElementById("urlout").value=urlout;
 		}
