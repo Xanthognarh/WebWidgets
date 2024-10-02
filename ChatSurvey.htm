@@ -32,11 +32,44 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 			display: flex;
 			flex-grow:1;
 		}
+		#config{
+			display: none;
+			position: absolute;
+			z-index:99;
+			top:0;
+			left:0;
+			background-color:white;
+			min-width:30vw;
+			padding:10px;
+		}
+		#config form{
+			width:100%;
+		}
+		#config textarea{
+			min-width:80%;
+		}
 	</style>
 	<body>
-		<div id="container">
+		<div id="container" onClick="Toggle()">
 			<canvas id="plot"></canvas>
 		</div>		
+		<div id="config">
+			<form>
+				<label for="fchannel">Channel Name:</label>
+				<input type="text" id="fchannel" name="fchannel" onChange="UpdateConfig()"><br>
+				<label for="fmin">Lowest possible vote:</label>
+				<input type="number" id="fmin" name="fmin" value="1" onChange="UpdateConfig()"><br>
+				<label for="fmax">Highest possible vote:</label>
+				<input type="number" id="fmax" name="fmax" value="5" onChange="UpdateConfig()"><br>
+				<label for="fbg">Background Color:</label>
+				<input type="color" id="fbg" name="fbg" onChange="UpdateConfig()" value="#FFFFFF"><br>
+				<label for="fbga">Background Alpha:</label>
+				<input type="range" id="fbga" name="fbga" min=0 max=100 onChange="UpdateConfig()"><br>
+				<label for="fhidden">Starting hidden:</label>
+				<input type="checkbox" id="fhidden" name="fhidden" onChange="UpdateConfig()"><br><hr>
+				<textarea id="urlout" onClick="this.select()">https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm</textarea>
+			</form>
+		</div>
 	</body>
 	<script>
 		StartNewVoteCommand="!newvote";
@@ -70,7 +103,28 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		Userlist=[];
 		allowvoting=true;
 		
-
+		
+		function Toggle(){
+			if (document.getElementById("config").style.display=="none" || document.getElementById("config").style.display==""){
+				document.getElementById("config").style.display="flex";
+				return "Show";
+			}else{
+				document.getElementById("config").style.display="none";
+				return "Hide";
+			}
+		}
+		function UpdateConfig(){
+			urlout="https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=";
+			urlout+=document.getElementById("fchannel").value;
+			urlout+="&min="+document.getElementById("fmin").value;
+			urlout+="&max="+document.getElementById("fmax").value;
+			urlout+="&bg=rgba(";
+			color=document.getElementById("fbg").value;
+			urlout+=Number("0x"+color.substr(1,2))+","+Number("0x"+color.substr(3,2))+","+Number("0x"+color.substr(5,2))+","+document.getElementById("fbga").value/100+")";
+			urlout+="&hidden="+document.getElementById("fhidden").checked*1;
+			document.getElementById("urlout").value=urlout;
+		}
+		UpdateConfig();
 
 		Chart.register(ChartDataLabels);
 		alpha=0.4;
