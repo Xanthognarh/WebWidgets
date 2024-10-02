@@ -4,6 +4,8 @@ Config via URL-Parameters:
 channel: Name of Twich Channel you want to listen
 min: lowest accepted value for vote
 max: highest accepted value for vote
+bg: r,g,b,a value  for the background-color (0-255) and alpha (0-1). Default is transparent (0,0,0,0)
+hidden: 0 or 1 as default when loading the page
 
 use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 -->
@@ -32,12 +34,17 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		}
 	</style>
 	<body>
-		<div class="container">
+		<div id="container">
 			<canvas id="plot"></canvas>
 		</div>		
 	</body>
 	<script>
 		StartNewVoteCommand="!newvote";
+		HideVoteCommand="!hidevote";
+		ShowVoteCommand="!showvote";
+		ResetBlacklistCommand="!resetvotingblacklist";
+		StopVoteCommand="!stopvote";
+		StartVoteCommand="!continuevote";
 	
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel");
@@ -48,6 +55,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		if (max==null){max=5}
 		max*=1;
 		if (max<min){tmp=max;max=min;min=tmp;}
+		bg=siteURL.searchParams.get("bg");
+		if (bg==null){bg="255,255,255,1"}
+		document.getElementById("plot").style.backgroundColor="rgba("+bg+")";
+		hidden=siteURL.searchParams.get("hidden");
+		if (hidden==1){document.getElementById("container").display="none"}
 		
 		votes=[];
 		labels=[];
@@ -56,6 +68,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 			labels.push((i+min));
 		}
 		Userlist=[];
+		allowvoting=true;
 		
 
 
@@ -151,22 +164,47 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		client.on('message', (channel, user, message, self) => {
 		// "Alca: Hello, World!"
 		vote=Math.round(`${message}`*1);
-		if (vote >= min && vote <= max){
-			//Message is a valid vote
-			console.log("New Vote: "+vote);
-			votes[vote-min]+=1;
-			myChart.data.datasets[0].data=votes;
-			myChart.update();
+		if (vote >= min && vote <= max && allowvoting){
+			//Message is a valid vote format
+			if (!Userlist.includes(user['display-name'])){
+				Userlist.push(user['display-name']);
+				votes[vote-min]+=1;
+				myChart.data.datasets[0].data=votes;
+				myChart.update();
+			}			
 		}else{
-			if ((user.mod && message==StartNewVoteCommand)||(user['display-name']=="Xanthognarh" && message==StartNewVoteCommand)){
-				console.log("Reset for new Vote");
-				//Reset Votes
-				for (var i=0;i<=(max-min);i++){
-					votes[i]=0;
+			if (user.mod || user['display-name']=="Xanthognarh"){
+				//Authorised Users
+				switch (message){
+					case StartNewVoteCommand:
+						//Reset Votes
+						for (var i=0;i<=(max-min);i++){
+							votes[i]=0;
+						}
+						//Reset Userlist
+						Userlist=[];
+						myChart.data.datasets[0].data=votes;
+						myChart.update();
+						document.getElementById("container").style.display="flex";
+						break;
+					case HideVoteCommand:
+						document.getElementById("container").style.display="none";
+						break;
+					case ShowVoteCommand:
+						document.getElementById("container").style.display="flex";
+						break;
+					case StopVoteCommand:
+						allowvoting=false;
+						break;
+					case StartVoteCommand:
+						allowvoting=true;
+						break;
+					case ResetBlacklistCommand:
+						Userlist=[];
+						break;
 				}
-				//Reset Userlist
-				Userlist=[];
 			}
+			
 		}
 		//document.getElementById("Chatlog").innerHTML+=`<br><b>${user['display-name']}</b>: ${message}`;
 		//console.log(`${user['display-name']}: ${message}`);
