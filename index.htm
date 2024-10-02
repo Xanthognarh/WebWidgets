@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!--
+Config via URL-Parameters:
+channel: Name of Twich Channel you want to listen
+min: lowest accepted value for vote
+max: highest accepted value for vote
+
+use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
+-->
+<html>
+	<header>
+		<title>Chatsurvey</title>
+	</header>
+	<script src="Scripts/tmi.min.js"></script>
+	<script src="Scripts/chart.umd.js"></script>
+	<script src="Scripts/chartjs-plugin-datalabels.min.js"></script>
+	<style>
+		#Chatlog{
+			background-color:lightgrey;
+		}
+		#plot{
+			width: 100%;
+			height: 100%;
+			background-color:lightblue;
+		}
+		#container{
+			position:relative;
+			min-height:auto;
+			width:100%;
+			display: flex;
+			flex-grow:1;
+		}
+	</style>
+	<body>
+		<div class="container">
+			<canvas id="plot"></canvas>
+		</div>
+		
+		<div id="Chatlog"></div>
+		
+	</body>
+	<script>
+		StartNewVoteCommand="!newvote";
+	
+		siteURL=new URL(window.location);
+		TwitchChannel=siteURL.searchParams.get("channel");
+		min=siteURL.searchParams.get("min");
+		if (min==null){min=1}
+		min*=1;
+		max=siteURL.searchParams.get("max");
+		if (max==null){max=5}
+		max*=1;
+		if (max<min){tmp=max;max=min;min=tmp;}
+		
+		votes=[];
+		labels=[];
+		for (var i=0;i<=(max-min);i++){
+			votes.push(0);
+			labels.push((i+min));
+		}
+		Userlist=[];
+		
+
+
+		Chart.register(ChartDataLabels);
+		alpha=0.4;
+		const data = {
+		  labels: labels,
+		  datasets: [{
+			label: 'Votes',
+			data: votes,
+			backgroundColor: [
+			  `rgba(255, 99, 132, ${alpha})`,
+			  `rgba(255, 159, 64, ${alpha})`,
+			  `rgba(255, 205, 86, ${alpha})`,
+			  `rgba(75, 192, 192, ${alpha})`,
+			  `rgba(54, 162, 235, ${alpha})`,
+			  `rgba(153, 102, 255, ${alpha})`,
+			  `rgba(201, 203, 207, ${alpha})`
+			],
+			borderColor: [
+			  'rgb(255, 99, 132)',
+			  'rgb(255, 159, 64)',
+			  'rgb(255, 205, 86)',
+			  'rgb(75, 192, 192)',
+			  'rgb(54, 162, 235)',
+			  'rgb(153, 102, 255)',
+			  'rgb(201, 203, 207)'
+			],
+			borderWidth: 1
+		  }]
+		};		
+		const config = {
+		  type: 'bar',
+		  data: data,
+		  options: {
+			scales: {
+			  y: {
+				beginAtZero: true,
+				display: false,
+				grid: {display: false}
+			  },
+			  x: {
+				ticks: {
+					font: function(context) {
+						var width = context.chart.width;
+						var size = Math.round(width / 48);
+
+						return {
+							weight: 'bold',
+							size: size
+						};
+					}
+				},
+				grid: {display: false}
+			  },
+			},
+			plugins:{
+				legend: {display: false},
+				datalabels: {
+					color: 'black',
+					anchor: "end",
+					align: "bottom",
+					offset: 0,
+					display: true,
+					font: function(context) {
+						var width = context.chart.width;
+						var size = Math.round(width / 32);
+
+						return {
+							weight: 'bold',
+							size: size
+						};
+					}
+				},
+				beforeUpdate: function(context){
+					var chartHeight= context.chart.height;
+					var size= chartHeight * 5/100;
+					context.scales["x"].options.ticks.minor.fontSize=size;
+					context.scales["x"].options.ticks.major.fontSize=size;
+				}
+			}
+		  },
+		};
+		plot=document.getElementById("plot");
+		const myChart = new Chart(plot, config);
+		
+		//Connect to Twitchchat:
+		const client = new tmi.Client({
+			options: { debug: true },
+			channels: [ TwitchChannel ]
+		});
+		client.connect().catch(console.error);
+		client.on('message', (channel, user, message, self) => {
+		// "Alca: Hello, World!"
+		vote=Math.round(`${message}`*1);
+		if (vote >= min && vote <= max){
+			//Message is a valid vote
+			console.log("New Vote: "+vote);
+			votes[vote-min]+=1;
+			myChart.data.datasets[0].data=votes;
+			myChart.update();
+		}else{
+			if (user.mod && message==StartNewVoteCommand){
+				console.log("New Vote");
+				//Reset Votes
+				for (var i=0;i<=(max-min);i++){
+					votes[i]=0;
+				}
+				//Reset Userlist
+				Userlist=[];
+			}
+		}
+		document.getElementById("Chatlog").innerHTML+=`<br><b>${user['display-name']}</b>: ${message}`;
+		console.log(`${user['display-name']}: ${message}`);
+	});
+	</script>
+</html>
