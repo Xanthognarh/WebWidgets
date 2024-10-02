@@ -217,7 +217,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		client.connect().catch(console.error);
 		client.on('message', (channel, user, message, self) => {
 		// "Alca: Hello, World!"
-		vote=Math.round(`${message}`*1);
+		vote=Math.round(message.replace(",",".")*1);
 		if (vote >= min && vote <= max && allowvoting){
 			//Message is a valid vote format
 			if (!Userlist.includes(user['display-name'])){
