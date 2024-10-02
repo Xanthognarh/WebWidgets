@@ -75,7 +75,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		StartNewVoteCommand="!newvote";
 		HideVoteCommand="!hidevote";
 		ShowVoteCommand="!showvote";
-		ResetBlacklistCommand="!resetvotingblacklist";
+		ResetBlocklistCommand="!resetvotingblocklist";
 		StopVoteCommand="!stopvote";
 		StartVoteCommand="!continuevote";
 	
@@ -289,7 +289,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 					case StartVoteCommand:
 						allowvoting=true;
 						break;
-					case ResetBlacklistCommand:
+					case ResetBlocklistCommand:
 						Userlist=[];
 						break;
 				}

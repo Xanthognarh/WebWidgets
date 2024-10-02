@@ -17,6 +17,6 @@ Chat Commands:
 - `!newvote min-max`: Resets votes and user blacklist, shows the chart and set range. Example for negative values: `!newvote -3--1`
 - `!stopvote`: Disables new entries (freeze the current view)
 - `!continuevote`: Allows new entries, old votes are still valid and the old user blocklist will be used. 
-- `!resetvotingblacklist`: Allows all users to submit new votes. These votes are added to the old votes.
+- `!resetvotingblocklist`: Allows all users to submit new votes. These votes are added to the old votes.
 - `!hidevote`: Changes the visibility of the chart. Votes will be still counted.
 - `!showvote`: Changes the visibility of the chart. Votes will be still counted.
