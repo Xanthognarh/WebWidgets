@@ -227,7 +227,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 				myChart.update();
 			}			
 		}else{
-			if (user.mod || user['display-name']=="Xanthognarh"){
+			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].lower()==TwitchChannel.lower()){
 				//Authorised Users
 				switch (message){
 					case StartNewVoteCommand:
