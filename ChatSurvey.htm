@@ -144,7 +144,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
-			options: { debug: true },
+			options: { debug: false },
 			channels: [ TwitchChannel ]
 		});
 		client.connect().catch(console.error);
@@ -158,7 +158,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 			myChart.data.datasets[0].data=votes;
 			myChart.update();
 		}else{
-			if (user.mod && message==StartNewVoteCommand){
+			if ((user.mod && message==StartNewVoteCommand)||(user['display-name']=="Xanthognarh" && message==StartNewVoteCommand)){
 				console.log("Reset for new Vote");
 				//Reset Votes
 				for (var i=0;i<=(max-min);i++){
