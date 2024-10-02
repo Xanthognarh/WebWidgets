@@ -102,6 +102,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		}
 		Userlist=[];
 		allowvoting=true;
+		mode="number";
 		
 		
 		function Toggle(){
@@ -217,7 +218,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		client.connect().catch(console.error);
 		client.on('message', (channel, user, message, self) => {
 		// "Alca: Hello, World!"
-		vote=Math.round(message.replace(",",".")*1);
+		if (mode=="letter"){
+			if (message.length==1){vote=message.toLowerCase().charCodeAt(0)}else{vote=0}
+		}else{
+			vote=Math.round(message.replace(",",".")*1);
+		}
 		if (vote >= min && vote <= max && allowvoting){
 			//Message is a valid vote format
 			if (!Userlist.includes(user['display-name'])){
@@ -245,9 +250,17 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 								case 2:
 									if (werte[0]!=""){
 										min=werte[0]*1;
+										if (isNaN(min)){
+											mode="letter";
+											min=werte[0].toLowerCase().charCodeAt(0);
+										}else{mode="number"}
 									}
 									if (werte[1]!=""){
 										max=werte[1]*1;
+										if (isNaN(max)){
+											mode="letter";
+											max=werte[1].toLowerCase().charCodeAt(0);
+										}
 									}
 									break;
 								case 3:
@@ -268,7 +281,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 							labels=[];
 							for (var i=0;i<=(max-min);i++){
 								votes.push(0);
-								labels.push((i+min));
+								if (mode=="letter"){
+									labels.push(String.fromCharCode(i+min).toUpperCase());
+								}else{
+									labels.push((i+min));
+								}
 							}
 						}
 						myChart.data.datasets[0].data=votes;
