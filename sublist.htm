@@ -38,6 +38,9 @@
 		.Username{
 			font-weight: bold;
 		}
+		#Rest{
+			background-color:rgba(0,0,0,0.1);
+		}
 	</style>
 	<body>
 		<div id="Chatlog">
@@ -47,8 +50,10 @@
 			</thead>
 			<tbody>
 			</tbody>
+			<tfoot>
+				<tr><th colspan=4 id="Rest"></th></tr>
+			</tfoot>
 		</table>
-		<span id="Rest"></span>
 		</div>
 	</body>
 	<script>
@@ -118,9 +123,9 @@
 			if (queue.length==0){
 				document.getElementById("Rest").innerText="";
 			}else if (queue.length==1){
-				document.getElementById("Rest").innerText=queue.length+" weiterer Eintrag";
+				document.getElementById("Rest").innerText="+ "+queue.length+" weiterer Eintrag";
 			}else{
-				document.getElementById("Rest").innerText=queue.length+" weitere Einträge";
+				document.getElementById("Rest").innerText="+ "+queue.length+" weitere Einträge";
 			}
 		}
 
