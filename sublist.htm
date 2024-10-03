@@ -7,10 +7,12 @@
 	<style>
 		#Chatlog{
 			/*background-color:lightgrey;*/
-			font-size: 48px;
+			font-size: 24px;
+			font-family: Tahoma, Verdana, Sans-serif;
 		}
 		#Chatlog table td{
 			padding: 0.1em;
+			word-wrap: break-word;
 		}
 		#Chatlog table th:nth-child(1){
 			width: 24px;
@@ -20,11 +22,11 @@
 			text-align:center;
 		}
 		#Chatlog table th:nth-child(3){
-			width: 200px;
+			width: 360px;
 			text-align:left;
 		}
 		#Chatlog table th:nth-child(4){
-			width: 400px;
+			width: 240px;
 			text-align:left;
 		}
 		#Chatlog table td:nth-child(1){
@@ -169,7 +171,7 @@
 		client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) => {
 			amount=Math.floor(numbOfSubs/subprice);
 			if (amount>0){
-				AddEntry(amount,"verschenkte Subs von",userstate["color"],username);
+				AddEntry(amount,"Subgifts",userstate["color"],username);
 			}
 		});
 		client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
@@ -179,20 +181,20 @@
 				//Target Subgift, otherwise submysterygift
 				amount=Math.floor(1/subprice);
 				if (amount>0){
-					AddEntry(amount,"Subgift von",userstate["color"],username);
+					AddEntry(amount,"Subgift",userstate["color"],username);
 				}
 			}
 		});
 		client.on("subscription", (channel, username, method, message, userstate) => {
 			amount=Math.floor(1/subprice);
 			if (amount>0){
-				AddEntry(amount,"Neuer Sub von",userstate["color"],username);
+				AddEntry(amount,"Neuer Sub",userstate["color"],username);
 			}
 		});
 		client.on("resub", (channel, username, streakmonths, message, userstate, methods) => {
 			amount=Math.floor(1/subprice);
 			if (amount>0){
-				AddEntry(amount,"Resub von",userstate["color"],username);
+				AddEntry(amount,"Resub",userstate["color"],username);
 			}
 		});
 		client.on("giftpaidupgrade", (channel, username, sender, userstate) => {
@@ -210,7 +212,7 @@
 		client.on("cheer", (channel, userstate, message) => {
 			amount=Math.floor(userstate["bits"]/bitprice);
 			if (amount>0){
-				AddEntry(amount,userstate["bits"]+" Bits von",userstate["color"],userstate["display-name"]);
+				AddEntry(amount,userstate["bits"]+" Bits",userstate["color"],userstate["display-name"]);
 			}
 			
 			/*userstate:
