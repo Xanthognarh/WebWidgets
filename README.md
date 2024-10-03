@@ -25,9 +25,17 @@ You can click on the plot to open/close the config editor or edit the values man
 - `!vote Text` e.g. Names
 
 ## Sublist
-Shows a list of Subs/Bits for future interaction.
+Shows a list of Subs/Bits for future interaction. The usernames and 
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
 - `len`: max Number of Entries displayed [default=5]
-- `price`: Amount of Bits that equals a Sub [default=300]
+- `bitprice`: Amount of Bits that equals 1 [default=300]
+- `subprice`: Amount of Subs that equals 1 [default=1]
+- `maxmessage`: max length of Message to be displayed [default=30]
+
+### Chat Commands:
+- `!pick message`: Command for the person shown in table to send a Message
+- `!pick username message`: Mod command to send a message instead
+- `!AddUser username [amount]`: Add username to the queue, amount can be empty
+- `!RemoveUser username [Pos=0]`: Removes the pos-th entry of the given user

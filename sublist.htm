@@ -48,14 +48,19 @@
 		len=siteURL.searchParams.get("len");
 		if (len==null){len=5}
 		len*=1;
-		price=siteURL.searchParams.get("price");
-		if (price==null){price=300}
-		price*=1;
+		bitprice=siteURL.searchParams.get("bitprice");
+		if (bitprice==null){bitprice=300}
+		bitprice*=1;
+		subprice=siteURL.searchParams.get("subprice");
+		if (subprice==null){subprice=1}
+		subprice*=1;
+		maxTalkbacklength=siteURL.searchParams.get("maxmessage");
+		if (maxTalkbacklength==null){maxTalkbacklength=30}
+		maxTalkbacklength*=1;
 		
-		TalkbackCommand="!Farbe";
-		AddCommand="!AddUser";
-		RemoveCommand="!RemoveEntry";
-		maxTalkbacklength=20;
+		TalkbackCommand="!pick";
+		AddCommand="!AddUser".toLowerCase();
+		RemoveCommand="!RemoveUser".toLowerCase();
 
 		queue=[];
 		Userlist=[];
@@ -127,7 +132,7 @@
 			}else{
 				if (userstate.mod || userstate['display-name']=="Xanthognarh" || userstate['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
 					//Mods
-					switch (message.split(" ")[0]){
+					switch (message.split(" ")[0].toLowerCase()){
 						case AddCommand://!Add Name Amount
 							if (message.split(" ").length==2){AddEntry("?","Mod","",message.split(" ")[1]);}
 							if (message.split(" ").length==3){AddEntry(message.split(" ")[2]*1,"Mod","",message.split(" ")[1]);}
@@ -161,7 +166,10 @@
 			// Do your stuff.
 			//console.log(username+" gifted "+numbOfSubs+" Subs");
 			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" gifted "+numbOfSubs+" Subs";
-			AddEntry(numbOfSubs,"verschenkte Subs von",userstate["color"],username);
+			amount=Math.floor(numbOfSubs/subprice);
+			if (amount>0){
+				AddEntry(amount,"verschenkte Subs von",userstate["color"],username);
+			}
 		});
 		client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
 			// Do your stuff.
@@ -172,14 +180,20 @@
 				//console.log(username+" gifted "+recipient+" a subscription with a total amount of "+userstate["msg-param-sender-count"]);
 				//console.dir(methods); plan, planName, prime
 				//document.getElementById("Chatlog").innerHTML+="<br>"+username+" gifted "+recipient+" a subscription with a total amount of "+userstate["msg-param-sender-count"];
-				AddEntry(1,"Subgift von",userstate["color"],username);
+				amount=Math.floor(1/subprice);
+				if (amount>0){
+					AddEntry(amount,"Subgift von",userstate["color"],username);
+				}
 			}
 		});
 		client.on("subscription", (channel, username, method, message, userstate) => {
 			// Do your stuff.
 			//console.log(username+" subscribed with message "+message);
 			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" subscribed with message "+message;
-			AddEntry(1,"Neuer Sub von",userstate["color"],username);
+			amount=Math.floor(1/subprice);
+			if (amount>0){
+				AddEntry(amount,"Neuer Sub von",userstate["color"],username);
+			}
 		});
 		client.on("resub", (channel, username, streakmonths, message, userstate, methods) => {
 			// Do your stuff.
@@ -190,26 +204,38 @@
 				//console.log(username+" resubscribed for "+userstate["msg-param-cumulative-months"]+" months with message "+message);
 				//document.getElementById("Chatlog").innerHTML+="<br>"+username+" resubscribed for "+userstate["msg-param-cumulative-months"]+" months with message "+message;
 			}
-			AddEntry(1,"Resub von",userstate["color"],username);
+			amount=Math.floor(1/subprice);
+			if (amount>0){
+				AddEntry(amount,"Resub von",userstate["color"],username);
+			}
 		});
 		client.on("giftpaidupgrade", (channel, username, sender, userstate) => {
 			// Do your stuff.
 			//console.log(username+" subscribed after the giftsub by "+sender);
 			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" subscribed after the giftsub by "+sender;
-			AddEntry(1,"Neuer Sub",userstate["color"],username);
+			amount=Math.floor(1/subprice);
+			if (amount>0){
+				AddEntry(amount,"Neuer Sub",userstate["color"],username);
+			}
 		});
 		client.on("anongiftpaidupgrade", (channel, username, userstate) => {
 			// Do your stuff.
 			//console.log(username+" subscribed after the giftsub of an anonymous gifter");
 			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" subscribed after the giftsub of an anonymous gifter";
-			AddEntry(1,"Neuer Sub",userstate["color"],username);
+			amount=Math.floor(1/subprice);
+			if (amount>0){
+				AddEntry(amount,"Neuer Sub",userstate["color"],username);
+			}
 		});
 		client.on("cheer", (channel, userstate, message) => {
 			// Do your stuff.
 			//console.log(userstate["display-name"]+" cheered  "+userstate["bits"]+" bits with message "+message);
 			//document.getElementById("Chatlog").innerHTML+="<br>"+userstate["display-name"]+" cheered  "+userstate["bits"]+" bits with message "+message;
-			amount=Math.floor(userstate["bits"]/price);
-			AddEntry(amount,userstate["bits"]+" Bits von",userstate["color"],userstate["display-name"]);
+			amount=Math.floor(userstate["bits"]/bitprice);
+			if (amount>0){
+				AddEntry(amount,userstate["bits"]+" Bits von",userstate["color"],userstate["display-name"]);
+			}
+			
 			/*userstate:
 "badge-info": Object { subscriber: "5" }​
 "badge-info-raw": "subscriber/5"​
