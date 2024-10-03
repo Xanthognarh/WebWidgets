@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+	<header>
+		<title>Xanthosub</title>
+	</header>
+	<script src="Scripts/tmi.min.js"></script>
+	<script src="Scripts/chart.umd.js"></script>
+	<script src="Scripts/chartjs-plugin-datalabels.min.js"></script>
+	<style>
+		#Chatlog{
+			/*background-color:lightgrey;*/
+		}
+		#config{
+			display: none;
+			position: absolute;
+			z-index:99;
+			top:0;
+			left:0;
+			background-color:white;
+			min-width:30vw;
+			padding:10px;
+		}
+		#config form{
+			width:100%;
+		}
+		#config textarea{
+			min-width:80%;
+		}
+		.Username{
+			font-weight: bold;
+		}
+	</style>
+	<body>
+		<div id="Chatlog">
+		<table id="Subtable">
+			<thead>
+				<tr><th></th><th>Art</th><th>Name</th><th>Wunsch</th></tr>
+			</thead>
+			<tbody>
+			</tbody>
+		</table>
+		<span id="Rest"></span>
+		</div>
+	</body>
+	<script>
+		siteURL=new URL(window.location);
+		TwitchChannel=siteURL.searchParams.get("channel");
+		len=siteURL.searchParams.get("len");
+		if (len==null){len=5}
+		len*=1;
+		price=siteURL.searchParams.get("price");
+		if (price==null){price=300}
+		price*=1;
+		
+		TalkbackCommand="!Farbe";
+		AddCommand="!AddUser";
+		RemoveCommand="!RemoveEntry";
+		maxTalkbacklength=20;
+
+		queue=[];
+		Userlist=[];
+
+		
+		function AddEntry(Amount, Type, Color,Name){
+			if (Name[0]=="@"){Name=Name.substr(1);}
+			add="<tr name='"+Name.toLowerCase()+"'><td>"+Amount+"</td><td>"+Type+"</td><td class='Username' style='color: "+Color+";'>"+Name+"</td><td></td></tr>";
+			if (document.getElementById("Subtable").tBodies[0].children.length<len){
+				document.getElementById("Subtable").tBodies[0].innerHTML+=add;
+			}else{
+				queue.push(add);
+				UpdateRest();
+			}
+			Userlist.push(Name.toLowerCase());
+		}
+		function FillEntry(){
+			if (queue.length>0 && document.getElementById("Subtable").tBodies[0].children.length<len){
+				document.getElementById("Subtable").tBodies[0].innerHTML+=queue.shift();
+				UpdateRest();
+			}
+		}
+		function RemoveEntry(Name,Pos=0){
+			//Removes the pos-th Entry of the given Name from the table
+			if (Name[0]=="@"){Name=Name.substr(1);}
+			entries=document.getElementsByName(Name.toLowerCase());
+			if (entries.length>0){
+				entries[Pos].remove();
+				FillEntry();
+				Userlist.splice(Userlist.indexOf(Name.toLowerCase()),1);
+			}
+		}
+		function PurgeUser(Name){
+			//TODO Removes User from Queue and Table
+		}
+		function AnswerEntry(Name,Message){
+			if (Name[0]=="@"){Name=Name.substr(1);}
+			entries=document.getElementById("Subtable").tBodies[0].children;
+			console.dir(Name);
+			for (var i=0;i<entries.length;i++){
+				if (entries[i].attributes["name"].value==Name.toLowerCase()){
+					entries[i].lastChild.innerText=Message;
+				}
+			}
+		}
+		function UpdateRest(){
+			if (queue.length==0){
+				document.getElementById("Rest").innerText="";
+			}else if (queue.length==1){
+				document.getElementById("Rest").innerText=queue.length+" weiterer Eintrag";
+			}else{
+				document.getElementById("Rest").innerText=queue.length+" weitere Einträge";
+			}
+		}
+
+
+		//Connect to Twitchchat:
+		const client = new tmi.Client({
+			options: { debug: false },
+			channels: [ TwitchChannel, "Xanthognarh" ]
+		});
+		client.connect().catch(console.error);
+		
+		//Messages
+		client.on('message', (channel, userstate, message, self) => {
+			if (Userlist.indexOf(userstate['display-username'])!=-1 && message.substr(0,TalkbackCommand.length)==TalkbackCommand){
+				//User in List, but maybe not in Table
+				AnswerEntry(userstate['display-name'],message.substr(0,maxTalkbacklength))
+			}else{
+				if (userstate.mod || userstate['display-name']=="Xanthognarh" || userstate['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
+					//Mods
+					switch (message.split(" ")[0]){
+						case AddCommand://!Add Name Amount
+							if (message.split(" ").length==2){AddEntry("?","Mod","",message.split(" ")[1]);}
+							if (message.split(" ").length==3){AddEntry(message.split(" ")[2]*1,"Mod","",message.split(" ")[1]);}
+							break;
+						case RemoveCommand://!Remove Name Pos
+							if (message.split(" ").length==2){RemoveEntry(message.split(" ")[1]);}
+							if (message.split(" ").length==3){RemoveEntry(message.split(" ")[1],message.split(" ")[2]*1);}
+							break;
+						case TalkbackCommand://!Answer Name Message
+							if (message.split(" ").length==3){AnswerEntry(message.split(" ")[1],message.split(" ")[2]);}
+							break;
+					}
+				}
+			}
+		});
+		//VIPs
+		//Dummy-Function 
+		/*client.on("vip",(channel, username)=>{
+			console.log("New VIP: "+username);
+			RemoveEntry(username);
+		});*/
+
+		//Timeouts
+		client.on("timeout", (channel, username, reason, duration, userstate) => {
+			// Do your stuff.
+			//console.log("Timeout: "+username+" for "+duration+" s");
+			RemoveEntry(username);
+		});
+		//Subs/Bits
+		client.on("submysterygift", (channel, username, numbOfSubs, methods, userstate) => {
+			// Do your stuff.
+			//console.log(username+" gifted "+numbOfSubs+" Subs");
+			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" gifted "+numbOfSubs+" Subs";
+			AddEntry(numbOfSubs,"verschenkte Subs von",userstate["color"],username);
+		});
+		client.on("subgift", (channel, username, streakMonths, recipient, methods, userstate) => {
+			// Do your stuff.
+			//If community-gift-id nur bei Subbombs
+			//sub-plan: 1000/2000/3000 Tier, 1 prime
+			if (userstate["msg-param-community-gift-id"]==null){
+				//Target Subgift, otherwise submysterygift
+				//console.log(username+" gifted "+recipient+" a subscription with a total amount of "+userstate["msg-param-sender-count"]);
+				//console.dir(methods); plan, planName, prime
+				//document.getElementById("Chatlog").innerHTML+="<br>"+username+" gifted "+recipient+" a subscription with a total amount of "+userstate["msg-param-sender-count"];
+				AddEntry(1,"Subgift von",userstate["color"],username);
+			}
+		});
+		client.on("subscription", (channel, username, method, message, userstate) => {
+			// Do your stuff.
+			//console.log(username+" subscribed with message "+message);
+			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" subscribed with message "+message;
+			AddEntry(1,"Neuer Sub von",userstate["color"],username);
+		});
+		client.on("resub", (channel, username, streakmonths, message, userstate, methods) => {
+			// Do your stuff.
+			if (userstate["msg-param-should-share-streak"]){
+				//console.log(username+" resubscribed for "+userstate["msg-param-cumulative-months"]+" months with a streak of "+streakmonths+" months with message "+message);
+				//document.getElementById("Chatlog").innerHTML+="<br>"+username+" resubscribed for "+userstate["msg-param-cumulative-months"]+" months with a streak of "+streakmonths+" months with message "+message;
+			}else{
+				//console.log(username+" resubscribed for "+userstate["msg-param-cumulative-months"]+" months with message "+message);
+				//document.getElementById("Chatlog").innerHTML+="<br>"+username+" resubscribed for "+userstate["msg-param-cumulative-months"]+" months with message "+message;
+			}
+			AddEntry(1,"Resub von",userstate["color"],username);
+		});
+		client.on("giftpaidupgrade", (channel, username, sender, userstate) => {
+			// Do your stuff.
+			//console.log(username+" subscribed after the giftsub by "+sender);
+			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" subscribed after the giftsub by "+sender;
+			AddEntry(1,"Neuer Sub",userstate["color"],username);
+		});
+		client.on("anongiftpaidupgrade", (channel, username, userstate) => {
+			// Do your stuff.
+			//console.log(username+" subscribed after the giftsub of an anonymous gifter");
+			//document.getElementById("Chatlog").innerHTML+="<br>"+username+" subscribed after the giftsub of an anonymous gifter";
+			AddEntry(1,"Neuer Sub",userstate["color"],username);
+		});
+		client.on("cheer", (channel, userstate, message) => {
+			// Do your stuff.
+			//console.log(userstate["display-name"]+" cheered  "+userstate["bits"]+" bits with message "+message);
+			//document.getElementById("Chatlog").innerHTML+="<br>"+userstate["display-name"]+" cheered  "+userstate["bits"]+" bits with message "+message;
+			amount=Math.floor(userstate["bits"]/price);
+			AddEntry(amount,userstate["bits"]+" Bits von",userstate["color"],userstate["display-name"]);
+			/*userstate:
+"badge-info": Object { subscriber: "5" }​
+"badge-info-raw": "subscriber/5"​
+badges: Object { subscriber: "3", bits: "10000" }​
+"badges-raw": "subscriber/3,bits/10000"​
+bits: "200"​
+color: null​
+"display-name": "Xanthognarh"​
+emotes: null​
+"emotes-raw": null​
+"first-msg": false​
+flags: null​
+id: "6935468c-ae23-4242-95b8-4cf6ac954969"​
+"message-type": "chat"​
+mod: false​
+"returning-chatter": false​
+"room-id": "69"​
+subscriber: true​
+"tmi-sent-ts": "1727918556982"​
+turbo: false​
+"user-id": "42"​
+"user-type": null​
+username: "xanthognarh"	
+			*/
+		});
+	</script>
+</html>
