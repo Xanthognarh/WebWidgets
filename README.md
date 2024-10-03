@@ -39,3 +39,7 @@ Shows a list of Subs/Bits for future interaction. The usernames and
 - `!pick username message`: Mod command to send a message instead
 - `!AddUser username [amount]`: Add username to the queue, amount can be empty
 - `!RemoveUser username [Pos=0]`: Removes the pos-th entry of the given user
+
+### Feature Ideas
+- `!Purgeuser`: Remove all entries of this user
+- Sub Tiers have different value
