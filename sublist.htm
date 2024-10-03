@@ -126,23 +126,23 @@
 		
 		//Messages
 		client.on('message', (channel, userstate, message, self) => {
-			if (Userlist.indexOf(userstate['display-username'])!=-1 && message.substr(0,TalkbackCommand.length)==TalkbackCommand){
+			if (Userlist.indexOf(userstate['display-name'].toLowerCase())!=-1 && message.substr(0,TalkbackCommand.length)==TalkbackCommand){
 				//User in List, but maybe not in Table
-				AnswerEntry(userstate['display-name'],message.substr(0,maxTalkbacklength))
+				AnswerEntry(userstate['display-name'],message.substr(TalkbackCommand.length+1,maxTalkbacklength))
 			}else{
 				if (userstate.mod || userstate['display-name']=="Xanthognarh" || userstate['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
 					//Mods
 					switch (message.split(" ")[0].toLowerCase()){
-						case AddCommand://!Add Name Amount
+						case AddCommand://!AddUser Name Amount
 							if (message.split(" ").length==2){AddEntry("?","Mod","",message.split(" ")[1]);}
 							if (message.split(" ").length==3){AddEntry(message.split(" ")[2]*1,"Mod","",message.split(" ")[1]);}
 							break;
-						case RemoveCommand://!Remove Name Pos
+						case RemoveCommand://!RemoveUser Name Pos
 							if (message.split(" ").length==2){RemoveEntry(message.split(" ")[1]);}
 							if (message.split(" ").length==3){RemoveEntry(message.split(" ")[1],message.split(" ")[2]*1);}
 							break;
-						case TalkbackCommand://!Answer Name Message
-							if (message.split(" ").length==3){AnswerEntry(message.split(" ")[1],message.split(" ")[2]);}
+						case TalkbackCommand://!pick Name Message
+							if (message.split(" ").length>=3){AnswerEntry(message.split(" ")[1],message.substr((message.split(" ")[0]+"  "+message.split(" ")[1]).length));}
 							break;
 					}
 				}
