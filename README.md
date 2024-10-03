@@ -37,7 +37,7 @@ Shows a list of Subs/Bits for future interaction. The usernames and
 ### Chat Commands:
 - `!pick message`: Command for the person shown in table to send a Message
 - `!pick username message`: Mod command to send a message instead
-- `!AddUser username [amount]`: Add username to the queue, amount can be empty
+- `!AddUser username [amount][type]`: Add username to the queue, amount and type can be empty
 - `!RemoveUser username [Pos=0]`: Removes the pos-th entry of the given user
 
 ### Feature Ideas

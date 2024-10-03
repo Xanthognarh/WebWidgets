@@ -141,10 +141,13 @@
 				if (userstate.mod || userstate['display-name']=="Xanthognarh" || userstate['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
 					//Mods
 					switch (message.split(" ")[0].toLowerCase()){
-						case AddCommand://!AddUser Name Amount
+						case AddCommand://!AddUser Name Amount Type
 							if (message.split(" ").length==2){AddEntry("?","Mod","",message.split(" ")[1]);}
 							if (message.split(" ").length==3){AddEntry(message.split(" ")[2]*1,"Mod","",message.split(" ")[1]);}
-							if (message.split(" ").length>3){AddEntry(message.split(" ")[2]*1,message.substr((message.split(" ")[0]+"  "+message.split("  ")[1]+message.split(" ")[2]).length),"",message.split(" ")[1]);}
+							if (message.split(" ").length>3){AddEntry(	message.split(" ")[2]*1,
+																		message.substr((message.split(" ")[0]+"   "+message.split(" ")[1]+message.split(" ")[2]).length),
+																		"",
+																		message.split(" ")[1]);}
 							break;
 						case RemoveCommand://!RemoveUser Name Pos
 							if (message.split(" ").length==2){RemoveEntry(message.split(" ")[1]);}
