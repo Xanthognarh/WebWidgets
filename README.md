@@ -5,6 +5,7 @@ A collection of Tools for more interaction with your Twitch chat. The tools can 
 
 ## ChatSurvey
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a bar chart. Only the first number of each user is accepted until a new vote is started. 
+![Example Chart for a vote between a,b,c and d.](Examples/Xanthograph.png)
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
@@ -30,6 +31,7 @@ You can click on the plot to open/close the config editor or edit the values man
 
 ## Sublist
 Shows a list of Subs/Bits for future interaction. The listet users can display a message using `!pick message`. After a timeout or `!RemoveUser username` this entry is removed. If there are multiple entries of one user, only the first entry will be removed.
+![Example table of Subs](Examples/Xanthosub.png)
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
@@ -49,3 +51,4 @@ If you want a background-color add this custom CSS in OBS: `table{background-col
 ### Feature Ideas
 - `!Purgeuser`: Remove all entries of this user
 - Sub Tiers have different value
+- Localization
