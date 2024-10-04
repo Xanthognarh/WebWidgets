@@ -13,6 +13,7 @@
 		#Chatlog table td{
 			padding: 0.1em;
 			word-wrap: break-word;
+			
 		}
 		#Chatlog table th:nth-child(1){
 			width: 24px;
@@ -34,6 +35,9 @@
 		}
 		#Chatlog table td:nth-child(2){
 			text-align: right;
+		}
+		#Chatlog table td:nth-child(3){
+			text-shadow: 0px 0px 2px black;
 		}
 		.Username{
 			font-weight: bold;
@@ -71,10 +75,18 @@
 		maxTalkbacklength=siteURL.searchParams.get("maxmessage");
 		if (maxTalkbacklength==null){maxTalkbacklength=30}
 		maxTalkbacklength*=1;
+		showtype=siteURL.searchParams.get("showtype");
+		if (showtype==null){showtype=1}
+		if (showtype==0){
+			document.styleSheets[0].insertRule("#Chatlog table th:nth-child(2){display:none;}");
+			document.styleSheets[0].insertRule("#Chatlog table td:nth-child(2){display:none;}");
+		}
 		
 		TalkbackCommand="!pick";
 		AddCommand="!AddUser".toLowerCase();
 		RemoveCommand="!RemoveUser".toLowerCase();
+		ShowTypeCommand="!ShowType".toLowerCase();
+		HideTypeCommand="!HideType".toLowerCase();
 
 		queue=[];
 		Userlist=[];
@@ -160,6 +172,20 @@
 							break;
 						case TalkbackCommand://!pick Name Message
 							if (message.split(" ").length>=3){AnswerEntry(message.split(" ")[1],message.substr((message.split(" ")[0]+"  "+message.split(" ")[1]).length));}
+							break;
+						case ShowTypeCommand://!showtype
+							if (showtype==0){
+								showtype=1;
+								document.styleSheets[0].deleteRule(0);
+								document.styleSheets[0].deleteRule(0);
+							}
+							break;
+						case HideTypeCommand://!hidetype
+							if (showtype!=0){
+								showtype=0;
+								document.styleSheets[0].insertRule("#Chatlog table th:nth-child(2){display:none;}");
+								document.styleSheets[0].insertRule("#Chatlog table td:nth-child(2){display:none;}");
+							}
 							break;
 					}
 				}

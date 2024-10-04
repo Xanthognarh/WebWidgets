@@ -11,8 +11,8 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 - `channel`: Name of Twich Channel you want to listen
 - `min`: lowest accepted value for vote [default=1]
 - `max`: highest accepted value for vote [default=5]
-- `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1). Default is transparent (0,0,0,0)
-- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands.
+- `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: transparent (0,0,0,0)]
+- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default=0]
 
 You can click on the plot to open/close the config editor or edit the values manually. Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=Channelname&min=1&max=5&bg=50,70,100,0.3`
 
@@ -39,6 +39,7 @@ Shows a list of Subs/Bits for future interaction. The listet users can display a
 - `bitprice`: Amount of Bits that equals 1 [default=300]
 - `subprice`: Amount of Subs that equals 1 [default=1]
 - `maxmessage`: max length of Message to be displayed [default=30]
+- `showtype`: 0: Hide the column with the Sub/Resub/Bit 1: Show the column [default=1]
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/sublist.htm?channel=channelname&len=3` 
 If you want a background-color add this custom CSS in OBS: `table{background-color:rgba(255,255,255,0.4)}`
@@ -47,6 +48,8 @@ If you want a background-color add this custom CSS in OBS: `table{background-col
 - `!pick username message`: Mod command to send a message instead
 - `!AddUser username [amount][type]`: Add username to the queue, amount and type can be empty
 - `!RemoveUser username [Pos=0]`: Removes the pos-th entry of the given user
+- `!ShowType`: Shows the column with the Sub/Resub/Bit info
+- `!HideType`: Hides the column with the Sub/Resub/Bit info
 
 ### Feature Ideas
 - `!Purgeuser`: Remove all entries of this user
