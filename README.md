@@ -1,4 +1,8 @@
 # WebWidgets
+A collection of Tools for more interaction with your Twitch chat. The tools can be embedded very easily in OBS as a browser source. No login or account required.
+1. [ChatSurvey](#chatsurvey)
+2. [Sublist](#sublist)
+
 ## ChatSurvey
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a bar chart. Only the first number of each user is accepted until a new vote is started. 
 
@@ -34,6 +38,7 @@ Shows a list of Subs/Bits for future interaction. The listet users can display a
 - `subprice`: Amount of Subs that equals 1 [default=1]
 - `maxmessage`: max length of Message to be displayed [default=30]
 
+Embed the link like: `https://xanthognarh.github.io/WebWidgets/sublist.htm?channel=channelname&len=3` 
 If you want a background-color add this custom CSS in OBS: `table{background-color:rgba(255,255,255,0.4)}`
 ### Chat Commands:
 - `!pick message`: Command for the person shown in table to send a Message
