@@ -34,7 +34,7 @@ Shows a list of Subs/Bits for future interaction. The listet users can display a
 - `subprice`: Amount of Subs that equals 1 [default=1]
 - `maxmessage`: max length of Message to be displayed [default=30]
 
-If you want a background-color add this custom CSS in OBS: `table{background-color:rgba(0,0,0,0.2)}`
+If you want a background-color add this custom CSS in OBS: `table{background-color:rgba(255,255,255,0.4)}`
 ### Chat Commands:
 - `!pick message`: Command for the person shown in table to send a Message
 - `!pick username message`: Mod command to send a message instead

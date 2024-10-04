@@ -133,7 +133,7 @@
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
 			options: { debug: false },
-			channels: [ TwitchChannel, "Xanthognarh" ]
+			channels: [ TwitchChannel ]
 		});
 		client.connect().catch(console.error);
 		
