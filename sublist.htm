@@ -78,8 +78,8 @@
 		showtype=siteURL.searchParams.get("showtype");
 		if (showtype==null){showtype=1}
 		if (showtype==0){
-			document.styleSheets[0].insertRule("#Chatlog table th:nth-child(2){display:none;}");
-			document.styleSheets[0].insertRule("#Chatlog table td:nth-child(2){display:none;}");
+			document.styleSheets[0].insertRule("table th:nth-child(2){display:none;}");
+			document.styleSheets[0].insertRule("table td:nth-child(2){display:none;}");
 		}
 		
 		TalkbackCommand="!pick";
@@ -176,15 +176,25 @@
 						case ShowTypeCommand://!showtype
 							if (showtype==0){
 								showtype=1;
-								document.styleSheets[0].deleteRule(0);
-								document.styleSheets[0].deleteRule(0);
+								rules=document.styleSheets[0].rules;
+								for (var i=0;i<rules.length;i++){
+									if(rules[i].selectorText=="table td:nth-child(2)"){
+										document.styleSheets[0].deleteRule(i);
+									}
+								}
+								rules=document.styleSheets[0].rules;
+								for (var i=0;i<rules.length;i++){
+									if(rules[i].selectorText=="table th:nth-child(2)"){
+										document.styleSheets[0].deleteRule(i);
+									}
+								}
 							}
 							break;
 						case HideTypeCommand://!hidetype
 							if (showtype!=0){
 								showtype=0;
-								document.styleSheets[0].insertRule("#Chatlog table th:nth-child(2){display:none;}");
-								document.styleSheets[0].insertRule("#Chatlog table td:nth-child(2){display:none;}");
+								document.styleSheets[0].insertRule("table th:nth-child(2){display:none;}");
+								document.styleSheets[0].insertRule("table td:nth-child(2){display:none;}");
 							}
 							break;
 					}
