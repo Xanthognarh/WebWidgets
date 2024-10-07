@@ -262,6 +262,10 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 						break;
 					}
 				}
+				if (mode=="letter"){
+					mean=String.fromCharCode(Math.round(mean));
+					median=String.fromCharCode(Math.round(median));
+				}
 				document.getElementById("stats").innerHTML="<strong>Votes:</strong> "+sumvotes+"<strong> Median: </strong>"+median+"<strong> Mean: </strong>"+mean;
 				if (plottype=="diff"){
 					myChart.data.datasets[0].data=[diffvotes];
