@@ -247,8 +247,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 				votes[vote-min]+=1;
 				diffvotes+= vote*2-3;//1 2 -> 2 4 -> -1 1
 				sumvotes=votes.reduce((a,b)=>a+b);
-				mean=votes.reduce((acc,value,index)=>acc+value*(index+1))/votes.reduce((a,b)=>a+b);
-				mean=Math.round(mean*100)/100 + min-1;
+				mean=votes.reduce((acc,value,index)=>acc+value*(index+1))/votes.reduce((a,b)=>a+b) + min-1;
+				mean=mean.toFixed(2);
 				//Calculate Median
 				medianindex=(1+votes.reduce((a,b)=>a+b))/2;
 				var s=0;
@@ -279,7 +279,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 						diffvotes=0;
 						//Reset Userlist
 						Userlist=[];
-						document.getElementById("stats").innerHTML="";
+						document.getElementById("stats").innerHTML="<strong>Votes:</strong> - <strong> Median: </strong> - <strong> Mean: </strong> -";
 						
 						if (message.split(" ").length>1){
 							//Additional info?
