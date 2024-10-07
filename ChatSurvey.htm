@@ -48,10 +48,16 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		#config textarea{
 			min-width:80%;
 		}
+		#stats{
+			position:absolute;
+			bottom: -5%;
+			font-size: 5vh;
+		}
 	</style>
 	<body>
 		<div id="container" onClick="Toggle()">
-			<canvas id="plot"></canvas>
+			<canvas id="plot"></canvas><br>
+			<span id="stats"></span>
 		</div>		
 		<div id="config">
 			<form>
@@ -95,6 +101,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		if (hidden*1==1){document.getElementById("container").style.display="none"}
 		
 		votes=[];
+		diffvotes=0;
 		labels=[];
 		for (var i=0;i<=(max-min);i++){
 			votes.push(0);
@@ -103,6 +110,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		Userlist=[];
 		allowvoting=true;
 		mode="number";
+		plottype="x";//x-Axis, diff
 		
 		
 		function Toggle(){
@@ -128,7 +136,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		UpdateConfig();
 
 		Chart.register(ChartDataLabels);
-		alpha=0.4;
+		alpha=0.6;
 		const data = {
 		  labels: labels,
 		  datasets: [{
@@ -173,9 +181,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 
 						return {
 							weight: 'bold',
-							size: size
+							size: size,
+							
 						};
-					}
+					},
+					color: "black"
 				},
 				grid: {display: false}
 			  },
@@ -228,7 +238,26 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 			if (!Userlist.includes(user['display-name'])){
 				Userlist.push(user['display-name']);
 				votes[vote-min]+=1;
-				myChart.data.datasets[0].data=votes;
+				diffvotes+= vote*2-3;//1 2 -> 2 4 -> -1 1
+				sumvotes=votes.reduce((a,b)=>a+b);
+				mean=votes.reduce((acc,value,index)=>acc+value*(index+1))/votes.reduce((a,b)=>a+b);
+				mean=Math.round(mean*100)/100 + min-1;
+				//Calculate Median
+				medianindex=(1+votes.reduce((a,b)=>a+b))/2;
+				var s=0;
+				for (var i=0;i<votes.length;i++){
+					s+=votes[i];
+					if (s>=medianindex){
+						median=i +min;
+						break;
+					}
+				}
+				document.getElementById("stats").innerHTML="<strong>Votes:</strong> "+sumvotes+"<strong> Median: </strong>"+median+"<strong> Mean: </strong>"+mean;
+				if (plottype=="diff"){
+					myChart.data.datasets[0].data=[diffvotes];
+				}else{
+					myChart.data.datasets[0].data=votes;
+				}
 				myChart.update();
 			}			
 		}else{
@@ -240,14 +269,16 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 						for (var i=0;i<=(max-min);i++){
 							votes[i]=0;
 						}
+						diffvotes=0;
 						//Reset Userlist
 						Userlist=[];
+						document.getElementById("stats").innerHTML="";
 						
 						if (message.split(" ").length>1){
 							//Additional info?
 							werte=message.split(" ")[1].split("-");
 							switch (werte.length){
-								case 2:
+								case 2://!newvote ???-???
 									if (werte[0]!=""){
 										min=werte[0]*1;
 										if (isNaN(min)){
@@ -263,13 +294,13 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 										}
 									}
 									break;
-								case 3:
+								case 3://!newvote -???-???
 									if (werte[0]==""){//First is negative
 										if (werte[1]!=""){min=werte[1]*-1}
 										if (werte[2]!=""){max=werte[2]*1}
 									}//Else not valid (min>max or min--max)
 									break;
-								case 4:
+								case 4://!newvote -???--???
 									if (werte[0]==""){//First is negative
 										if (werte[1]!=""){min=werte[1]*-1}
 										if (werte[3]!="" && werte[2]==""){max=werte[3]*-1}
@@ -288,12 +319,28 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 								}
 							}
 						}
+						
+						if (plottype=="diff"){
+							myChart.data.datasets[0].data=[diffvotes];
+							myChart.config.options.indexAxis="y";
+							myChart.config.options.scales.y.display=true;
+							myChart.config.options.scales.y.beginAtZero=false;
+						}else{
+							myChart.data.datasets[0].data=votes;
+							myChart.config.options.indexAxis="x";
+							myChart.config.options.scales.y.display=false; 
+							myChart.config.options.scales.y.beginAtZero=true;
+						}
+						
+						
+						
 						myChart.data.datasets[0].data=votes;
 						myChart.config.data.labels=labels;
 						myChart.update();
 						allowvoting=true;
 						document.getElementById("container").style.display="flex";
 						break;
+						
 					case HideVoteCommand:
 						document.getElementById("container").style.display="none";
 						break;
