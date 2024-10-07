@@ -23,11 +23,15 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		#plot{
 			width: 100%;
 			height: 100%;
-			background-color:lightblue;
+			background-color:rgba(0,0,0,0);
 		}
 		#container{
-			position:relative;
-			min-height:auto;
+			position:absolute;
+			height:100%;
+			width:100%;
+		}
+		#plotcontainer{
+			max-height:95%;
 			width:100%;
 			display: flex;
 			flex-grow:1;
@@ -50,14 +54,16 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		}
 		#stats{
 			position:absolute;
-			bottom: -5%;
 			font-size: 5vh;
+			width: 100%;
 		}
 	</style>
 	<body>
 		<div id="container" onClick="Toggle()">
-			<canvas id="plot"></canvas><br>
-			<span id="stats"></span>
+			<div id="plotcontainer">
+				<canvas id="plot"></canvas>
+			</div>
+			<div id="stats"></div>
 		</div>		
 		<div id="config">
 			<form>
@@ -96,7 +102,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		if (max<min){tmp=max;max=min;min=tmp;}
 		bg=siteURL.searchParams.get("bg");
 		if (bg==null){bg="255,255,255,1"}
-		document.getElementById("plot").style.backgroundColor="rgba("+bg+")";
+		document.getElementById("plotcontainer").style.backgroundColor="rgba("+bg+")";
+		document.getElementById("stats").style.backgroundColor="rgba("+bg+")";
 		hidden=siteURL.searchParams.get("hidden");
 		if (hidden*1==1){document.getElementById("container").style.display="none"}
 		
