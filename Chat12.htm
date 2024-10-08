@@ -174,8 +174,10 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						document.getElementById("plot").style.visibility = "hidden";
 						hidden=true;
 						clearInterval(VotingTimer);
+						break;
 					case HideVoteCommand:
 						ongoingvoting=false;
+						break;
 				}
 			}
 			
