@@ -172,6 +172,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 					case StartNewVoteCommand:
 						ongoingvoting=true;
 						document.getElementById("plot").style.visibility = "hidden";
+						hidden=true;
+						clearInterval(VotingTimer);
 					case HideVoteCommand:
 						ongoingvoting=false;
 				}
