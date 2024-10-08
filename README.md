@@ -36,8 +36,8 @@ Reads the chat of a Twitch channel and interprets the messages "1" and "2" as vo
 ### Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
 - `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
-- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
-- `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (29,105,253,1)]
+- `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: pink (217,1,177,1)]
 
 You can click on the plot to open/close the config editor or edit the values manually. Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=Channelname&to=10`
 
