@@ -83,14 +83,17 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		if (stats==null){stats="0"}
 		if (stats=="0"){document.getElementById("t1").style.display="None";document.getElementById("t2").style.display="None";}
 		fontsize=siteURL.searchParams.get("fontsize");
-		if (fontsize==null || fontsize*1<=0 || fontsize*1>100){fontsize=50}
+		if (fontsize==null){fontsize=50;}
 		fontsize*=1;
+		if (fontsize*1<=0 || fontsize*1>100){fontsize=50;}
 		if (fontsize>50){
 			document.getElementById("t1").style.lineHeight="100vh";
 			document.getElementById("t1").style.height="100%";
 			document.getElementById("t2").style.lineHeight="100vh";
 			document.getElementById("t2").style.height="100%";
 		}
+		document.getElementById("t1").style.fontSize=fontsize+"vh";
+		document.getElementById("t2").style.fontSize=fontsize+"vh";
 		
 		votes=[0,0];
 		labels=[];
