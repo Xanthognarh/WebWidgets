@@ -38,7 +38,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		}
 		#t1{
 			position:absolute;
-			font-size: 50vmin;
+			font-size: 50vh;
 			left:0;
 			top:0;
 			text-align:left;
@@ -47,7 +47,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		}
 		#t2{
 			position:absolute;
-			font-size: 50vmin;
+			font-size: 50vh;
 			right:0;
 			bottom:0;
 			text-align:right;
@@ -82,6 +82,15 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		stats=siteURL.searchParams.get("stats");
 		if (stats==null){stats="0"}
 		if (stats=="0"){document.getElementById("t1").style.display="None";document.getElementById("t2").style.display="None";}
+		fontsize=siteURL.searchParams.get("fontsize");
+		if (fontsize==null || fontsize*1<=0 || fontsize*1>100){fontsize=50}
+		fontsize*=1;
+		if (fontsize>50){
+			document.getElementById("t1").style.lineHeight="100vh";
+			document.getElementById("t1").style.height="100%";
+			document.getElementById("t2").style.lineHeight="100vh";
+			document.getElementById("t2").style.height="100%";
+		}
 		
 		votes=[0,0];
 		labels=[];
