@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<!--
+Config via URL-Parameters:
+- `channel`: Name of Twich Channel you want to listen
+- `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
+- `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
+use them like: Chatsurvey.htm?channel=Testchannel&to=10
+-->
+<html>
+	<header>
+		<title>Xanthobar</title>
+	</header>
+	<script src="Scripts/tmi.min.js"></script>
+	<style>
+		body{
+			margin:0;
+		}
+		#plot{
+			width: 100%;
+			height: 100%;
+			position: absolute;
+		}
+		#middle{
+			width: 0.5%;
+			height: 100%;
+			position: absolute;
+			left: 49.75%;
+			background-color: rgba(0,0,0,0.8);
+		}
+		#bar{
+			background-color: green;
+			height: 100%;
+			width: 50%;
+			position: absolute;
+			left: 0px;
+		}
+	</style>
+	<body>
+		<div id="plot">
+			<div id="bar"></div>
+			<div id="middle"></div>
+		</div>
+	</body>
+	<script>
+		DisableCommand="!disablevote";
+		EnableCommand="!enablevote";
+		ResetCommand="!resetvote";
+	
+		siteURL=new URL(window.location);
+		TwitchChannel=siteURL.searchParams.get("channel");
+		timeout=siteURL.searchParams.get("to");
+		if (timeout==null){timeout=30;}
+		timeout*=1;
+		c1=siteURL.searchParams.get("c1");
+		if (c1==null){c1="0,20,63,1"}
+		document.getElementById("bar").style.backgroundColor="rgba("+c1+")";
+		c2=siteURL.searchParams.get("c2");
+		if (c2==null){c2="173,239,209,1"}
+		document.getElementById("plot").style.backgroundColor="rgba("+c2+")";
+		
+		votes=[0,0];
+		labels=[];
+
+		Userlist=[];
+		lastvote=Date.now();
+		allowvoting=true;
+		hidden=false;
+		
+		function checkEndVoting(){
+			//console.log("checkEndVoting: "+(Date.now()-lastvote)/1000+" s");
+			if (Date.now()-lastvote > timeout*1e3){
+				//No new votes - hide voting and Reset
+				votes=[0,0];
+				Userlist=[];
+				document.getElementById("plot").style.visibility = "hidden";
+				hidden=true;
+				clearInterval(VotingTimer);
+			}
+		}
+		VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
+		
+		//Connect to Twitchchat:
+		const client = new tmi.Client({
+			options: { debug: false },
+			channels: [ TwitchChannel ]
+		});
+		client.connect().catch(console.error);
+		client.on('message', (channel, user, message, self) => {
+		// "Alca: Hello, World!"
+		vote=Math.round(message.replace(",",".")*1);
+		if (allowvoting && (vote == 1 || vote == 2)){
+			//Message is a valid vote format
+			if (!Userlist.includes(user['display-name'])){
+				//Userlist.push(user['display-name']);
+				votes[vote-1]+=1;
+				width=votes[0]/(votes[1]+votes[0])*100;
+				document.getElementById("bar").style.width=width+"%";
+				if (hidden){
+					document.getElementById("plot").style.visibility = "visible";
+					VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
+					hidden=false;
+				}
+				lastvote=Date.now();
+			}
+		}else{
+			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
+				//Authorised Users
+				switch (message.split(" ")[0]){
+					case EnableCommand:
+						document.getElementById("plot").style.visibility = "visible";
+						allowvoting=true;
+						hidden=false;
+						VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
+						break;
+					case DisableCommand:
+						allowvoting=false;
+						document.getElementById("plot").style.visibility = "hidden";
+						clearInterval(VotingTimer);
+						//No break
+					case ResetCommand:
+						//Reset Votes
+						votes=[0,0];
+						//Reset Userlist
+						Userlist=[];
+						document.getElementById("bar").style.width="50%";
+						break;
+				}
+			}
+			
+		}
+		//console.log(`${user['display-name']}: ${message}`);
+	});
+	</script>
+</html>

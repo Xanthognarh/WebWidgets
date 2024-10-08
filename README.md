@@ -29,6 +29,22 @@ You can click on the plot to open/close the config editor or edit the values man
 ### Feature Ideas
 - `!vote Text` e.g. Names
 
+## Chat12
+Reads the chat of a Twitch channel and interprets the messages "1" and "2" as votes. The voting result is displayed as a bar with a marker at the center. Only the first number of each user is accepted until a new vote is started. After a given time the votes are resetted and the bar hidden. A new vote is automatically triggerd by new voting messages in chat.
+
+### Config via URL-Parameters:
+- `channel`: Name of Twich Channel you want to listen
+- `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
+- `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
+
+You can click on the plot to open/close the config editor or edit the values manually. Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=Channelname&to=10`
+
+### Chat Commands:
+- `!resetvote`: Resets votes and user blocklist
+- `!disablevote`: Disables new votes and hide the bar
+- `!enablevote`: Allows new votes
+
 ## Sublist
 Shows a list of Subs/Bits for future interaction. The listet users can display a message using `!pick message`. After a timeout or `!RemoveUser username` this entry is removed. If there are multiple entries of one user, only the first entry will be removed.
 ![Example table of Subs](Examples/Xanthosub.png)

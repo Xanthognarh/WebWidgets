@@ -259,6 +259,9 @@
 			if (amount>0){
 				AddEntry(amount,userstate["bits"]+" Bits",userstate["color"],userstate["display-name"]);
 			}
+		client.on("disconnected", (reason) => {
+			console.log("Disconnected from Twitch! Reason: "+reason);
+		});
 			
 			/*userstate:
 "badge-info": Object { subscriber: "5" }​
