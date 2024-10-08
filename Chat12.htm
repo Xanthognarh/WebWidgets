@@ -92,7 +92,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		if (allowvoting && (vote == 1 || vote == 2)){
 			//Message is a valid vote format
 			if (!Userlist.includes(user['display-name'])){
-				//Userlist.push(user['display-name']);
+				Userlist.push(user['display-name']);
 				votes[vote-1]+=1;
 				width=votes[0]/(votes[1]+votes[0])*100;
 				document.getElementById("bar").style.width=width+"%";

@@ -1,7 +1,8 @@
 # WebWidgets
 A collection of Tools for more interaction with your Twitch chat. The tools can be embedded very easily in OBS as a browser source. No login or account required.
 1. [ChatSurvey](#chatsurvey)
-2. [Sublist](#sublist)
+2. [Chat12](#chat12)
+3. [Sublist](#sublist)
 
 ## ChatSurvey
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a bar chart. Only the first number of each user is accepted until a new vote is started. 
