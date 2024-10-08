@@ -173,6 +173,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						ongoingvoting=true;
 						document.getElementById("plot").style.visibility = "hidden";
 						hidden=true;
+						votes=[0,0];
+						Userlist=[];
 						clearInterval(VotingTimer);
 						break;
 					case HideVoteCommand:
