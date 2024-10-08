@@ -5,6 +5,7 @@ Config via URL-Parameters:
 - `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
 - `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
+- `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
 use them like: Chatsurvey.htm?channel=Testchannel&to=10
 -->
 <html>
@@ -35,11 +36,31 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 			position: absolute;
 			left: 0px;
 		}
+		#t1{
+			position:absolute;
+			font-size: 50vmin;
+			left:0;
+			top:0;
+			text-align:left;
+			font-family: Tahoma, Verdana, Sans-serif;
+			/*line-height: 100vh;*/
+		}
+		#t2{
+			position:absolute;
+			font-size: 50vmin;
+			right:0;
+			bottom:0;
+			text-align:right;
+			font-family: Tahoma, Verdana, Sans-serif;
+			/*line-height: 100vh;*/
+		}
 	</style>
 	<body>
 		<div id="plot">
 			<div id="bar"></div>
 			<div id="middle"></div>
+			<div id="t1"></div>
+			<div id="t2"></div>
 		</div>
 	</body>
 	<script>
@@ -58,6 +79,9 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		c2=siteURL.searchParams.get("c2");
 		if (c2==null){c2="217,1,177,1"}
 		document.getElementById("plot").style.backgroundColor="rgba("+c2+")";
+		stats=siteURL.searchParams.get("stats");
+		if (stats==null){stats="0"}
+		if (stats=="0"){document.getElementById("t1").style.display="None";document.getElementById("t2").style.display="None";}
 		
 		votes=[0,0];
 		labels=[];
@@ -96,6 +120,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				votes[vote-1]+=1;
 				width=votes[0]/(votes[1]+votes[0])*100;
 				document.getElementById("bar").style.width=width+"%";
+				document.getElementById("t1").innerText=votes[0];
+				document.getElementById("t2").innerText=votes[1];
 				if (hidden){
 					document.getElementById("plot").style.visibility = "visible";
 					VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
