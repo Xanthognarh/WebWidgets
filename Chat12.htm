@@ -69,6 +69,9 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		DisableCommand="!disablevote";
 		EnableCommand="!enablevote";
 		ResetCommand="!resetvote";
+		
+		StartNewVoteCommand="!newvote";
+		HideVoteCommand="!hidevote";
 	
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel");
@@ -103,6 +106,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		Userlist=[];
 		lastvote=Date.now();
 		allowvoting=true;
+		ongoingvoting=false;
 		hidden=false;
 		
 		function checkEndVoting(){
@@ -127,7 +131,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		client.on('message', (channel, user, message, self) => {
 		// "Alca: Hello, World!"
 		vote=Math.round(message.replace(",",".")*1);
-		if (allowvoting && (vote == 1 || vote == 2)){
+		if (allowvoting && !(ongoingvoting) && (vote == 1 || vote == 2)){
 			//Message is a valid vote format
 			if (!Userlist.includes(user['display-name'])){
 				Userlist.push(user['display-name']);
@@ -165,6 +169,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						Userlist=[];
 						document.getElementById("bar").style.width="50%";
 						break;
+					case StartNewVoteCommand:
+						ongoingvoting=true;
+						document.getElementById("plot").style.visibility = "hidden";
+					case HideVoteCommand:
+						ongoingvoting=false;
 				}
 			}
 			

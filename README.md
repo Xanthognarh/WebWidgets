@@ -48,6 +48,8 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channe
 - `!disablevote`: Disables new votes and hide the bar
 - `!enablevote`: Allows new votes
 
+The bar is invisible during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
+
 ## Sublist
 Shows a list of Subs/Bits for future interaction. The listet users can display a message using `!pick message`. After a timeout or `!RemoveUser username` this entry is removed. If there are multiple entries of one user, only the first entry will be removed.
 ![Example table of Subs](Examples/Xanthosub.png)
