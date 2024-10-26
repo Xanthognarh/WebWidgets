@@ -78,6 +78,9 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		timeout=siteURL.searchParams.get("to");
 		if (timeout==null){timeout=30;}
 		timeout*=1;
+		minvotes=siteURL.searchParams.get("minvotes");
+		if (minvotes==null){minvotes=3;}
+		minvotes*=1;
 		c1=siteURL.searchParams.get("c1");
 		if (c1==null){c1="29,105,253,1"}
 		document.getElementById("bar").style.backgroundColor="rgba("+c1+")";
@@ -106,7 +109,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		Userlist=[];
 		lastvote=Date.now();
 		allowvoting=true;
-		ongoingvoting=false;
+		ongoingvoting=false;//Disable xanthobar while ongoing xanthograph voting
+		CheckIntervalActive=false;
 		hidden=false;
 		
 		function checkEndVoting(){
@@ -117,6 +121,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				Userlist=[];
 				document.getElementById("plot").style.visibility = "hidden";
 				hidden=true;
+				CheckIntervalActive=false;
 				clearInterval(VotingTimer);
 			}
 		}
@@ -140,9 +145,12 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				document.getElementById("bar").style.width=width+"%";
 				document.getElementById("t1").innerText=votes[0];
 				document.getElementById("t2").innerText=votes[1];
-				if (hidden){
-					document.getElementById("plot").style.visibility = "visible";
+				if (CheckIntervalActive==false){
+					CheckIntervalActive=true;
 					VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
+				}
+				if (hidden && (votes[0]+votes[1]>=minvotes)){
+					document.getElementById("plot").style.visibility = "visible";
 					hidden=false;
 				}
 				lastvote=Date.now();
@@ -160,6 +168,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 					case DisableCommand:
 						allowvoting=false;
 						document.getElementById("plot").style.visibility = "hidden";
+						CheckIntervalActive=false;
 						clearInterval(VotingTimer);
 						//No break
 					case ResetCommand:
@@ -173,6 +182,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						ongoingvoting=true;
 						document.getElementById("plot").style.visibility = "hidden";
 						hidden=true;
+						CheckIntervalActive=false;
 						votes=[0,0];
 						Userlist=[];
 						clearInterval(VotingTimer);
