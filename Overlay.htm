@@ -16,19 +16,31 @@ use them like: Overlay.htm?channel=Testchannel
 			margin:0;
 		}
 		#Overlay{
-			width: 100%;
-			height: 100%;
-			position: absolute;
+			font-size: 20pt;
+			margin:2%;
+		}
+		#All{
+			width:100%;
+			height:100%;
+			position:absolute;
+			display:flex;
+			align-items:center;
 		}
 	</style>
 	<body>
+		<div id="All">
 		<div id="Overlay">
+			<table id="Table">
+			</table>
+		</div>
 		</div>
 	</body>
 	<script>
 		ShowOverlay="!showoverlay";
 		HideOverlay="!hideoverlay";
 		SetOverlay="!overlay";
+		SetPos="!overlaypos";
+		SetScale="!overlayscale";
 		
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel");
@@ -50,7 +62,6 @@ use them like: Overlay.htm?channel=Testchannel
 		client.connect().catch(console.error);
 		client.on('message', (channel, user, message, self) => {
 		// "Alca: Hello, World!"
-		vote=Math.round(message.replace(",",".")*1);
 		if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
 			//Authorised Users
 			switch (message.split(" ")[0]){
@@ -63,8 +74,106 @@ use them like: Overlay.htm?channel=Testchannel
 					hidden=true;
 					break;
 				case SetOverlay:
+					document.getElementById("Overlay").style.visibility = "visible";
+					hidden=false;
 					text=message.substr(SetOverlay.length +1);
-					Overlay.innerHTML=text;
+					document.getElementById("Table").innerText=text;
+					text=document.getElementById("Table").innerText;
+					html = "<tr><td>"+text.replaceAll("|","</td><td>").replaceAll("\\","</td></tr><tr><td>")+"</td></tr>";
+					document.getElementById("Table").innerHTML=html;
+					//document.getElementById("Table").deleteRow(-1);
+					break;
+				case SetPos:
+					text=message.substr(SetPos.length +1).trim();
+					pos=document.getElementById("Overlay").style;
+					
+					offsety=text.split(" ")[1]*1;
+					offsetx=text.split(" ")[2]*1;
+					if (isNaN(offsety)){offsety=0;}
+					if (isNaN(offsetx)){offsetx=0;}
+					console.log("Set Pos, ox="+offsetx+" and oy="+offsety+" | Pos="+text[0]);
+					margin="2%";
+					switch (text[0]*1){
+						case 7:
+							All.style.alignItems="flex-start";
+							All.style.justifyContent="flex-start";
+							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+							Overlay.style.marginRight=margin;
+							Overlay.style.marginBottom=margin;
+							break;
+						case 8:
+							All.style.alignItems="flex-start";
+							All.style.justifyContent="center";
+							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+							Overlay.style.marginRight=margin;
+							Overlay.style.marginBottom=margin;
+							break;
+						case 9:
+							All.style.alignItems="flex-start";
+							All.style.justifyContent="flex-end";
+							Overlay.style.marginLeft=margin;
+							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+							Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+							Overlay.style.marginBottom=margin;
+							break;
+							
+						case 4:
+							All.style.alignItems="center";
+							All.style.justifyContent="flex-start";
+							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+							Overlay.style.marginRight=margin;
+							Overlay.style.marginBottom=margin;
+							break;
+						case 5:
+							All.style.alignItems="center";
+							All.style.justifyContent="center";
+							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+							Overlay.style.marginRight=margin;
+							Overlay.style.marginBottom=margin;
+							break;
+						case 6:
+							All.style.alignItems="center";
+							All.style.justifyContent="flex-end";
+							Overlay.style.marginLeft=margin;
+							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+							Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+							Overlay.style.marginBottom=margin;
+							break;
+						
+						case 1:
+							All.style.alignItems="flex-end";
+							All.style.justifyContent="flex-start";
+							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+							Overlay.style.marginTop=margin;
+							Overlay.style.marginRight=margin;
+							Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+							break;
+						case 2:
+							All.style.alignItems="flex-end";
+							All.style.justifyContent="center";
+							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+							Overlay.style.marginTop=margin;
+							Overlay.style.marginRight=margin;
+							Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+							break;
+						case 3:
+							All.style.alignItems="flex-end";
+							All.style.justifyContent="flex-end";
+							Overlay.style.marginLeft=margin;
+							Overlay.style.marginTop=margin;
+							Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+							Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+							break;
+					}
+					break;
+				case SetScale:
+					scale=message.substr(SetScale.length +1)*1;
+					if (isNaN(scale)){scale=1;}
+					Overlay.style.scale=scale;
 					break;
 			}
 		}

@@ -77,3 +77,20 @@ If you want a background-color add this custom CSS in OBS: `table{background-col
 - `!Purgeuser`: Remove all entries of this user
 - Sub Tiers have different value
 - Localization
+
+## Overlay
+Shows an overlay with custom text at a custom position. Set the browser source to fullscreen.
+
+### Config via URL-Parameters:
+- `channel`: Name of Twitch Channel you want to listen
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white (200,200,200,0.4)]
+- `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+
+Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?channel=Channelname`
+
+### Chat Commands:
+- `!overlay Content`: Display an overlay with the content
+- `!showoverlay`: Shows the overlay
+- `!hideoverlay`: Hides the overlay
+- `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Numpad) and optionally offset by the given values
+- `!overlayscale scale`: Scale the overlay [default: 1]
