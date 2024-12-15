@@ -3,6 +3,7 @@ A collection of Tools for more interaction with your Twitch chat. The tools can 
 1. [ChatSurvey](#chatsurvey)
 2. [Chat12](#chat12)
 3. [Sublist](#sublist)
+4. [Overlay](#overlay)
 
 ## ChatSurvey
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a bar chart. Only the first number of each user is accepted until a new vote is started. 
@@ -79,7 +80,7 @@ If you want a background-color add this custom CSS in OBS: `table{background-col
 - Localization
 
 ## Overlay
-Shows an overlay with custom text at a custom position. Set the browser source to fullscreen.
+Allows mods to display an overlay with custom text at a custom position. Set the browser source to fullscreen.
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel you want to listen
@@ -94,3 +95,6 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 - `!hideoverlay`: Hides the overlay
 - `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Numpad) and optionally offset by the given values
 - `!overlayscale scale`: Scale the overlay [default: 1]
+- `!overlaycolor background [font]`: Set the color using CSS Color values e. g. #RRGGBBAA #RRGGBB rgba(255,255,255,1) blue
+
+You can create a table by using "|" to divide the cells and "\" for a new row.

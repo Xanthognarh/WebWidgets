@@ -41,6 +41,7 @@ use them like: Overlay.htm?channel=Testchannel
 		SetOverlay="!overlay";
 		SetPos="!overlaypos";
 		SetScale="!overlayscale";
+		SetColor="!overlaycolor";
 		
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel");
@@ -174,6 +175,16 @@ use them like: Overlay.htm?channel=Testchannel
 					scale=message.substr(SetScale.length +1)*1;
 					if (isNaN(scale)){scale=1;}
 					Overlay.style.scale=scale;
+					break;
+				case SetColor:
+					color1=message.substr(SetColor.length +1).split(" ")[0];
+					color2=message.substr(SetColor.length +1).split(" ")[1];
+					if (color1!="-"){
+						Overlay.style.backgroundColor=color1;
+					}
+					if (color2!="-" && color2!=undefined){
+						Overlay.style.color=color2;
+					}
 					break;
 			}
 		}
