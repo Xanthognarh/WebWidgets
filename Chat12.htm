@@ -3,6 +3,7 @@
 Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
 - `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
+- `minvotes`: Min votes to show the bar
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
 - `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
 - `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
@@ -141,6 +142,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 			if (!Userlist.includes(user['display-name'])){
 				Userlist.push(user['display-name']);
 				votes[vote-1]+=1;
+				lastvote=Date.now();
 				width=votes[0]/(votes[1]+votes[0])*100;
 				document.getElementById("bar").style.width=width+"%";
 				document.getElementById("t1").innerText=votes[0];
@@ -153,7 +155,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 					document.getElementById("plot").style.visibility = "visible";
 					hidden=false;
 				}
-				lastvote=Date.now();
+				
 			}
 		}else{
 			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){

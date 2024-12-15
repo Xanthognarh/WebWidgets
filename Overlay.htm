@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--
+Config via URL-Parameters:
+- `channel`: Name of Twich Channel you want to listen
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white (200,200,200,0.4)]
+- `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+use them like: Overlay.htm?channel=Testchannel
+-->
+<html>
+	<header>
+		<title>Xanthoview</title>
+	</header>
+	<script src="Scripts/tmi.min.js"></script>
+	<style>
+		body{
+			margin:0;
+		}
+		#Overlay{
+			width: 100%;
+			height: 100%;
+			position: absolute;
+		}
+	</style>
+	<body>
+		<div id="Overlay">
+		</div>
+	</body>
+	<script>
+		ShowOverlay="!showoverlay";
+		HideOverlay="!hideoverlay";
+		SetOverlay="!overlay";
+		
+		siteURL=new URL(window.location);
+		TwitchChannel=siteURL.searchParams.get("channel");
+		
+		c1=siteURL.searchParams.get("c1");
+		if (c1==null){c1="200,200,200,0.4"}
+		document.getElementById("Overlay").style.backgroundColor="rgba("+c1+")";
+		c2=siteURL.searchParams.get("c2");
+		if (c2==null){c2="0,0,0,1"}
+		document.getElementById("Overlay").style.Color="rgba("+c2+")";
+		
+		hidden=false;
+		
+		//Connect to Twitchchat:
+		const client = new tmi.Client({
+			options: { debug: false },
+			channels: [ TwitchChannel ]
+		});
+		client.connect().catch(console.error);
+		client.on('message', (channel, user, message, self) => {
+		// "Alca: Hello, World!"
+		vote=Math.round(message.replace(",",".")*1);
+		if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
+			//Authorised Users
+			switch (message.split(" ")[0]){
+				case ShowOverlay:
+					document.getElementById("Overlay").style.visibility = "visible";
+					hidden=false;
+					break;
+				case HideOverlay:
+					document.getElementById("Overlay").style.visibility = "hidden";
+					hidden=true;
+					break;
+				case SetOverlay:
+					text=message.substr(SetOverlay.length +1);
+					Overlay.innerHTML=text;
+					break;
+			}
+		}
+		//console.log(`${user['display-name']}: ${message}`);
+	});
+	</script>
+</html>
