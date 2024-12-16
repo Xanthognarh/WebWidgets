@@ -112,3 +112,4 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 ["Helvetica","'Times New Roman'","'Segoe UI'","'Courier New'","'Brush Script MT'","'Papyrus'"]
 
 You can create a table by using "|" to divide the cells and "\\" for a new row. Start Text with "!!" to span the cell over the row.
+Twitch Emotes are possible.
