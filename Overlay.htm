@@ -60,6 +60,13 @@ use them like: Overlay.htm?channel=Testchannel
 		c2=siteURL.searchParams.get("c2");
 		if (c2==null){c2="255,255,255,1"}
 		document.getElementById("Overlay").style.color="rgba("+c2+")";
+		font=siteURL.searchParams.get("font");
+		if (font==null){font="Helvetica"}
+		if (!isNaN(font*1)){
+			font=fontlist[font*1 -1];
+		}
+		Overlay.style.fontFamily=font+", Helvetica, sans-serif";
+		
 		
 		hidden=false;
 		
@@ -101,7 +108,6 @@ use them like: Overlay.htm?channel=Testchannel
 					offsetx=text.split(" ")[2]*1;
 					if (isNaN(offsety)){offsety=0;}
 					if (isNaN(offsetx)){offsetx=0;}
-					console.log("Set Pos, ox="+offsetx+" and oy="+offsety+" | Pos="+text[0]);
 					margin="2%";
 					switch (text[0]*1){
 						case 7:
@@ -209,7 +215,6 @@ use them like: Overlay.htm?channel=Testchannel
 						font=fontlist[font*1 -1];
 					}
 					Overlay.style.fontFamily=font+", Helvetica, sans-serif";
-					console.log("Font "+message.substr(SetFont.length +1)+" wird zu "+font);
 					break;
 			}
 		}

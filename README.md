@@ -96,6 +96,7 @@ Allows mods to display an overlay with custom text at a custom position. Set the
 - `channel`: Name of Twitch Channel you want to listen
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: black (0,0,0,0.7)]
 - `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
+- `font`: see below 
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?channel=Channelname&c1=0,0,0,0.7&c2=255,255,255,1`
 
