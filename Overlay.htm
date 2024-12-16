@@ -31,6 +31,13 @@ use them like: Overlay.htm?channel=Testchannel
 		td{
 			padding:5px;
 		}
+		img{
+			height:1.5em;
+		}
+		#test{
+			visibility:hidden;
+			font-size: 20pt;
+		}
 	</style>
 	<body>
 		<div id="All">
@@ -38,6 +45,9 @@ use them like: Overlay.htm?channel=Testchannel
 			<table id="Table">
 			</table>
 		</div>
+		</div>
+		<div id="test">
+			ABCDEFGHIJKLMNOPQRSTUVWXYZ-1234567890
 		</div>
 	</body>
 	<script>
@@ -66,10 +76,43 @@ use them like: Overlay.htm?channel=Testchannel
 			font=fontlist[font*1 -1];
 		}
 		Overlay.style.fontFamily=font+", Helvetica, sans-serif";
+		test.style.fontFamily=font+", Helvetica, sans-serif";
+		
+		
+		
+		function replaceEmotes(message,emotesRaw){
+			console.log(message+"\n"+emotesRaw);
+			emotes=emotesRaw.split("/");
+			emotearray=[];
+			for (emote of emotes){
+				url=emote.split(":")[0];
+				posa=emote.split(":")[1].split("-")[0]*1;
+				posb=emote.split(":")[1].split("-")[1]*1;
+				emotearray.push([posa,posb,url]);
+			}
+			//Sort emotes, because they are random in tmi
+			emotearray = emotearray.sort((a, b) => a[0] - b[0]);
+			emotearray.reverse();
+			for (emote of emotearray){
+				//https://static-cdn.jtvnw.net/emoticons/v2/{url}/default/light/3.0
+				message=message.substring(0,emote[0])+"<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+emote[2]+"/default/light/3.0'>"+message.substring(emote[1]+1);
+				console.log(message);
+			}
+			return message;			
+		}
+		function AdjustImageHeight(){
+			height=document.getElementById("test").clientHeight;
+			imgs = document.getElementsByTagName('img');
+			for (var i = 0; i < imgs.length; i++) {
+			  var element = imgs[i];
+			  element.style.height = height+"px";
+			}
+		}
+		AdjustImageHeight();
 		
 		
 		hidden=false;
-		
+		lastmessage="";
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
 			options: { debug: false },
@@ -78,6 +121,9 @@ use them like: Overlay.htm?channel=Testchannel
 		client.connect().catch(console.error);
 		client.on('message', (channel, user, message, self) => {
 		// "Alca: Hello, World!"
+		//console.log(`${user['display-name']}: ${message}`);
+
+		lastmessage=user;
 		if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
 			//Authorised Users
 			switch (message.split(" ")[0]){
@@ -92,11 +138,17 @@ use them like: Overlay.htm?channel=Testchannel
 				case SetOverlay:
 					document.getElementById("Overlay").style.visibility = "visible";
 					hidden=false;
-					text=message.substr(SetOverlay.length +1);
+					text=replaceEmotes(message,user["emotes-raw"]);
+					text=text.substr(SetOverlay.length +1);
+					
 					document.getElementById("Table").innerText=text;
-					text=document.getElementById("Table").innerText;
+					text=document.getElementById("Table").innerText;//sanitize?
+					text=text.replaceAll("<","&lt;").replaceAll(">","&gt;");
 					html = "<tr><td>"+text.replaceAll("|","</td><td>").replaceAll("\\","</td></tr><tr><td>")+"</td></tr>";
 					html=html.replaceAll("<td>!!","<td colspan='999'>").replaceAll("<td> !!","<td colspan='999'>");//Normal Text
+					html=html.replaceAll("&lt;img src='https://static-cdn.jtvnw.net/emoticons","<img src='https://static-cdn.jtvnw.net/emoticons");
+					html=html.replaceAll("/default/light/3.0'&gt;","/default/light/3.0'>");
+					
 					document.getElementById("Table").innerHTML=html;
 					//document.getElementById("Table").deleteRow(-1);
 					break;
@@ -215,6 +267,10 @@ use them like: Overlay.htm?channel=Testchannel
 						font=fontlist[font*1 -1];
 					}
 					Overlay.style.fontFamily=font+", Helvetica, sans-serif";
+					test.style.fontFamily=font+", Helvetica, sans-serif";
+					
+					//Adjust image height to new line height
+					AdjustImageHeight();
 					break;
 			}
 		}
