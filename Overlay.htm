@@ -96,9 +96,12 @@ use them like: Overlay.htm?channel=Testchannel
 			emotearray=[];
 			for (emote of emotes){
 				url=emote.split(":")[0];
-				posa=emote.split(":")[1].split("-")[0]*1;
-				posb=emote.split(":")[1].split("-")[1]*1;
-				emotearray.push([posa,posb,url]);
+				poslist=emote.split(":")[1].split(",");
+				for (pos of poslist){
+					posa=pos.split("-")[0]*1;
+					posb=pos.split("-")[1]*1;
+					emotearray.push([posa,posb,url]);
+				}
 			}
 			//Sort emotes, because they are random in tmi
 			emotearray = emotearray.sort((a, b) => a[0] - b[0]);
