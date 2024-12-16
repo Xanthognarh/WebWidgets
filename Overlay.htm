@@ -4,6 +4,8 @@ Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white (0,0,0,0.7)]
 - `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
+- `font`: Set the font-family. Use " for font names with spaces. You can add fallback fonts (e. g. `!overlayfont Georgia, "Times New Roman", serif`). Use `!overlayfont 1-6` to use a font from this list:["Helvetica","'Times New Roman'","'Segoe UI'","'Courier New'","'Brush Script MT'","'Papyrus'"]
+- `pos`: pos [offset-x] [offset-y] value for the default position (pos Number 1-9 from Numpad) and optionally offset by the given values in pixel.
 use them like: Overlay.htm?channel=Testchannel
 -->
 <html>
@@ -77,11 +79,11 @@ use them like: Overlay.htm?channel=Testchannel
 		}
 		Overlay.style.fontFamily=font+", Helvetica, sans-serif";
 		test.style.fontFamily=font+", Helvetica, sans-serif";
-		
+		pos=siteURL.searchParams.get("pos");
+		if (pos==null){pos=2}	
 		
 		
 		function replaceEmotes(message,emotesRaw){
-			console.log(message+"\n"+emotesRaw);
 			emotes=emotesRaw.split("/");
 			emotearray=[];
 			for (emote of emotes){
@@ -96,7 +98,6 @@ use them like: Overlay.htm?channel=Testchannel
 			for (emote of emotearray){
 				//https://static-cdn.jtvnw.net/emoticons/v2/{url}/default/light/3.0
 				message=message.substring(0,emote[0])+"<img src='https://static-cdn.jtvnw.net/emoticons/v2/"+emote[2]+"/default/light/3.0'>"+message.substring(emote[1]+1);
-				console.log(message);
 			}
 			return message;			
 		}
@@ -109,6 +110,90 @@ use them like: Overlay.htm?channel=Testchannel
 			}
 		}
 		AdjustImageHeight();
+		function ChangePosition(text){
+			offsety=text.split(" ")[1]*1;
+			offsetx=text.split(" ")[2]*1;
+			if (isNaN(offsety)){offsety=0;}
+			if (isNaN(offsetx)){offsetx=0;}
+			margin="2%";
+			switch (text[0]*1){
+				case 7:
+					All.style.alignItems="flex-start";
+					All.style.justifyContent="flex-start";
+					Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+					Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+					Overlay.style.marginRight=margin;
+					Overlay.style.marginBottom=margin;
+					break;
+				case 8:
+					All.style.alignItems="flex-start";
+					All.style.justifyContent="center";
+					Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+					Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+					Overlay.style.marginRight=margin;
+					Overlay.style.marginBottom=margin;
+					break;
+				case 9:
+					All.style.alignItems="flex-start";
+					All.style.justifyContent="flex-end";
+					Overlay.style.marginLeft=margin;
+					Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+					Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+					Overlay.style.marginBottom=margin;
+					break;
+					
+				case 4:
+					All.style.alignItems="center";
+					All.style.justifyContent="flex-start";
+					Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+					Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+					Overlay.style.marginRight=margin;
+					Overlay.style.marginBottom=margin;
+					break;
+				case 5:
+					All.style.alignItems="center";
+					All.style.justifyContent="center";
+					Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+					Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+					Overlay.style.marginRight=margin;
+					Overlay.style.marginBottom=margin;
+					break;
+				case 6:
+					All.style.alignItems="center";
+					All.style.justifyContent="flex-end";
+					Overlay.style.marginLeft=margin;
+					Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
+					Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+					Overlay.style.marginBottom=margin;
+					break;
+				
+				case 1:
+					All.style.alignItems="flex-end";
+					All.style.justifyContent="flex-start";
+					Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+					Overlay.style.marginTop=margin;
+					Overlay.style.marginRight=margin;
+					Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+					break;
+				case 2:
+					All.style.alignItems="flex-end";
+					All.style.justifyContent="center";
+					Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+					Overlay.style.marginTop=margin;
+					Overlay.style.marginRight=margin;
+					Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+					break;
+				case 3:
+					All.style.alignItems="flex-end";
+					All.style.justifyContent="flex-end";
+					Overlay.style.marginLeft=margin;
+					Overlay.style.marginTop=margin;
+					Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+					Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+					break;
+			}
+		}
+		ChangePosition(pos);
 		
 		
 		hidden=false;
@@ -154,89 +239,8 @@ use them like: Overlay.htm?channel=Testchannel
 					break;
 				case SetPos:
 					text=message.substr(SetPos.length +1).trim();
-					pos=document.getElementById("Overlay").style;
 					
-					offsety=text.split(" ")[1]*1;
-					offsetx=text.split(" ")[2]*1;
-					if (isNaN(offsety)){offsety=0;}
-					if (isNaN(offsetx)){offsetx=0;}
-					margin="2%";
-					switch (text[0]*1){
-						case 7:
-							All.style.alignItems="flex-start";
-							All.style.justifyContent="flex-start";
-							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
-							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
-							Overlay.style.marginRight=margin;
-							Overlay.style.marginBottom=margin;
-							break;
-						case 8:
-							All.style.alignItems="flex-start";
-							All.style.justifyContent="center";
-							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
-							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
-							Overlay.style.marginRight=margin;
-							Overlay.style.marginBottom=margin;
-							break;
-						case 9:
-							All.style.alignItems="flex-start";
-							All.style.justifyContent="flex-end";
-							Overlay.style.marginLeft=margin;
-							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
-							Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
-							Overlay.style.marginBottom=margin;
-							break;
-							
-						case 4:
-							All.style.alignItems="center";
-							All.style.justifyContent="flex-start";
-							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
-							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
-							Overlay.style.marginRight=margin;
-							Overlay.style.marginBottom=margin;
-							break;
-						case 5:
-							All.style.alignItems="center";
-							All.style.justifyContent="center";
-							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
-							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
-							Overlay.style.marginRight=margin;
-							Overlay.style.marginBottom=margin;
-							break;
-						case 6:
-							All.style.alignItems="center";
-							All.style.justifyContent="flex-end";
-							Overlay.style.marginLeft=margin;
-							Overlay.style.marginTop="calc("+margin+" + "+offsety+"px)";
-							Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
-							Overlay.style.marginBottom=margin;
-							break;
-						
-						case 1:
-							All.style.alignItems="flex-end";
-							All.style.justifyContent="flex-start";
-							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
-							Overlay.style.marginTop=margin;
-							Overlay.style.marginRight=margin;
-							Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
-							break;
-						case 2:
-							All.style.alignItems="flex-end";
-							All.style.justifyContent="center";
-							Overlay.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
-							Overlay.style.marginTop=margin;
-							Overlay.style.marginRight=margin;
-							Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
-							break;
-						case 3:
-							All.style.alignItems="flex-end";
-							All.style.justifyContent="flex-end";
-							Overlay.style.marginLeft=margin;
-							Overlay.style.marginTop=margin;
-							Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
-							Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
-							break;
-					}
+					ChangePosition(text);					
 					if (text[0]*1==0){
 						All.style.backgroundColor="black";
 					}else{
