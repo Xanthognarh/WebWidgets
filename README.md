@@ -9,9 +9,10 @@ General Information:
 - Config via URL: Use the base url `https://xanthognarh.github.io/WebWidgets/`+Tool+`.htm?channel=`+Channelname and add optional parameters like `&parameter1=value1&parameter2=value2`
 - Use a . for decimal numbers (not a ,) 
 - Chat commands with multiple parameters need to have the exact amount of spaces, as defined. [Parameters] are optional, but if you want to use the last parameter, all parameters before has to be used, Tool.
+- You can customize the style by providing custom css to OBS
 - If you want to change the commands (or any other changes), you need your own webserver (local is possible e. g. `python -m http.server 80`) with the htm-file and the Script-folder.
 Search the htm-file for `<script>`. In the lines below you find the definition of the commands. They don't need to start with an ! as the tool only checks if the string matches the chat message.
-Search for `if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){` and change `xanthognarh` to any username you want to permit (beside of the mods).
+Search for `if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){` and change `Xanthognarh` to any username you want to permit (beside of the mods).
 
 
 ## ChatSurvey
@@ -105,5 +106,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 - `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel. Pos 0 hides the background.
 - `!overlayscale scale`: Scale the overlay [default: 1]
 - `!overlaycolor background [font]`: Set the color using CSS Color values e. g. #RRGGBBAA #RRGGBB rgba(255,255,255,1) blue. Use "-" as background to change only font color.
+- `!overlayfont font`: Set the font-family. Use " for font names with spaces. You can add fallback fonts (e. g. `!overlayfont Georgia, "Times New Roman", serif`). Use `!overlayfont 1-6` to use a font from this list:
+["Helvetica","'Times New Roman'","'Segoe UI'","'Courier New'","'Brush Script MT'","'Papyrus'"]
 
 You can create a table by using "|" to divide the cells and "\\" for a new row. Start Text with "!!" to span the cell over the row.

@@ -47,6 +47,9 @@ use them like: Overlay.htm?channel=Testchannel
 		SetPos="!overlaypos";
 		SetScale="!overlayscale";
 		SetColor="!overlaycolor";
+		SetFont="!overlayfont";
+		
+		fontlist=["Helvetica","'Times New Roman'","'Segoe UI'","'Courier New'","'Brush Script MT'","'Papyrus'"];
 		
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel");
@@ -197,6 +200,16 @@ use them like: Overlay.htm?channel=Testchannel
 					if (color2!="-" && color2!=undefined){
 						Overlay.style.color=color2;
 					}
+					break;
+				case SetFont:
+					font=message.substr(SetFont.length +1);
+					if (isNaN(font*1)){
+						//use exakt name
+					}else{
+						font=fontlist[font*1 -1];
+					}
+					Overlay.style.fontFamily=font+", Helvetica, sans-serif";
+					console.log("Font "+message.substr(SetFont.length +1)+" wird zu "+font);
 					break;
 			}
 		}
