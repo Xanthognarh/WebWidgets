@@ -2,8 +2,8 @@
 <!--
 Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
-- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white (200,200,200,0.4)]
-- `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white (0,0,0,0.7)]
+- `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
 use them like: Overlay.htm?channel=Testchannel
 -->
 <html>
@@ -24,7 +24,8 @@ use them like: Overlay.htm?channel=Testchannel
 			height:100%;
 			position:absolute;
 			display:flex;
-			align-items:center;
+			align-items:flex-end;
+			justify-content:center;
 		}
 	</style>
 	<body>
@@ -47,10 +48,10 @@ use them like: Overlay.htm?channel=Testchannel
 		TwitchChannel=siteURL.searchParams.get("channel");
 		
 		c1=siteURL.searchParams.get("c1");
-		if (c1==null){c1="200,200,200,0.4"}
+		if (c1==null){c1="0,0,0,0.7"}
 		document.getElementById("Overlay").style.backgroundColor="rgba("+c1+")";
 		c2=siteURL.searchParams.get("c2");
-		if (c2==null){c2="0,0,0,1"}
+		if (c2==null){c2="255,255,255,1"}
 		document.getElementById("Overlay").style.color="rgba("+c2+")";
 		
 		hidden=false;

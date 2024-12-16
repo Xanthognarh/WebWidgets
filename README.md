@@ -84,8 +84,8 @@ Allows mods to display an overlay with custom text at a custom position. Set the
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel you want to listen
-- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white (200,200,200,0.4)]
-- `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: black (0,0,0,0.7)]
+- `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?channel=Channelname`
 
@@ -93,8 +93,8 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 - `!overlay Content`: Display an overlay with the content
 - `!showoverlay`: Shows the overlay
 - `!hideoverlay`: Hides the overlay
-- `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Numpad) and optionally offset by the given values
+- `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel
 - `!overlayscale scale`: Scale the overlay [default: 1]
-- `!overlaycolor background [font]`: Set the color using CSS Color values e. g. #RRGGBBAA #RRGGBB rgba(255,255,255,1) blue
+- `!overlaycolor background [font]`: Set the color using CSS Color values e. g. #RRGGBBAA #RRGGBB rgba(255,255,255,1) blue. Use "-" as background to change only font color.
 
-You can create a table by using "|" to divide the cells and "\" for a new row.
+You can create a table by using "|" to divide the cells and "\\" for a new row.
