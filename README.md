@@ -97,4 +97,4 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 - `!overlayscale scale`: Scale the overlay [default: 1]
 - `!overlaycolor background [font]`: Set the color using CSS Color values e. g. #RRGGBBAA #RRGGBB rgba(255,255,255,1) blue. Use "-" as background to change only font color.
 
-You can create a table by using "|" to divide the cells and "\\" for a new row.
+You can create a table by using "|" to divide the cells and "\\" for a new row. Start Text with "!!" to span the cell over the row.

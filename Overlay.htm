@@ -85,6 +85,7 @@ use them like: Overlay.htm?channel=Testchannel
 					document.getElementById("Table").innerText=text;
 					text=document.getElementById("Table").innerText;
 					html = "<tr><td>"+text.replaceAll("|","</td><td>").replaceAll("\\","</td></tr><tr><td>")+"</td></tr>";
+					html=html.replaceAll("<td>!!","<td colspan='999'>");//Normal Text
 					document.getElementById("Table").innerHTML=html;
 					//document.getElementById("Table").deleteRow(-1);
 					break;
@@ -172,6 +173,8 @@ use them like: Overlay.htm?channel=Testchannel
 							Overlay.style.marginTop=margin;
 							Overlay.style.marginRight="calc("+margin+" - "+offsetx+"px)";
 							Overlay.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+							break;
+						case 0:
 							break;
 					}
 					break;
