@@ -93,7 +93,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 - `!overlay Content`: Display an overlay with the content
 - `!showoverlay`: Shows the overlay
 - `!hideoverlay`: Hides the overlay
-- `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel
+- `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel. Pos 0 hides the background.
 - `!overlayscale scale`: Scale the overlay [default: 1]
 - `!overlaycolor background [font]`: Set the color using CSS Color values e. g. #RRGGBBAA #RRGGBB rgba(255,255,255,1) blue. Use "-" as background to change only font color.
 
