@@ -224,12 +224,12 @@ use them like: Overlay.htm?channel=Testchannel
 		if (userallowlist==null){
 			//Use default
 			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
-				accesGranted=true;
+				accessGranted=true;
 			}
 		}else{
 			//Allow-List provided
 			if (user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || user['display-name'].toLowerCase() in userallowlist){
-				accesGranted=true;
+				accessGranted=true;
 			}
 		}
 		if (accessGranted){
