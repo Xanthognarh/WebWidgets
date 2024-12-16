@@ -5,6 +5,15 @@ A collection of Tools for more interaction with your Twitch chat. The tools can 
 3. [Sublist](#sublist)
 4. [Overlay](#overlay)
 
+General Information:
+- Config via URL: Use the base url `https://xanthognarh.github.io/WebWidgets/`+Tool+`.htm?channel=`+Channelname and add optional parameters like `&parameter1=value1&parameter2=value2`
+- Use a . for decimal numbers (not a ,) 
+- Chat commands with multiple parameters need to have the exact amount of spaces, as defined. [Parameters] are optional, but if you want to use the last parameter, all parameters before has to be used, Tool.
+- If you want to change the commands (or any other changes), you need your own webserver (local is possible e. g. `python -m http.server 80`) with the htm-file and the Script-folder.
+Search the htm-file for `<script>`. In the lines below you find the definition of the commands. They don't need to start with an ! as the tool only checks if the string matches the chat message.
+Search for `if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){` and change `xanthognarh` to any username you want to permit (beside of the mods).
+
+
 ## ChatSurvey
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a bar chart. Only the first number of each user is accepted until a new vote is started. 
 ![Example Chart for a vote between a,b,c and d.](Examples/Xanthograph.png)
@@ -87,7 +96,7 @@ Allows mods to display an overlay with custom text at a custom position. Set the
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: black (0,0,0,0.7)]
 - `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
 
-Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?channel=Channelname`
+Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?channel=Channelname&c1=0,0,0,0.7&c2=255,255,255,1`
 
 ### Chat Commands:
 - `!overlay Content`: Display an overlay with the content
