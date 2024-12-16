@@ -84,7 +84,7 @@ use them like: Overlay.htm?channel=Testchannel
 		
 		
 		function replaceEmotes(message,emotesRaw){
-			if (emotesRaw.length==0){
+			if (emotesRaw==null || emotesRaw.length==0){
 				return message;
 			}
 			emotes=emotesRaw.split("/");
