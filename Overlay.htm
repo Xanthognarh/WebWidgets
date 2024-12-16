@@ -6,6 +6,7 @@ Config via URL-Parameters:
 - `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
 - `font`: Set the font-family. Use " for font names with spaces. You can add fallback fonts (e. g. `!overlayfont Georgia, "Times New Roman", serif`). Use `!overlayfont 1-6` to use a font from this list:["Helvetica","'Times New Roman'","'Segoe UI'","'Courier New'","'Brush Script MT'","'Papyrus'"]
 - `pos`: pos [offset-x] [offset-y] value for the default position (pos Number 1-9 from Numpad) and optionally offset by the given values in pixel.
+- `userallowlist`: comma-separated (no spaces) list of all users beside broadcaster, that are allowed to edit the overlay. If not used, every mod is allowed.
 use them like: Overlay.htm?channel=Testchannel
 -->
 <html>
@@ -84,8 +85,12 @@ use them like: Overlay.htm?channel=Testchannel
 		Overlay.style.fontFamily=font+", Helvetica, sans-serif";
 		test.style.fontFamily=font+", Helvetica, sans-serif";
 		pos=siteURL.searchParams.get("pos");
-		if (pos==null){pos="2"}	
+		if (pos==null){pos="2"}
 		
+		userallowlist=siteURL.searchParams.get("userallowlist");
+		if (userallowlist!=null){
+			userallowlist=userallowlist.toLowerCase().split(",");
+		}
 		
 		function replaceEmotes(message,emotesRaw){
 			if (emotesRaw==null || emotesRaw.length==0){
@@ -205,9 +210,6 @@ use them like: Overlay.htm?channel=Testchannel
 		}
 		ChangePosition(pos);
 		
-		
-		hidden=false;
-		lastmessage="";
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
 			options: { debug: false },
@@ -218,21 +220,29 @@ use them like: Overlay.htm?channel=Testchannel
 		// "Alca: Hello, World!"
 		//console.log(`${user['display-name']}: ${message}`);
 
-		lastmessage=user;
-		if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
+		accessGranted=false;
+		if (userallowlist==null){
+			//Use default
+			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
+				accesGranted=true;
+			}
+		}else{
+			//Allow-List provided
+			if (user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || user['display-name'].toLowerCase() in userallowlist){
+				accesGranted=true;
+			}
+		}
+		if (accessGranted){
 			//Authorised Users
 			switch (message.split(" ")[0]){
 				case ShowOverlay:
 					document.getElementById("Overlay").style.visibility = "visible";
-					hidden=false;
 					break;
 				case HideOverlay:
 					document.getElementById("Overlay").style.visibility = "hidden";
-					hidden=true;
 					break;
 				case SetOverlay:
 					document.getElementById("Overlay").style.visibility = "visible";
-					hidden=false;
 					text=replaceEmotes(message,user["emotes-raw"]);
 					text=text.substr(SetOverlay.length +1);
 					

@@ -98,6 +98,7 @@ Allows mods to display an overlay with custom text at a custom position. Set the
 - `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
 - `font`: see below 
 - `pos`: pos [offset-x] [offset-y] value for the default position (pos Number 1-9 from Numpad) and optionally offset by the given values in pixel.
+- `userallowlist`: comma-separated (no spaces) list of all users beside broadcaster, that are allowed to edit the overlay. If not used, every mod is allowed.
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?channel=Channelname&c1=0,0,0,0.7&c2=255,255,255,1`
 
