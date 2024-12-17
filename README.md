@@ -114,3 +114,14 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 
 You can create a table by using "|" to divide the cells and "\\" for a new row. Start Text with "!!" to span the cell over the row.
 Twitch Emotes are possible.
+
+### Alternativ to this tool
+A more convenient way for overlays could be MS PowerPoint or Google Slides. The method described here has the flaw to show (anti-aliasing?) contures and doesn't allow transparency.
+1. Open PowerPoint/Slides and copy a Share-Link with editing permission
+2. Paste this link in an OBS Browser Source
+3. Set width/heigt to fullscreen (e. g. 1920x1080)
+4. (Use custom css to remove background - if anyone achieved this, please let me know how!)
+5. Add a relative crop filter with values 382/190/130/98 for MS or 322/132/102/106 for Google
+6. Add a luma key with values 1/0/0/0
+7. Add a scale filter to the size of your canvas
+8. Change the background-color of the slides to black and don't use the black color for anything (use a very dark gray)
