@@ -7,6 +7,7 @@ Config via URL-Parameters:
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
 - `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
 - `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
+- `style`: Choose a predefined design (0-2) [default=0]
 use them like: Chatsurvey.htm?channel=Testchannel&to=10
 -->
 <html>
@@ -23,6 +24,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 			height: 100%;
 			position: absolute;
 		}
+		#direct{
+			position:absolute;
+			width:100%;
+			height:100%;
+		}
 		#middle{
 			width: 0.5%;
 			height: 100%;
@@ -36,34 +42,57 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 			width: 50%;
 			position: absolute;
 			left: 0px;
+			clip-path:url(#mask);
 		}
-		#t1{
+		#bar2{
+			background-color: green;
+			height: 100%;
+			width: 50%;
+			position: absolute;
+			left: 0px;
+		}
+		#bgbar{
+			clip-path:url(#mask);
+		}
+		.font{
+			font-family: Tahoma, Verdana, Sans-serif;
+			/*line-height: 100vh;*/
+		}
+		#t1e{
 			position:absolute;
-			font-size: 50vh;
 			left:0;
 			top:0;
+			font-size: 50vh;
 			text-align:left;
-			font-family: Tahoma, Verdana, Sans-serif;
-			/*line-height: 100vh;*/
 			padding-left:1vw;
 		}
-		#t2{
+		#t2e{
 			position:absolute;
-			font-size: 50vh;
 			right:0;
 			bottom:0;
+			font-size: 50vh;
 			text-align:right;
-			font-family: Tahoma, Verdana, Sans-serif;
-			/*line-height: 100vh;*/
 			padding-right:1vw;
 		}
 	</style>
 	<body>
 		<div id="plot">
-			<div id="bar"></div>
-			<div id="middle"></div>
-			<div id="t1"></div>
-			<div id="t2"></div>
+			<div>
+				<svg id="Overlay" viewBox="0 0 512 120">
+					<rect id="bgbar" fill="red" x="0" y="0" height="100%" width="100%"></rect>
+					<rect id="bar" fill="green" x="0" y="0" height="100%" width="100%"></rect>
+					<g id="svgoverlay"></g>
+					<clipPath id="mask"></clipPath>
+					<text id="t1" class="font" x="20" y="86" font-size="70">1</text>
+					<text id="t2" class="font" x="492" y="86" font-size="70" text-anchor="end">2</text>
+				</svg>
+			</div>
+			<div id="direct">
+				<div id="bar2"></div>
+				<div id="middle"></div>
+				<div id="t1e" class="font"></div>
+				<div id="t2e" class="font"></div>
+			</div>
 		</div>
 	</body>
 	<script>
@@ -73,6 +102,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		
 		StartNewVoteCommand="!newvote";
 		HideVoteCommand="!hidevote";
+		
+		StylechangeCommand="!votestyle"
 	
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel");
@@ -84,10 +115,12 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		minvotes*=1;
 		c1=siteURL.searchParams.get("c1");
 		if (c1==null){c1="29,105,253,1"}
-		document.getElementById("bar").style.backgroundColor="rgba("+c1+")";
+		document.getElementById("bar").style.fill="rgba("+c1+")";
+		document.getElementById("bar2").style.backgroundColor="rgba("+c1+")";
 		c2=siteURL.searchParams.get("c2");
 		if (c2==null){c2="217,1,177,1"}
-		document.getElementById("plot").style.backgroundColor="rgba("+c2+")";
+		document.getElementById("bgbar").style.fill="rgba("+c2+")";
+		document.getElementById("direct").style.backgroundColor="rgba("+c2+")";
 		stats=siteURL.searchParams.get("stats");
 		if (stats==null){stats="0"}
 		if (stats=="0"){document.getElementById("t1").style.display="None";document.getElementById("t2").style.display="None";}
@@ -96,13 +129,54 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		fontsize*=1;
 		if (fontsize*1<=0 || fontsize*1>100){fontsize=50;}
 		if (fontsize>50){
-			document.getElementById("t1").style.lineHeight="100vh";
-			document.getElementById("t1").style.height="100%";
-			document.getElementById("t2").style.lineHeight="100vh";
-			document.getElementById("t2").style.height="100%";
+			document.getElementById("t1e").style.lineHeight="100vh";
+			document.getElementById("t1e").style.height="100%";
+			document.getElementById("t2e").style.lineHeight="100vh";
+			document.getElementById("t2e").style.height="100%";
 		}
-		document.getElementById("t1").style.fontSize=fontsize+"vh";
-		document.getElementById("t2").style.fontSize=fontsize+"vh";
+		document.getElementById("t1e").style.fontSize=fontsize+"vh";
+		document.getElementById("t2e").style.fontSize=fontsize+"vh";
+		borderstyle=siteURL.searchParams.get("style");
+		if (borderstyle==null){borderstyle=0;}
+		borderstyle*=1;
+		
+		
+		/*
+		Templates
+		*/
+		
+		border=[[,'<rect x="0" y="0" height="100%" width="100%"></rect>','0 0 512 120',70,10,80,502,80]]; //[0-Overlay, 1-Alphamask, 2-viewbox, 3-fontsize, 4-xl, 5-yl, 6-xr, 7-yr]
+		border.push(['<path style="display:inline;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="M 240,91 H 20 L 8.0110304e-7,60 20,29 h 220 l 16,25 16,-25 h 220 l 20,31 -20,31 H 271.99999 L 256,66 Z"></path><path style="display:inline;fill:none;stroke:#333333;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="M 2.3769531,60 C 8.6132812,69.66667 14.849609,79.33333 21.085938,89 93.692708,89 166.29948,89 238.90625,89 244.60389,80.09683 250.30417,71.19535 256,62.29102 c 5.69582,8.90433 11.39612,17.8058 17.09375,26.70898 72.60677,0 145.21354,0 217.82031,0 6.23633,-9.66667 12.47266,-19.33333 18.70899,-29 C 503.38672,50.33333 497.15039,40.66667 490.91406,31 418.30729,31 345.70052,31 273.09375,31 267.39611,39.90317 261.69583,48.80465 256,57.70898 250.30418,48.80465 244.60388,39.90318 238.90625,31 166.30013,31 93.69401,31 21.087891,31 14.850911,40.66667 8.6139323,50.33333 2.3769531,60 Z"></path><path style="display:inline;fill:rgba('+c1+');stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="M 240,29 256,4 272,29 256,54 Z"></path><path style="display:inline;fill:rgba('+c2+');stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="m 239.99963,91 15.99988,-25 15.99986,25 -15.99986,25 z"></path><path d="m 251.24078,15.60849 h 9.25782 l -2.61719,2.65625 v 20.33203 l 2.46094,2.07031 h -9.10157 l 2.71485,-2.24609 V 18.0499 Z m 10.13672,1.11328 -1.99219,1.97266 v 19.90234 l 3.28125,3.67188 h -10.15625 l -0.48828,-0.52735 h 9.49219 l -2.67578,-2.94922 V 18.51865 l 2.20703,-2.1875 z"></path><path d="m 247.98578,79.91707 h 7.71484 l -2.18099,2.21354 v 16.94335 l 2.05078,1.72526 h -7.58463 l 2.26237,-1.87175 V 81.95158 Z m 8.44726,0.92774 -1.66015,1.64388 v 16.58527 l 2.73437,3.05989 h -8.46353 l -0.4069,-0.43945 h 7.91014 l -2.22981,-2.45768 V 82.3422 l 1.83919,-1.82291 z m -0.0583,-0.92774 h 7.71483 l -2.18098,2.21354 v 16.94335 l 2.05077,1.72526 h -7.58461 l 2.26236,-1.87175 V 81.95158 Z m 8.44725,0.92774 -1.66015,1.64388 v 16.58527 l 1.36719,1.52995 0.68359,0.76497 c 1.05536,0.98852 -0.72786,0.76497 -0.72786,0.76497 h -7.05208 l -0.4069,-0.43945 h 7.91015 l -2.22982,-2.45768 V 82.3422 l 1.83919,-1.82291 z"></path>',
+		'<path d="M 2.3769531,60 C 8.6132812,69.66667 14.849609,79.33333 21.085938,89 93.692708,89 166.29948,89 238.90625,89 244.60389,80.09683 250.30417,71.19535 256,62.29102 c 5.69582,8.90433 11.39612,17.8058 17.09375,26.70898 72.60677,0 145.21354,0 217.82031,0 6.23633,-9.66667 12.47266,-19.33333 18.70899,-29 C 503.38672,50.33333 497.15039,40.66667 490.91406,31 418.30729,31 345.70052,31 273.09375,31 267.39611,39.90317 261.69583,48.80465 256,57.70898 250.30418,48.80465 244.60388,39.90318 238.90625,31 166.30013,31 93.69401,31 21.087891,31 14.850911,40.66667 8.6139323,50.33333 2.3769531,60 Z"></path>',
+		'0 0 512 120',70,20,86,492,86]);
+		border.push(['<svg viewBox="0 0 512 512"><path style="fill:none;stroke:#000000;stroke-width:1px;stroke-opacity:0.5" d="M 256,2 V 510"/><circle style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5" cx="256" cy="256" r="254" /><circle style="fill:none;stroke:#666666;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5" cx="256" cy="256" r="252" /></svg>',
+		'<circle cx="256" cy="256" r="254"/>',
+		'0 0 512 512',100,20,295,492,295]);
+		
+		function changeStyle(borderstyle){
+			borderstyle=Math.round(borderstyle);
+			if (borderstyle>border.length || borderstyle<0){borderstyle=0;}
+			if (borderstyle==0){
+				document.getElementById("Overlay").style.display="none";
+				document.getElementById("direct").style.display="unset"			
+			}else{
+				document.getElementById("direct").style.display="none";
+				document.getElementById("Overlay").style.display="unset";
+				document.getElementById("Overlay").setAttribute("viewBox",border[borderstyle][2]);
+				document.getElementById("svgoverlay").innerHTML=border[borderstyle][0];
+				document.getElementById("mask").innerHTML=border[borderstyle][1];
+				document.getElementById("t1").setAttribute("font-size",border[borderstyle][3]);
+				document.getElementById("t2").setAttribute("font-size",border[borderstyle][3]);
+				document.getElementById("t1").setAttribute("x",border[borderstyle][4]);
+				document.getElementById("t1").setAttribute("y",border[borderstyle][5]);
+				document.getElementById("t2").setAttribute("x",border[borderstyle][6]);
+				document.getElementById("t2").setAttribute("y",border[borderstyle][7]);
+			}
+		}
+		changeStyle(borderstyle);
+		/*
+		Program
+		*/
 		
 		votes=[0,0];
 		labels=[];
@@ -126,7 +200,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				clearInterval(VotingTimer);
 			}
 		}
-		VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
+		let VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
 		
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
@@ -145,8 +219,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				lastvote=Date.now();
 				width=votes[0]/(votes[1]+votes[0])*100;
 				document.getElementById("bar").style.width=width+"%";
-				document.getElementById("t1").innerText=votes[0];
-				document.getElementById("t2").innerText=votes[1];
+				document.getElementById("t1").innerHTML=votes[0];
+				document.getElementById("t2").innerHTML=votes[1];
+				document.getElementById("bar2").style.width=width+"%";
+				document.getElementById("t1e").innerText=votes[0];
+				document.getElementById("t2e").innerText=votes[1];
 				if (CheckIntervalActive==false){
 					CheckIntervalActive=true;
 					VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
@@ -179,6 +256,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						//Reset Userlist
 						Userlist=[];
 						document.getElementById("bar").style.width="50%";
+						document.getElementById("bar2").style.width="50%";
 						break;
 					case StartNewVoteCommand:
 						ongoingvoting=true;
@@ -191,6 +269,10 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						break;
 					case HideVoteCommand:
 						ongoingvoting=false;
+						break;
+					case StylechangeCommand:
+						if (isNaN(message.split(" ")[1]*1)){break;}
+						changeStyle(message.split(" ")[1]*1);
 						break;
 				}
 			}

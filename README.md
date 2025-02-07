@@ -52,6 +52,7 @@ Reads the chat of a Twitch channel and interprets the messages "1" and "2" as vo
 - `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: pink (217,1,177,1)]
 - `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
 - `fontsize`: Value between 0-100, if ≤50: Left text top, right text bottom [default=50]
+- `style`: Choose a predefined design (0-2) [default=0]
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channel=Channelname&to=10`
 
@@ -59,6 +60,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channe
 - `!resetvote`: Resets votes and user blocklist
 - `!disablevote`: Disables new votes and hide the bar
 - `!enablevote`: Allows new votes
+- `!votestyle [style]`: Change the design
 
 The bar is invisible during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
 
@@ -125,3 +127,5 @@ A more convenient way for overlays could be MS PowerPoint or Google Slides. The 
 6. Add a luma key with values 1/0/0/0
 7. Add a scale filter to the size of your canvas
 8. Change the background-color of the slides to black and don't use the black color for anything (use a very dark gray)
+
+To reduce the contures, you could increase the step 3 resolution (and update the step 5 values when using MS).
