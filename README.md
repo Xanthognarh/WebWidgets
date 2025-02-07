@@ -14,6 +14,7 @@ General Information:
 Search the htm-file for `<script>`. In the lines below you find the definition of the commands. They don't need to start with an ! as the tool only checks if the string matches the chat message.
 Search for `if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){` and change `Xanthognarh` to any username you want to permit (beside of the mods).
 
+Take a look at an [alternative version by DasCleverle](https://github.com/DasCleverle/stream-widgets)
 
 ## ChatSurvey
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a bar chart. Only the first number of each user is accepted until a new vote is started. 
@@ -53,6 +54,7 @@ Reads the chat of a Twitch channel and interprets the messages "1" and "2" as vo
 - `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
 - `fontsize`: Value between 0-100, if ≤50: Left text top, right text bottom [default=50]
 - `style`: Choose a predefined design (0-4) [default=0]
+- `debug`: Allow multiple votes per user
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channel=Channelname&to=10`
 
@@ -61,6 +63,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channe
 - `!disablevote`: Disables new votes and hide the bar
 - `!enablevote`: Allows new votes
 - `!votestyle [style]`: Change the design
+- `!votetitle [Title]`: Set a Title/Question
 
 The bar is invisible during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
 

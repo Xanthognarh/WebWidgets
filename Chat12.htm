@@ -74,6 +74,14 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 			text-align:right;
 			padding-right:1vw;
 		}
+		#t3e{
+			position:absolute;
+			width:100%;
+			top:0;
+			font-size: 10vh;
+			text-align:center;
+			text-shadow: 0 0 2vh white, 2px 2px 0.5vh white;
+		}
 	</style>
 	<body>
 		<div id="plot">
@@ -85,6 +93,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 					<clipPath id="mask"></clipPath>
 					<text id="t1" class="font" x="20" y="86" font-size="70">1</text>
 					<text id="t2" class="font" x="492" y="86" font-size="70" text-anchor="end">2</text>
+					<text id="t3" class="font" x="492" y="86" font-size="70" text-anchor="end"></text>
 				</svg>
 			</div>
 			<div id="direct">
@@ -92,6 +101,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				<div id="middle"></div>
 				<div id="t1e" class="font"></div>
 				<div id="t2e" class="font"></div>
+				<div id="t3e" class="font"></div>
 			</div>
 		</div>
 	</body>
@@ -104,6 +114,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		HideVoteCommand="!hidevote";
 		
 		StylechangeCommand="!votestyle"
+		TitleCommand="!votetitle"
 	
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel");
@@ -139,25 +150,32 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		borderstyle=siteURL.searchParams.get("style");
 		if (borderstyle==null){borderstyle=0;}
 		borderstyle*=1;
+		debug=siteURL.searchParams.get("debug");
+		if (debug!=null){
+			debug=true;
+		}else{
+			debug=false;
+		}
 		
 		
 		/*
 		Templates
 		*/
 		
-		border=[[,'<rect x="0" y="0" height="100%" width="100%"></rect>','0 0 512 120',70,10,80,502,80]]; //[0-Overlay, 1-Alphamask, 2-viewbox, 3-fontsize, 4-xl, 5-yl, 6-xr, 7-yr,8-textanchorL, 9-textanchorR]
+		border=[[,'<rect x="0" y="0" height="100%" width="100%"></rect>','0 0 512 120',70,10,80,502,80,'begin','end',40,0,50,'begin']];
+		//[0-Overlay, 1-Alphamask, 2-viewbox, 3-fontsize, 4-xl, 5-yl, 6-xr, 7-yr,8-textanchorL, 9-textanchorR,10-fontsizeT, 11-xT, 12-yT, 13-textanchorT]
 		border.push(['<path style="display:inline;fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="M 240,91 H 20 L 8.0110304e-7,60 20,29 h 220 l 16,25 16,-25 h 220 l 20,31 -20,31 H 271.99999 L 256,66 Z"></path><path style="display:inline;fill:none;stroke:#333333;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="M 2.3769531,60 C 8.6132812,69.66667 14.849609,79.33333 21.085938,89 93.692708,89 166.29948,89 238.90625,89 244.60389,80.09683 250.30417,71.19535 256,62.29102 c 5.69582,8.90433 11.39612,17.8058 17.09375,26.70898 72.60677,0 145.21354,0 217.82031,0 6.23633,-9.66667 12.47266,-19.33333 18.70899,-29 C 503.38672,50.33333 497.15039,40.66667 490.91406,31 418.30729,31 345.70052,31 273.09375,31 267.39611,39.90317 261.69583,48.80465 256,57.70898 250.30418,48.80465 244.60388,39.90318 238.90625,31 166.30013,31 93.69401,31 21.087891,31 14.850911,40.66667 8.6139323,50.33333 2.3769531,60 Z"></path><path style="display:inline;fill:rgba('+c1+');stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="M 240,29 256,4 272,29 256,54 Z"></path><path style="display:inline;fill:rgba('+c2+');stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1" d="m 239.99963,91 15.99988,-25 15.99986,25 -15.99986,25 z"></path><path d="m 251.24078,15.60849 h 9.25782 l -2.61719,2.65625 v 20.33203 l 2.46094,2.07031 h -9.10157 l 2.71485,-2.24609 V 18.0499 Z m 10.13672,1.11328 -1.99219,1.97266 v 19.90234 l 3.28125,3.67188 h -10.15625 l -0.48828,-0.52735 h 9.49219 l -2.67578,-2.94922 V 18.51865 l 2.20703,-2.1875 z"></path><path d="m 247.98578,79.91707 h 7.71484 l -2.18099,2.21354 v 16.94335 l 2.05078,1.72526 h -7.58463 l 2.26237,-1.87175 V 81.95158 Z m 8.44726,0.92774 -1.66015,1.64388 v 16.58527 l 2.73437,3.05989 h -8.46353 l -0.4069,-0.43945 h 7.91014 l -2.22981,-2.45768 V 82.3422 l 1.83919,-1.82291 z m -0.0583,-0.92774 h 7.71483 l -2.18098,2.21354 v 16.94335 l 2.05077,1.72526 h -7.58461 l 2.26236,-1.87175 V 81.95158 Z m 8.44725,0.92774 -1.66015,1.64388 v 16.58527 l 1.36719,1.52995 0.68359,0.76497 c 1.05536,0.98852 -0.72786,0.76497 -0.72786,0.76497 h -7.05208 l -0.4069,-0.43945 h 7.91015 l -2.22982,-2.45768 V 82.3422 l 1.83919,-1.82291 z"></path>',
 		'<path d="M 2.3769531,60 C 8.6132812,69.66667 14.849609,79.33333 21.085938,89 93.692708,89 166.29948,89 238.90625,89 244.60389,80.09683 250.30417,71.19535 256,62.29102 c 5.69582,8.90433 11.39612,17.8058 17.09375,26.70898 72.60677,0 145.21354,0 217.82031,0 6.23633,-9.66667 12.47266,-19.33333 18.70899,-29 C 503.38672,50.33333 497.15039,40.66667 490.91406,31 418.30729,31 345.70052,31 273.09375,31 267.39611,39.90317 261.69583,48.80465 256,57.70898 250.30418,48.80465 244.60388,39.90318 238.90625,31 166.30013,31 93.69401,31 21.087891,31 14.850911,40.66667 8.6139323,50.33333 2.3769531,60 Z"></path>',
-		'0 0 512 120',70,20,86,492,86,'begin','end']);
+		'0 0 512 120',70,20,86,492,86,'begin','end',32,20,26,'begin']);
 		border.push(['<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-opacity:0.5" d="M 256,2 V 510"/><circle style="fill:none;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5" cx="256" cy="256" r="254" /><circle style="fill:none;stroke:#666666;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:5.5" cx="256" cy="256" r="252" />',
 		'<circle cx="256" cy="256" r="254"/>',
-		'0 0 512 512',100,20,295,492,295,'begin','end']);
+		'0 0 512 512',100,20,295,492,295,'begin','end',60,256,200,'middle']);
 		border.push(['<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-opacity:0.5" d="M 256,2 V 30"/><path style="fill:none;stroke:#000000;stroke-width:2;" d="m 20,0.5 h 472 c 25.02251,0 24.96335,30 0,30 H 20 c -24.8849012,0 -25.0780123,-30 0,-30 z"/><path style="fill:none;stroke:#666666;stroke-width:2;" d="M 488.60938,2.5058594 C 334.65104,2.505068 180.6927,2.4949929 26.734379,2.5093467 23.653725,2.5621474 20.565645,2.4155799 17.490183,2.6138814 12.949541,3.0122692 8.2656191,4.8486707 5.4926883,8.6180424 2.5546248,12.577416 2.524427,18.44754 5.5478854,22.372273 c 2.8386301,3.834314 7.6380546,5.741297 12.2922706,6.022603 3.836075,0.250607 7.682496,0.01608 11.523125,0.105099 154.407769,-0.0062 308.815719,0.0019 463.223369,-0.01312 4.81887,-0.06168 9.92044,-1.555066 13.20827,-5.254429 3.40854,-3.749965 3.94158,-9.819039 1.08667,-14.0392895 -2.57865,-3.9550944 -7.25241,-6.0609161 -11.83811,-6.5126475 -2.13596,-0.2375419 -4.28884,-0.1969692 -6.4341,-0.1746256 z" />',
 		'<path d="m 20,0.5 h 472 c 25.02251,0 24.96335,30 0,30 H 20 c -24.8849012,0 -25.0780123,-30 0,-30 z"/>',
-		'0 0 512 32',30,20,27,492,27,'begin','end']);
+		'0 0 512 56',30,20,27,492,27,'begin','end',30,20,55,'begin']);
 		border.push(['<path style="fill:none;stroke:#000000;stroke-width:1px;stroke-opacity:0.5" d="M 256,42 V 70"/><path style="fill:none;stroke:#000000;stroke-width:2;" d="M 19.736161,40.5 H 491.73616 c 25.02251,0 24.96335,30 0,30 H 19.736161 c -24.8849012,0 -25.0780123,-30 0,-30 z" /><path style="fill:none;stroke:#666666;stroke-width:2;" d="m 488.34554,42.505859 c -153.95834,-7.91e-4 -307.91668,-0.01087 -461.875,0.0035 -3.080654,0.0528 -6.168734,-0.09377 -9.244196,0.104534 -4.540642,0.398388 -9.2245639,2.23479 -11.9974947,6.004161 -2.9380635,3.959374 -2.9682613,9.829498 0.055197,13.754231 2.8386301,3.834314 7.6380547,5.741297 12.2922707,6.022603 3.836075,0.250607 7.682496,0.01608 11.523125,0.105099 154.407768,-0.0062 308.815718,0.0019 463.223368,-0.01312 4.81887,-0.06168 9.92044,-1.555066 13.20827,-5.254429 3.40854,-3.749965 3.94158,-9.819039 1.08667,-14.03929 -2.57865,-3.955094 -7.25241,-6.060916 -11.83811,-6.512647 -2.13596,-0.237542 -4.28884,-0.196969 -6.4341,-0.174626 z" /><path style="fill:rgba('+c1+');stroke:#000000;stroke-width:2;" d="m 20.923427,26.855104 16,-25.0000012 16,25.0000012 -16,25 z"/><path style="fill:rgba('+c2+');stroke:#000000;stroke-width:2;" d="m 458.54843,26.855103 16,-25.0000002 16,25.0000002 -16,25 z"/><path d="m 31.617993,13.393376 h 9.25782 l -2.61719,2.65625 v 20.33203 l 2.46094,2.07031 h -9.10157 l 2.71485,-2.24609 v -20.37109 z m 10.13672,1.11328 -1.99219,1.97266 v 19.90234 l 3.28125,3.67188 h -10.15625 l -0.48828,-0.52735 h 9.49219 l -2.67578,-2.94922 v -20.27343 l 2.20703,-2.1875 z"/><path d="m 466.2703,17.681074 h 7.71484 l -2.18099,2.21354 v 16.94335 l 2.05078,1.72526 h -7.58463 l 2.26237,-1.87175 v -16.97589 z m 8.44726,0.92774 -1.66015,1.64388 v 16.58527 l 2.73437,3.05989 h -8.46353 l -0.4069,-0.43945 h 7.91014 l -2.22981,-2.45768 v -16.89452 l 1.83919,-1.82291 z m -0.0583,-0.92774 h 7.71483 l -2.18098,2.21354 v 16.94335 l 2.05077,1.72526 h -7.58461 l 2.26236,-1.87175 v -16.97589 z m 8.44725,0.92774 -1.66015,1.64388 v 16.58527 l 1.36719,1.52995 0.68359,0.76497 c 1.05536,0.98852 -0.72786,0.76497 -0.72786,0.76497 h -7.05208 l -0.4069,-0.43945 h 7.91015 l -2.22982,-2.45768 v -16.89452 l 1.83919,-1.82291 z"/><rect style="fill:rgba('+c1+');stroke:#000000;stroke-width:2;" width="86.100998" height="38.682899" x="37.952732" y="70.5" ry="19.34145" rx="0" /><rect style="fill:rgba('+c2+');stroke:#000000;stroke-width:2;" width="86.100998" height="38.682899" x="387.34439" y="70.5" ry="19.34145" rx="0" />',
 		'<path d="M 19.736161,40.5 H 491.73616 c 25.02251,0 24.96335,30 0,30 H 19.736161 c -24.8849012,0 -25.0780123,-30 0,-30 z"/>',
-		'0 0 512 112',40,81,105,430,105,'middle','middle']);
+		'0 0 512 112',40,81,105,430,105,'middle','middle',40,60,36,'begin']);
 
 		function changeStyle(borderstyle){
 			borderstyle=Math.round(borderstyle);
@@ -179,6 +197,10 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				document.getElementById("t2").setAttribute("y",border[borderstyle][7]);
 				document.getElementById("t1").setAttribute("text-anchor",border[borderstyle][8]);
 				document.getElementById("t2").setAttribute("text-anchor",border[borderstyle][9]);
+				document.getElementById("t3").setAttribute("font-size",border[borderstyle][10]);
+				document.getElementById("t3").setAttribute("x",border[borderstyle][11]);
+				document.getElementById("t3").setAttribute("y",border[borderstyle][12]);
+				document.getElementById("t3").setAttribute("text-anchor",border[borderstyle][13]);
 			}
 		}
 		changeStyle(borderstyle);
@@ -221,7 +243,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		vote=Math.round(message.replace(",",".")*1);
 		if (allowvoting && !(ongoingvoting) && (vote == 1 || vote == 2)){
 			//Message is a valid vote format
-			if (!Userlist.includes(user['display-name'])){
+			if (!Userlist.includes(user['display-name']) || debug){
 				Userlist.push(user['display-name']);
 				votes[vote-1]+=1;
 				lastvote=Date.now();
@@ -282,6 +304,12 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						if (isNaN(message.split(" ")[1]*1)){break;}
 						changeStyle(message.split(" ")[1]*1);
 						break;
+					case TitleCommand:
+						title=message.replace(TitleCommand,"").trim();
+						document.getElementById("t3e").innerText=title;
+						document.getElementById("t3").innerHTML=document.getElementById("t3e").innerHTML;
+						
+					break;
 				}
 			}
 			
