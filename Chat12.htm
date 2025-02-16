@@ -285,11 +285,10 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						votes=[0,0];
 						//Reset Userlist
 						Userlist=[];
-						width=votes[0]/(votes[1]+votes[0])*100;
-						document.getElementById("bar").style.width=width+"%";
+						document.getElementById("bar").style.width="50%";
 						document.getElementById("t1").innerHTML=votes[0];
 						document.getElementById("t2").innerHTML=votes[1];
-						document.getElementById("bar2").style.width=width+"%";
+						document.getElementById("bar2").style.width="50%";
 						document.getElementById("t1e").innerText=votes[0];
 						document.getElementById("t2e").innerText=votes[1];
 						break;
