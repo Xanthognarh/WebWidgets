@@ -44,6 +44,7 @@ You can click on the plot to open/close the config editor or edit the values man
 
 ## Chat12
 Reads the chat of a Twitch channel and interprets the messages "1" and "2" as votes. The voting result is displayed as a bar with a marker at the center. Only the first number of each user is accepted until a new vote is started. After a given time the votes are resetted and the bar hidden. A new vote is automatically triggerd by new voting messages in chat.
+![Example vote in different !votestyle ](Examples/Xanthobar.png)
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel you want to listen
