@@ -62,8 +62,8 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channe
 - `!resetvote`: Resets votes and user blocklist
 - `!disablevote`: Disables new votes and hide the bar
 - `!enablevote`: Allows new votes
-- `!votestyle [style]`: Change the design
-- `!votetitle [Title]`: Set a Title/Question
+- `!votestyle style`: Change the design
+- `!votetitle Title`: Set a Title/Question
 
 The bar is invisible during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
 
