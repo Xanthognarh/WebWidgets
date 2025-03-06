@@ -8,6 +8,7 @@ Config via URL-Parameters:
 - `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
 - `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
 - `style`: Choose a predefined design (0-4) [default=0]
+- `debug`: Allow multiple votes per user and commands can be used by everyone
 use them like: Chatsurvey.htm?channel=Testchannel&to=10
 -->
 <html>
@@ -113,11 +114,13 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		StartNewVoteCommand="!newvote";
 		HideVoteCommand="!hidevote";
 		
-		StylechangeCommand="!votestyle"
-		TitleCommand="!votetitle"
+		StylechangeCommand="!votestyle";
+		TitleCommand="!votetitle";
+		
+		extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
 	
 		siteURL=new URL(window.location);
-		TwitchChannel=siteURL.searchParams.get("channel");
+		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase();
 		timeout=siteURL.searchParams.get("to");
 		if (timeout==null){timeout=30;}
 		timeout*=1;
@@ -265,8 +268,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				
 			}
 		}else{
-			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
-				//Authorised Users
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || debug){
+				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
 					case EnableCommand:
 						document.getElementById("plot").style.visibility = "visible";

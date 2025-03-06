@@ -26,6 +26,7 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 - `max`: highest accepted value for vote [default=5]
 - `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: transparent (0,0,0,0)]
 - `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default=0]
+- `debug`: Allow multiple votes per user and commands can be used by everyone
 
 You can click on the plot to open/close the config editor or edit the values manually. Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=Channelname&min=1&max=5&bg=50,70,100,0.3`
 
@@ -57,7 +58,7 @@ Only the first number of each user is accepted until a new vote is started. Afte
 - `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
 - `fontsize`: Value between 0-100, if ≤50: Left text top, right text bottom [default=50]
 - `style`: Choose a predefined design (0-4) [default=0]
-- `debug`: Allow multiple votes per user
+- `debug`: Allow multiple votes per user and commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channel=Channelname&to=10`
 

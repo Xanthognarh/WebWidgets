@@ -6,6 +6,7 @@ min: lowest accepted value for vote
 max: highest accepted value for vote
 bg: r,g,b,a value  for the background-color (0-255) and alpha (0-1). Default is transparent (0,0,0,0)
 hidden: 0 or 1 as default when loading the page
+debug: Allow multiple votes per user and commands can be used by everyone
 
 use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 -->
@@ -94,9 +95,11 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		ResetBlocklistCommand="!voteagain";
 		StopVoteCommand="!stopvote";
 		StartVoteCommand="!continuevote";
+		
+		extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
 	
 		siteURL=new URL(window.location);
-		TwitchChannel=siteURL.searchParams.get("channel");
+		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase();
 		min=siteURL.searchParams.get("min");
 		if (min==null){min=1}
 		min*=1;
@@ -110,6 +113,12 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		document.getElementById("stats").style.backgroundColor="rgba("+bg+")";
 		hidden=siteURL.searchParams.get("hidden");
 		if (hidden*1==1){document.getElementById("container").style.display="none"}
+		debug=siteURL.searchParams.get("debug");
+		if (debug!=null){
+			debug=true;
+		}else{
+			debug=false;
+		}
 		
 		votes=[];
 		diffvotes=0;
@@ -250,7 +259,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 		}
 		if (vote >= min && vote <= max && allowvoting){
 			//Message is a valid vote format
-			if (!Userlist.includes(user['display-name'])){
+			if (!Userlist.includes(user['display-name']) || debug){
 				Userlist.push(user['display-name']);
 				votes[vote-min]+=1;
 				diffvotes+= vote*2-3;//1 2 -> 2 4 -> -1 1
@@ -280,8 +289,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 				myChart.update();
 			}			
 		}else{
-			if (user.mod || user['display-name']=="Xanthognarh" || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
-				//Authorised Users
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || debug){
+				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
 					case StartNewVoteCommand:
 						//Reset Votes
