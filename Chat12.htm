@@ -111,8 +111,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		EnableCommand="!enablevote";
 		ResetCommand="!resetvote";
 		
-		StartNewVoteCommand="!newvote";
-		HideVoteCommand="!hidevote";
+		StartNewVoteCommand="!newvote";//Command from Xanthograph: Hide and Disable Chat12
+		HideVoteCommand="!hidevote";//Command from Xanthograph: Re-Enable Chat12 + Hide Chat12
 		
 		StylechangeCommand="!votestyle";
 		TitleCommand="!votetitle";
@@ -234,6 +234,19 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 			}
 		}
 		let VotingTimer = setInterval(checkEndVoting, timeout/2*1000);
+		
+		function ResetVoting(){
+			//Reset Votes
+			votes=[0,0];
+			//Reset Userlist
+			Userlist=[];
+			document.getElementById("bar").style.width="50%";
+			document.getElementById("t1").innerHTML=votes[0];
+			document.getElementById("t2").innerHTML=votes[1];
+			document.getElementById("bar2").style.width="50%";
+			document.getElementById("t1e").innerText=votes[0];
+			document.getElementById("t2e").innerText=votes[1];
+		}
 
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
@@ -284,16 +297,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						clearInterval(VotingTimer);
 						//No break
 					case ResetCommand:
-						//Reset Votes
-						votes=[0,0];
-						//Reset Userlist
-						Userlist=[];
-						document.getElementById("bar").style.width="50%";
-						document.getElementById("t1").innerHTML=votes[0];
-						document.getElementById("t2").innerHTML=votes[1];
-						document.getElementById("bar2").style.width="50%";
-						document.getElementById("t1e").innerText=votes[0];
-						document.getElementById("t2e").innerText=votes[1];
+						ResetVoting();
 						break;
 					case StartNewVoteCommand:
 						ongoingvoting=true;
@@ -306,6 +310,8 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 						break;
 					case HideVoteCommand:
 						ongoingvoting=false;
+						ResetVoting();
+						document.getElementById("plot").style.visibility = "hidden";
 						break;
 					case StylechangeCommand:
 						if (isNaN(message.split(" ")[1]*1)){break;}

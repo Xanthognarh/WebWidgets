@@ -64,12 +64,13 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channe
 
 ### Chat Commands:
 - `!resetvote`: Resets votes and user blocklist
-- `!disablevote`: Disables new votes and hide the bar
+- `!disablevote`: Disables new votes until `!enablevote` and hides the bar
 - `!enablevote`: Allows new votes
 - `!votestyle style`: Change the design
 - `!votetitle Title`: Set a Title/Question
+- `!hidevote`: Reset and hide the bar (shared command with ChatSurvey)
 
-The bar is invisible during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
+The bar is deactivated during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
 
 ## Sublist
 Shows a list of Subs/Bits for future interaction. The listet users can display a message using `!pick message`. After a timeout or `!RemoveUser username` this entry is removed. If there are multiple entries of one user, only the first entry will be removed.
