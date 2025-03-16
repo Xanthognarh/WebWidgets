@@ -90,6 +90,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 	</body>
 	<script>
 		StartNewVoteCommand="!newvote";
+		ResetCommand="!resetvote";//Alias for StartNewVoteCommand
 		HideVoteCommand="!hidevote";
 		ShowVoteCommand="!showvote";
 		ResetBlocklistCommand="!voteagain";
@@ -292,6 +293,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&min=1&max=5
 			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
+					case ResetCommand:
 					case StartNewVoteCommand:
 						//Reset Votes
 						for (var i=0;i<=(max-min);i++){

@@ -34,6 +34,7 @@ You can click on the plot to open/close the config editor or edit the values man
 ### Chat Commands:
 - `!newvote`: Resets votes and user blocklist, shows the chart
 - `!newvote min-max`: Resets votes and user blocklist, shows the chart and set range. Example for negative values: `!newvote -3--1`; Min/Max can be letters (case-insensitive)
+- `!resetvote`: Alias for `!newvote` (shared command with Chat12)
 - `!stopvote`: Disables new entries (freeze the current view)
 - `!continuevote`: Allows new entries, old votes are still valid and the old user blocklist will be used. 
 - `!voteagain`: Allows all users to submit new votes. These votes are added to the old votes.
@@ -63,12 +64,13 @@ Only the first number of each user is accepted until a new vote is started. Afte
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channel=Channelname&to=10`
 
 ### Chat Commands:
-- `!resetvote`: Resets votes and user blocklist
+- `!hidevote`: Resets votes and user blocklist and hides the bar (shared command with ChatSurvey, but without background voting)
+- `!resetvote`: Resets votes and user blocklist (shared command with ChatSurvey); like `!hidevote` 
 - `!disablevote`: Disables new votes until `!enablevote` and hides the bar
 - `!enablevote`: Allows new votes
 - `!votestyle style`: Change the design
 - `!votetitle Title`: Set a Title/Question
-- `!hidevote`: Reset and hide the bar (shared command with ChatSurvey)
+
 
 The bar is deactivated during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
 
