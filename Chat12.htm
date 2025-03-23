@@ -9,7 +9,7 @@ Config via URL-Parameters:
 - `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
 - `style`: Choose a predefined design (0-4) [default=0]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
-use them like: Chatsurvey.htm?channel=Testchannel&to=10
+use them like: Chat12.htm?channel=Testchannel&to=10
 -->
 <html>
 	<header>
@@ -120,7 +120,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
 	
 		siteURL=new URL(window.location);
-		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase();
+		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");
 		timeout=siteURL.searchParams.get("to");
 		if (timeout==null){timeout=30;}
 		timeout*=1;
@@ -251,7 +251,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
 			options: { debug: false },
-			channels: [ TwitchChannel ]
+			channels: TwitchChannel
 		});
 		client.connect().catch(console.error);
 		client.on('message', (channel, user, message, self) => {
@@ -281,7 +281,7 @@ use them like: Chatsurvey.htm?channel=Testchannel&to=10
 				
 			}
 		}else{
-			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || debug){
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase() in TwitchChannel || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
 					case EnableCommand:

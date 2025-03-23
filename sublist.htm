@@ -62,7 +62,7 @@
 	</body>
 	<script>
 		siteURL=new URL(window.location);
-		TwitchChannel=siteURL.searchParams.get("channel");
+		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");
 		len=siteURL.searchParams.get("len");
 		if (len==null){len=5}
 		len*=1;
@@ -145,7 +145,7 @@
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
 			options: { debug: false },
-			channels: [ TwitchChannel ]
+			channels: TwitchChannel
 		});
 		client.connect().catch(console.error);
 		
@@ -155,7 +155,7 @@
 				//User in List, but maybe not in Table
 				AnswerEntry(userstate['display-name'],message.substr(TalkbackCommand.length+1,maxTalkbacklength))
 			}else{
-				if (userstate.mod || userstate['display-name']=="Xanthognarh" || userstate['display-name'].toLowerCase()==TwitchChannel.toLowerCase()){
+				if (userstate.mod || userstate['display-name']=="Xanthognarh" || userstate['display-name'].toLowerCase() in TwitchChannel){
 					//Mods
 					switch (message.split(" ")[0].toLowerCase()){
 						case AddCommand://!AddUser Name Amount Type

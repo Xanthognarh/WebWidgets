@@ -21,7 +21,7 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 ![Example Chart for a vote between a,b,c and d.](Examples/Xanthograph.png)
 
 ### Config via URL-Parameters:
-- `channel`: Name of Twitch Channel you want to listen
+- `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 - `min`: lowest accepted value for vote [default=1]
 - `max`: highest accepted value for vote [default=5]
 - `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: transparent (0,0,0,0)]
@@ -51,7 +51,7 @@ Only the first number of each user is accepted until a new vote is started. Afte
 ![Example vote in different !votestyle ](Examples/Xanthobar.png)
 
 ### Config via URL-Parameters:
-- `channel`: Name of Twitch Channel you want to listen
+- `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 - `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
 - `minvotes`: Necessary amount of votes to display the bar [default=3]
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (29,105,253,1)]
@@ -79,7 +79,7 @@ Shows a list of Subs/Bits for future interaction. The listet users can display a
 ![Example table of Subs](Examples/Xanthosub.png)
 
 ### Config via URL-Parameters:
-- `channel`: Name of Twitch Channel you want to listen
+- `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 - `len`: max Number of Entries displayed [default=5]
 - `bitprice`: Amount of Bits that equals 1 [default=300]
 - `subprice`: Amount of Subs that equals 1 [default=1]
