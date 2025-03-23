@@ -281,7 +281,7 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 				
 			}
 		}else{
-			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase() in TwitchChannel || debug){
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes(user['display-name'].toLowerCase()) || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
 					case EnableCommand:
