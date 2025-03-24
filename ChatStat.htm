@@ -4,16 +4,13 @@ Config via URL-Parameters:
 - `channel`: Name of Twich Channel you want to listen
 - `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
 - `minvotes`: Min votes to show the bar
-- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
-- `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
-- `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
-- `style`: Choose a predefined design (0-4) [default=0]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 use them like: ChatStat.htm?channel=Testchannel&to=10
 -->
 <html>
 	<header>
 		<title>Xanthopoll</title>
+		<meta charset="UTF-8">
 	</header>
 	<script src="Scripts/tmi.min.js"></script>
 	<style>
@@ -24,14 +21,21 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			width: 100%;
 			height: 100%;
 			position: absolute;
+			background-color:red;
+		}
+		#canvas{
+			width: 100%;
+			height: 100%;
+			background-color:green;
 		}
 
 	</style>
 	<body>
 		<div id="plot">
+			<canvas id="canvas"></canvas>
 		</div>
 	</body>
-	<script>
+	<script charset="utf-8">
 		StartNewVoteCommand="!newvote";
 		ResetCommand="!resetvote";//Alias for StartNewVoteCommand
 		HideVoteCommand="!hidevote";
@@ -51,7 +55,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 		if (timeout==null){timeout=30;}
 		timeout*=1;
 		minvotes=siteURL.searchParams.get("minvotes");
-		if (minvotes==null){minvotes=3;}
+		if (minvotes==null || minvotes*1<5){minvotes=5;}
 		minvotes*=1;
 		kernel=siteURL.searchParams.get("kernel");
 		if (kernel==null){kernel="normal";}
@@ -69,7 +73,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			Kernel
 		*/
 		function kernelNormal(x,μ=0,σ=1){
-			return Math.exp(-(x-μ)**2/(2*σ**2))/(sqrt2PI*σ);
+			return Math.exp(-1*(x-μ)**2/(2*σ**2))/(sqrt2PI*σ);
 		}
 		function kernelEpanechnikov(x){
 			if (Math.abs(x)<1){
@@ -118,7 +122,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 		function generateData(n=10,modes=2,maxvalue=100,r=2){
 			if (n<1 || modes<1){return false;}
 			for (let i=0;i<n;i++){
-				newvote(Math.round(Math.random()*maxvalue/modes + Math.round((modes-1)*Math.random(),0)*maxvalue/modes,r));
+				newvote(Number(Math.round(Math.random()*maxvalue/modes + Math.round((modes-1)*Math.random())*maxvalue/modes +"e"+r)+"e-"+r));
 			}
 		}
 		
@@ -138,41 +142,50 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			votes.splice(index, 0, vote);
 
 			console.log(votes);
+			update();
 		}
-		function update(percent=100,kernel="Normal",h=null){
+		function update(h=null,percent=100,kernel="Normal"){
+			const resolution=document.getElementById("canvas").clientWidth/1;
 			if (percent>100 || percent<0){percent=100;}
 			percent=100-percent;
 			const skip=Math.floor(votes.length*percent*0.005);
-			const min=votes.at(skip);
-			const max=votes.at(-skip-1);
+			let min=votes.at(skip);
+			let max=votes.at(-skip-1);
+			console.log("Real min="+min+" max="+max);
+			min=min-(max-min)*0.01;
+			max=max+(max-min)*0.01
 			const stepsize=(max-min)/resolution;
-			if (h==null || h<=0){
-				//TODO
-				
+			if (h==null || h<=0){				
 				let mean=0;
 				for (i=skip;i<votes.length-skip;i++){
 					mean+=votes.at(i);
 				}
 				mean=mean/(votes.length-2*skip);
+				console.log("mean="+mean);
 				let value=0;
 				for (i=skip;i<votes.length-skip;i++){
 					value+=(votes.at(i)-mean)**2;
 				}
 				const σ=Math.sqrt(value/(votes.length-2*skip));
-				if (0.25*votes.length==Math.round(0.25*votes.length,0)){
-					const IQR=0.5*(votes.at(votes.length*0.75)+votes.at(votes.length*0.75 +1)) - 0.5*(votes.at(votes.length*0.25)+votes.at(votes.length*0.25 +1));
+				let IQR;
+				//votes.at(index starts with 1)
+				if (0.25*votes.length==Math.round(0.25*votes.length)){
+					IQR=0.5*(votes.at(votes.length*0.75)+votes.at(votes.length*0.75 +1)) - 0.5*(votes.at(votes.length*0.25)+votes.at(votes.length*0.25 +1));
 				}else{
-					const IQR=Math.floor(votes.at(votes.length*0.75+1)) - Math.floor(votes.at(votes.length*0.25+1));
+					IQR=Math.floor(votes.at(votes.length*0.75+1)) - Math.floor(votes.at(votes.length*0.25+1));
 				}
 				h=1.06*Math.min(σ,IQR/1.34)*(votes.length-2*skip)**(-0.2);
+				console.log("h="+h+" (calculated)");
+				if (h>0.05*(max-min)){h=Math.min(4,(max-min)*0.02);console.log("h="+h+" (limited)");}
 				h=1/h;
 			}else{
+				console.log("h="+h+" (fixed)");
 				h=1/h;
 			}
+			
 			KDE=[];
 			X=[];
 			ymax=0;
-			let kernel=kernelNormal;
 			switch(kernel.toLowerCase()){
 				case "normal":
 					kernel=kernelNormal;
@@ -195,23 +208,126 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 				default:
 					kernel=kernelNormal;
 			}
-			for (x=0;x<max;x+=stepsize){
+			for (x=min;x<max;x+=stepsize){
 				X.push(x);
 				value=0;
 				for (i=0;i<votes.length;i++){
 					value+=kernel((x-votes[i])*h);
 				}
-				value=value*h/votes.length;
+				value=Math.max(0,value*h/votes.length);
 				KDE.push(value);
 				if (value>ymax){ymax=value;}
 			}
-			plot(X,KDE);
+			plot(X,KDE,min,max,ymax);
 		}
 		
-		function plot(X,Y){
+		function plot(X,Y,min,max,ymax){
+			//min=0;max=100
+			console.log(arguments);
+			const minSciExp=6;//Lowest |Exponent| to use scientific notation
+			const SciExp=Math.min(minSciExp, Math.max(Math.abs(min.toExponential(2).split("e")[1]), Math.abs(max.toExponential(2).split("e")[1])))
+			const c=document.getElementById("canvas");
+			const ctx=c.getContext("2d");
+			const mx=c.clientWidth;
+			const my=c.clientHeight;
+			c.width=mx;
+			c.height=my;
+			ctx.font = "48px serif";
+			let metrics = ctx.measureText("0123456789e");
+			const fontHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+			metrics = ctx.measureText("0."+"8".repeat(SciExp));
+			const p=Math.min(mx,my)*0.01;
+			const TickWidth=metrics.width+2*p;
+			ctx.clearRect(0,0,mx,my);
 			
+			console.log("Plot min="+min+" max="+max);
+			console.log("mx="+mx);
+			console.log("my="+my);
+			console.log("p="+p);
+			console.log("fontHeight="+fontHeight);
+			
+			//Axes
+			//ctx.fillText("0123456789e",0,my-1*p);
+			ctx.fillRect(0,my-fontHeight-2*p-0.5*fontHeight,mx,0.5*p);
+			
+			let n=Math.floor(mx/TickWidth)-1;
+			console.log("n=",n);//25
+			[z,e]=(max-min).toExponential(2).split("e");
+			ea=Math.abs(e*1);
+			let tickstep=max-min;
+			let tickstart=min;
+			let tickround=1;
+			let tickcount=0;
+			if (z[0]*20+z[2]*2+Math.ceil(z[3]*0.1)<=n){
+				//x.05, x.05, x.05,...
+				tickstep=Number("0.05e"+e);
+				tickround=2;
+				tickstart=Math.floor(min*20)*0.05;
+				tickcount=z[0]*20+z[2]*2+Math.ceil(z[3]*0.1)+1;
+			}else if (z[0]*10+z[2]*1<=n){
+				//x.1, x.2, x.3,...
+				tickstep=Number("0.1e"+e);
+				tickround=1;
+				tickstart=Math.floor(min*10)*0.1;
+				tickcount=z[0]*10+z[2]*1+1;
+			}else if (z[0]*5+Math.ceil(z[2]*0.5)<=n){
+				//x.0, x.2, x.4, ...
+				tickstep=Number("0.2e"+e);
+				tickround=1;
+				tickstart=Math.floor(min*5)*0.2;
+				tickcount=z[0]*5+Math.ceil(z[2]*0.5)+1;
+			}else if (z[0]*2+Math.ceil(z[2]*0.1)<=n){
+				//x.0, x.5
+				tickstep=Number("0.5e"+e);
+				tickround=1;
+				tickstart=Math.floor(min*2)*0.5;
+				tickcount=z[0]*2+Math.ceil(z[2]*0.1)+1;
+			}else if (z[0]*1<=n){
+				//1, 2, 3, ...
+				tickstep=Number("1e"+e);
+				tickround=0;
+				tickstart=Math.floor(min);
+				tickcount=z[0]*1+1
+			}else {
+				tickstep=(max-min)/n;
+				tickround=2;
+				tickcount=n;
+			}
+			
+			console.log("Tick Start="+tickstart)
+			console.log("Tick Step Size="+tickstep)
+			console.log("Tick Count="+tickcount);
+			
+			i=1;
+			//First and last Tick is skipped
+			for(pos=tickstart+tickstep;pos<=max;pos+=tickstep){
+				tick=Number(pos.toExponential(tickround));
+				console.log(i+": "+tick+" - "+pos);
+				ctx.fillRect((tick-min)*mx/(max-min)-0.1*p, my-fontHeight-3*p,0.2*p+0.5,0.5*fontHeight);
+				textwidth=ctx.measureText(tick).width;
+				ctx.fillText(tick,(tick-min)*mx/(max-min)-0.5*textwidth,my-1*p);
+				i++;
+			}
+			
+			//Plot XY
+			posxaxis=my-fontHeight-2*p-0.5*fontHeight;
+			yscale=posxaxis/ymax;
+			ctx.strokeStyle = "rgb(200 0 0)";
+			ctx.fillStyle = "rgb(0 0 200 / 10%)";
+			ctx.beginPath();
+			ctx.moveTo(0,posxaxis)
+			
+			console.log("posxaxis="+posxaxis);
+			console.log("yscale="+yscale);
+			for (i=0;i<X.length-1;i++){
+				ctx.lineTo(i,posxaxis-yscale*Y[i]);
+			}
+			ctx.lineTo(mx,posxaxis);
+			ctx.closePath();
+			ctx.stroke();
+			ctx.fill();
 		}
-		
+		plot([0,1],[1,5],0,1,5);
 		
 		//Connect to Twitchchat:
 		const client = new tmi.Client({

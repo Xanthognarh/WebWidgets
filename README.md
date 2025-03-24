@@ -1,9 +1,10 @@
 # WebWidgets
 A collection of Tools for more interaction with your Twitch chat. The tools can be embedded very easily in OBS as a browser source. No login or account required.
 1. [ChatSurvey](#chatsurvey)
-2. [Chat12](#chat12)
-3. [Sublist](#sublist)
-4. [Overlay](#overlay)
+2. [ChatStat](#chatstat)
+3. [Chat12](#chat12)
+4. [Sublist](#sublist)
+5. [Overlay](#overlay)
 
 General Information:
 - Config via URL: Use the base url `https://xanthognarh.github.io/WebWidgets/`+Tool+`.htm?channel=`+Channelname and add optional parameters like `&parameter1=value1&parameter2=value2`
@@ -43,6 +44,26 @@ You can click on the plot to open/close the config editor or edit the values man
 
 ### Feature Ideas
 - `!vote Text` e.g. Names
+
+## ChatStat (still in developement)
+Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a KDE chart. Only the first number of each user is accepted until a new vote is started. 
+
+### Config via URL-Parameters:
+- `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
+- `debug`: Allow multiple votes per user and commands can be used by everyone
+
+Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?channel=Channelname&debug=1`
+
+
+### Chat Commands:
+- `!newvote`: Resets votes and user blocklist, shows the chart
+- `!resetvote`: Alias for `!newvote` (shared command with Chat12)
+- `!stopvote`: Disables new entries (freeze the current view)
+- `!continuevote`: Allows new entries, old votes are still valid and the old user blocklist will be used. 
+- `!voteagain`: Allows all users to submit new votes. These votes are added to the old votes.
+- `!hidevote`: Changes the visibility of the chart. Votes will be still counted.
+- `!showvote`: Changes the visibility of the chart. Votes will be still counted.
+- `!testdata n [modes max digits]`: Generates n random votes with given modes [default: 2], from 0 to max [default:100] and rounds the result to digits [default:2].
 
 ## Chat12
 Reads the chat of a Twitch channel and interprets the messages "1" and "2" as votes. The voting result is displayed as a bar with a marker at the center.
