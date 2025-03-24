@@ -239,18 +239,12 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			const TickWidth=metrics.width+2*p;
 			ctx.clearRect(0,0,mx,my);
 			
-			console.log("Plot min="+min+" max="+max);
-			console.log("mx="+mx);
-			console.log("my="+my);
-			console.log("p="+p);
-			console.log("fontHeight="+fontHeight);
 			
 			//Axes
 			//ctx.fillText("0123456789e",0,my-1*p);
 			ctx.fillRect(0,my-fontHeight-2*p-0.5*fontHeight,mx,0.5*p);
 			
 			let n=Math.floor(mx/TickWidth)-1;
-			console.log("n=",n);//25
 			[z,e]=(max-min).toExponential(2).split("e");
 			ea=Math.abs(e*1);
 			let tickstep=max-min;
@@ -293,15 +287,10 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 				tickcount=n;
 			}
 			
-			console.log("Tick Start="+tickstart)
-			console.log("Tick Step Size="+tickstep)
-			console.log("Tick Count="+tickcount);
-			
 			i=1;
 			//First and last Tick is skipped
 			for(pos=tickstart+tickstep;pos<=max;pos+=tickstep){
 				tick=Number(pos.toExponential(tickround));
-				//console.log(i+": "+tick+" - "+pos);
 				ctx.fillRect((tick-min)*mx/(max-min)-0.1*p, my-fontHeight-3*p,0.2*p+0.5,0.5*fontHeight);
 				textwidth=ctx.measureText(tick).width;
 				ctx.fillText(tick,(tick-min)*mx/(max-min)-0.5*textwidth,my-1*p);
@@ -316,8 +305,6 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			ctx.beginPath();
 			ctx.moveTo(0,posxaxis)
 			
-			console.log("posxaxis="+posxaxis);
-			console.log("yscale="+yscale);
 			for (i=0;i<X.length;i++){
 				ctx.lineTo(i,posxaxis-yscale*Y[i]);
 			}
@@ -326,20 +313,67 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			ctx.stroke();
 			ctx.fill();
 			
-			//Annote local maxima
+			//Find local maxima
 			let maxY=[];
 			let maxX=[];
 			ctx.fillStyle = "rgb(0 0 0)";
-			ctx.font = "36px serif";
 			for (i=1;i<X.length-1;i++){
 				if (Y[i-1]<Y[i] && Y[i]>=Y[i+1]){
 					maxY.push(Y[i]);
 					maxX.push(X[i]);
 					ctx.fillRect((X[i]-min)*mx/(max-min)-0.1*p,posxaxis-yscale*Y[i]-0.5*p,0.1*p,0.5*fontHeight);
-					value=X[i].toFixed(2);
-					textwidth=ctx.measureText(value).width;
-					ctx.fillText(value,(X[i]-min)*mx/(max-min)-0.5*textwidth,posxaxis-yscale*Y[i]-p-0.5*fontHeight)
+					
 				}
+			}
+			
+			//Remove local maxima to close for text
+			const minDistanceMaxima=(TickWidth-2*p)*(max-min)/mx;
+			i=1;
+			while (i<maxY.length-1){
+				if (maxX[i]-maxX[i-1] < minDistanceMaxima && maxX[i+1]-maxX[i] < minDistanceMaxima){
+					if (maxY[i]==Math.max(maxY[i-1],maxY[i],maxY[i+1])){
+						//Use middle, if equal or greater
+						maxX.splice(i+1,1);
+						maxY.splice(i+1,1);
+						maxX.splice(i-1,1);
+						maxY.splice(i-1,1);
+					}else if (maxY[i-1]==Math.max(maxY[i-1],maxY[i],maxY[i+1])){
+						//Use left
+						maxX.splice(i,2);
+						maxY.splice(i,2);
+					}else{
+						//Use right
+						maxX.splice(i-1,2);
+						maxY.splice(i-1,2);
+					}
+					i--;
+				}else if (maxX[i]-maxX[i-1] < minDistanceMaxima){
+					if (maxY[i-1]>=maxY[i]){
+						//use left
+						maxX.splice(i,1);
+						maxY.splice(i,1);
+					}else{
+						//use right
+						maxX.splice(i-1,1);
+						maxY.splice(i-1,1);
+					}
+				}else{
+					i++;
+				}
+			}
+			
+			//Write the maxima
+			const maxvalue=Math.max(...maxY);
+			ctx.font = "36px serif";
+			for (i=0;i<maxX.length;i++){
+				value=maxX[i].toFixed(2);
+				textwidth=ctx.measureText(value).width;
+				if (maxY[i]==maxvalue){
+					ctx.font="bold 36px serif";
+				}else{
+					ctx.font = "36px serif";
+				}
+				ctx.fillText(value,(maxX[i]-min)*mx/(max-min)-0.5*textwidth,posxaxis-yscale*maxY[i]-p-0.5*fontHeight)
 			}
 		}
 		plot([0,1],[1,5],0,1,5);
@@ -382,7 +416,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 						if (werte.length>1 && werte[1]!=""){n=werte[1]*1;}else{n=10;}
 						if (werte.length>2 && werte[2]!=""){m=werte[2]*1;}else{m=2;}
 						if (werte.length>3 && werte[3]!=""){x=werte[3]*1;}else{x=100;}
-						if (werte.length>4 && werte[4]!=""){x=werte[4]*1;}else{r=2;}
+						if (werte.length>4 && werte[4]!=""){r=werte[4]*1;}else{r=2;}
 						generateData(n,m,x,r);
 						break;
 					case HideVoteCommand:
