@@ -84,6 +84,12 @@ use them like: Overlay.htm?channel=Testchannel
 		}
 		Overlay.style.fontFamily=font+", Helvetica, sans-serif";
 		test.style.fontFamily=font+", Helvetica, sans-serif";
+		debug=siteURL.searchParams.get("debug");
+		if (debug!=null){
+			debug=true;
+		}else{
+			debug=false;
+		}
 		pos=siteURL.searchParams.get("pos");
 		if (pos==null){pos="2"}
 		
@@ -232,6 +238,7 @@ use them like: Overlay.htm?channel=Testchannel
 				accessGranted=true;
 			}
 		}
+		if (debug){accessGranted=true;}
 		if (accessGranted){
 			//Authorised Users
 			switch (message.split(" ")[0]){
