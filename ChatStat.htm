@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<!--
+Config via URL-Parameters:
+- `channel`: Name of Twich Channel you want to listen
+- `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
+- `minvotes`: Min votes to show the bar
+- `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (0,20,63,1)]
+- `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: green (173,239,209,1)]
+- `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
+- `style`: Choose a predefined design (0-4) [default=0]
+- `debug`: Allow multiple votes per user and commands can be used by everyone
+use them like: ChatStat.htm?channel=Testchannel&to=10
+-->
+<html>
+	<header>
+		<title>Xanthopoll</title>
+	</header>
+	<script src="Scripts/tmi.min.js"></script>
+	<style>
+		body{
+			margin:0;
+		}
+		#plot{
+			width: 100%;
+			height: 100%;
+			position: absolute;
+		}
+
+	</style>
+	<body>
+		<div id="plot">
+		</div>
+	</body>
+	<script>
+		StartNewVoteCommand="!newvote";
+		ResetCommand="!resetvote";//Alias for StartNewVoteCommand
+		HideVoteCommand="!hidevote";
+		ShowVoteCommand="!showvote";
+		ResetBlocklistCommand="!voteagain";
+		StopVoteCommand="!stopvote";
+		StartVoteCommand="!continuevote";
+		
+		TestCommand="!testdata";
+		
+		
+		extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
+	
+		siteURL=new URL(window.location);
+		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase();
+		timeout=siteURL.searchParams.get("to");
+		if (timeout==null){timeout=30;}
+		timeout*=1;
+		minvotes=siteURL.searchParams.get("minvotes");
+		if (minvotes==null){minvotes=3;}
+		minvotes*=1;
+		kernel=siteURL.searchParams.get("kernel");
+		if (kernel==null){kernel="normal";}
+		
+		debug=siteURL.searchParams.get("debug");
+		if (debug!=null){
+			debug=true;
+		}else{
+			debug=false;
+		}
+
+		
+		
+		/*
+			Kernel
+		*/
+		function kernelNormal(x,μ=0,σ=1){
+			return Math.exp(-(x-μ)**2/(2*σ**2))/(sqrt2PI*σ);
+		}
+		function kernelEpanechnikov(x){
+			if (Math.abs(x)<1){
+				return 0.75*(1-x**2);
+			}else{
+				return 0;
+			}
+		}
+		function kernelBox(x){
+			if (Math.abs(x)<1){
+				return 0.5;
+			}else{
+				return 0;
+			}
+		}
+		function kernelBiweight(x){
+			if (Math.abs(x)<1){
+				return 0.9375*(1-x**2)**2;
+			}else{
+				return 0;
+			}
+		}
+		function kernelTriweight(x){
+			if (Math.abs(x)<1){
+				return 1.09375*(1-x**2)**3;
+			}else{
+				return 0;
+			}
+		}
+		function kernelTriangular(x){
+			if (Math.abs(x)<1){
+				return (1-Math.abs(x));
+			}else{
+				return 0;
+			}
+		}
+		
+		/*
+			Program
+		*/
+		
+		votes=[];
+		Userlist=[];
+		allowvoting=true;
+		const sqrt2PI=Math.sqrt(2*Math.PI);
+		function generateData(n=10,modes=2,maxvalue=100,r=2){
+			if (n<1 || modes<1){return false;}
+			for (let i=0;i<n;i++){
+				newvote(Math.round(Math.random()*maxvalue/modes + Math.round((modes-1)*Math.random(),0)*maxvalue/modes,r));
+			}
+		}
+		
+		function newvote(vote){
+			//Insert vote to sorted votes
+			let min = 0;
+			let max = votes.length;
+			let index = Math.floor(max*0.5);
+			while (max > min) {
+				if (vote < votes[index]) {
+					max = index;
+				} else {
+					min = index + 1;
+				}
+				index = Math.floor((min + max)*0.5);
+			}
+			votes.splice(index, 0, vote);
+
+			console.log(votes);
+		}
+		function update(percent=100,kernel="Normal",h=null){
+			if (percent>100 || percent<0){percent=100;}
+			percent=100-percent;
+			const skip=Math.floor(votes.length*percent*0.005);
+			const min=votes.at(skip);
+			const max=votes.at(-skip-1);
+			const stepsize=(max-min)/resolution;
+			if (h==null || h<=0){
+				//TODO
+				
+				let mean=0;
+				for (i=skip;i<votes.length-skip;i++){
+					mean+=votes.at(i);
+				}
+				mean=mean/(votes.length-2*skip);
+				let value=0;
+				for (i=skip;i<votes.length-skip;i++){
+					value+=(votes.at(i)-mean)**2;
+				}
+				const σ=Math.sqrt(value/(votes.length-2*skip));
+				if (0.25*votes.length==Math.round(0.25*votes.length,0)){
+					const IQR=0.5*(votes.at(votes.length*0.75)+votes.at(votes.length*0.75 +1)) - 0.5*(votes.at(votes.length*0.25)+votes.at(votes.length*0.25 +1));
+				}else{
+					const IQR=Math.floor(votes.at(votes.length*0.75+1)) - Math.floor(votes.at(votes.length*0.25+1));
+				}
+				h=1.06*Math.min(σ,IQR/1.34)*(votes.length-2*skip)**(-0.2);
+				h=1/h;
+			}else{
+				h=1/h;
+			}
+			KDE=[];
+			X=[];
+			ymax=0;
+			let kernel=kernelNormal;
+			switch(kernel.toLowerCase()){
+				case "normal":
+					kernel=kernelNormal;
+					break;
+				case "epanechnikov":
+					kernel=kernelEpanechnikov;
+					break;
+				case "box":
+					kernel=kernelBox;
+					break;
+				case "biweight":
+					kernel=kernelBiweight;
+					break;
+				case "triweight":
+					kernel=kernelTriweight;
+					break;
+				case "triangular":
+					kernel=kernelTriangular;
+					break;
+				default:
+					kernel=kernelNormal;
+			}
+			for (x=0;x<max;x+=stepsize){
+				X.push(x);
+				value=0;
+				for (i=0;i<votes.length;i++){
+					value+=kernel((x-votes[i])*h);
+				}
+				value=value*h/votes.length;
+				KDE.push(value);
+				if (value>ymax){ymax=value;}
+			}
+			plot(X,KDE);
+		}
+		
+		function plot(X,Y){
+			
+		}
+		
+		
+		//Connect to Twitchchat:
+		const client = new tmi.Client({
+			options: { debug: false },
+			channels: [ TwitchChannel ]
+		});
+		client.connect().catch(console.error);
+		client.on('message', (channel, user, message, self) => {
+		// "Alca: Hello, World!"
+		let vote=message.replace(",",".").replace(/[€$]/g, "");
+		if (allowvoting && !isNaN(vote)){
+			//Message is a valid vote format
+			if (!Userlist.includes(user['display-name']) || debug){
+				newvote(vote*1);
+				Userlist.push(user['display-name']);
+			}
+				
+		}else{
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || debug){
+				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
+				switch (message.split(" ")[0]){
+					case ResetCommand:
+					case StartNewVoteCommand:
+						//Reset Votes
+						votes=[];
+						//Reset Userlist
+						Userlist=[];
+						break;
+					case TestCommand:
+						werte=message.split(" ");
+						if (werte.length>1 && werte[1]!=""){n=werte[1]*1;}else{n=10;}
+						if (werte.length>2 && werte[2]!=""){m=werte[2]*1;}else{m=2;}
+						if (werte.length>3 && werte[3]!=""){x=werte[3]*1;}else{x=100;}
+						if (werte.length>4 && werte[4]!=""){x=werte[4]*1;}else{r=2;}
+						generateData(n,m,x,r);
+						break;
+					case HideVoteCommand:
+						//document.getElementById("container").style.display="none";
+						break;
+					case ShowVoteCommand:
+						//document.getElementById("container").style.display="flex";
+						break;
+					case StopVoteCommand:
+						allowvoting=false;
+						break;
+					case StartVoteCommand:
+						allowvoting=true;
+						break;
+					case ResetBlocklistCommand:
+						Userlist=[];
+						break;
+				}
+			}
+			
+		}
+		//document.getElementById("Chatlog").innerHTML+=`<br><b>${user['display-name']}</b>: ${message}`;
+		//console.log(`${user['display-name']}: ${message}`);
+	});
+	</script>
+</html>
