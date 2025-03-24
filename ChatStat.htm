@@ -50,7 +50,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 		extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
 	
 		siteURL=new URL(window.location);
-		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase();
+		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");
 		timeout=siteURL.searchParams.get("to");
 		if (timeout==null){timeout=30;}
 		timeout*=1;
@@ -222,7 +222,6 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 		}
 		
 		function plot(X,Y,min,max,ymax){
-			//min=0;max=100
 			console.log(arguments);
 			const minSciExp=6;//Lowest |Exponent| to use scientific notation
 			const SciExp=Math.min(minSciExp, Math.max(Math.abs(min.toExponential(2).split("e")[1]), Math.abs(max.toExponential(2).split("e")[1])))
@@ -302,7 +301,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			//First and last Tick is skipped
 			for(pos=tickstart+tickstep;pos<=max;pos+=tickstep){
 				tick=Number(pos.toExponential(tickround));
-				console.log(i+": "+tick+" - "+pos);
+				//console.log(i+": "+tick+" - "+pos);
 				ctx.fillRect((tick-min)*mx/(max-min)-0.1*p, my-fontHeight-3*p,0.2*p+0.5,0.5*fontHeight);
 				textwidth=ctx.measureText(tick).width;
 				ctx.fillText(tick,(tick-min)*mx/(max-min)-0.5*textwidth,my-1*p);
@@ -311,7 +310,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			
 			//Plot XY
 			posxaxis=my-fontHeight-2*p-0.5*fontHeight;
-			yscale=posxaxis/ymax;
+			yscale=(posxaxis-1.5*fontHeight-2*p)/ymax;
 			ctx.strokeStyle = "rgb(200 0 0)";
 			ctx.fillStyle = "rgb(0 0 200 / 10%)";
 			ctx.beginPath();
@@ -319,20 +318,41 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			
 			console.log("posxaxis="+posxaxis);
 			console.log("yscale="+yscale);
-			for (i=0;i<X.length-1;i++){
+			for (i=0;i<X.length;i++){
 				ctx.lineTo(i,posxaxis-yscale*Y[i]);
 			}
 			ctx.lineTo(mx,posxaxis);
 			ctx.closePath();
 			ctx.stroke();
 			ctx.fill();
+			
+			//Annote local maxima
+			let maxY=[];
+			let maxX=[];
+			ctx.fillStyle = "rgb(0 0 0)";
+			ctx.font = "36px serif";
+			for (i=1;i<X.length-1;i++){
+				if (Y[i-1]<Y[i] && Y[i]>=Y[i+1]){
+					maxY.push(Y[i]);
+					maxX.push(X[i]);
+					ctx.fillRect((X[i]-min)*mx/(max-min)-0.1*p,posxaxis-yscale*Y[i]-0.5*p,0.1*p,0.5*fontHeight);
+					value=X[i].toFixed(2);
+					textwidth=ctx.measureText(value).width;
+					ctx.fillText(value,(X[i]-min)*mx/(max-min)-0.5*textwidth,posxaxis-yscale*Y[i]-p-0.5*fontHeight)
+				}
+			}
 		}
 		plot([0,1],[1,5],0,1,5);
+		
+		
+		//a=setInterval(function(){generateData(1,4,1000,2)},100)
+		//clearInterval(a)
+		
 		
 		//Connect to Twitchchat:
 		const client = new tmi.Client({
 			options: { debug: false },
-			channels: [ TwitchChannel ]
+			channels: TwitchChannel
 		});
 		client.connect().catch(console.error);
 		client.on('message', (channel, user, message, self) => {
@@ -346,7 +366,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			}
 				
 		}else{
-			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || user['display-name'].toLowerCase()==TwitchChannel.toLowerCase() || debug){
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes(user['display-name'].toLowerCase()) || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
 					case ResetCommand:
@@ -355,6 +375,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 						votes=[];
 						//Reset Userlist
 						Userlist=[];
+						update();
 						break;
 					case TestCommand:
 						werte=message.split(" ");
