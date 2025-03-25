@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <!--
 Config via URL-Parameters:
-- `channel`: Name of Twich Channel you want to listen
-- `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
-- `minvotes`: Min votes to show the bar
+- `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
+- `kernel`: Kernel of the KDE Plot. Choose one of [Normal, Epanechnikov, Box, Biweight, Triweight, Triangular]  [default: normal]
+- `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white-transparent (230,230,255,0.8)]
+- `axiscolor`: r,g,b,a value  for the axis-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+- `linecolor`: r,g,b,a value  for the line-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+- `fillcolor`: r,g,b,a value  for the fill-color (0-255) and alpha (0-1) [default: blue-transparent (50,50,255,0.5)]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
-use them like: ChatStat.htm?channel=Testchannel&to=10
+use them like: ChatStat.htm?channel=Testchannel&debug=1
 -->
 <html>
 	<header>
@@ -21,12 +24,10 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			width: 100%;
 			height: 100%;
 			position: absolute;
-			background-color:red;
 		}
 		#canvas{
 			width: 100%;
 			height: 100%;
-			background-color:green;
 		}
 
 	</style>
@@ -51,14 +52,18 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 	
 		siteURL=new URL(window.location);
 		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");
-		timeout=siteURL.searchParams.get("to");
-		if (timeout==null){timeout=30;}
-		timeout*=1;
-		minvotes=siteURL.searchParams.get("minvotes");
-		if (minvotes==null || minvotes*1<5){minvotes=5;}
-		minvotes*=1;
 		kernel=siteURL.searchParams.get("kernel");
 		if (kernel==null){kernel="normal";}
+		bg=siteURL.searchParams.get("bg");
+		if (bg==null){bg="230,230,255,0.8"}
+		document.getElementById("canvas").style.backgroundColor="rgba("+bg+")";
+		axcolor=siteURL.searchParams.get("axiscolor");
+		if (axcolor==null){axcolor="0,0,0,1"}
+		linecolor=siteURL.searchParams.get("linecolor");
+		if (linecolor==null){linecolor="0,0,0,1"}
+		fillcolor=siteURL.searchParams.get("fillcolor");
+		if (fillcolor==null){fillcolor="50,50,255,0.5"}
+		
 		
 		debug=siteURL.searchParams.get("debug");
 		if (debug!=null){
@@ -242,6 +247,8 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			
 			//Axes
 			//ctx.fillText("0123456789e",0,my-1*p);
+			ctx.strokeStyle="rgba("+axcolor+")";
+			ctx.fillStyle="rgba("+axcolor+")";
 			ctx.fillRect(0,my-fontHeight-2*p-0.5*fontHeight,mx,0.5*p);
 			
 			let n=Math.floor(mx/TickWidth)-1;
@@ -291,7 +298,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			//First and last Tick is skipped
 			for(pos=tickstart+tickstep;pos<=max;pos+=tickstep){
 				tick=Number(pos.toExponential(tickround));
-				ctx.fillRect((tick-min)*mx/(max-min)-0.1*p, my-fontHeight-3*p,0.2*p+0.5,0.5*fontHeight);
+				ctx.fillRect((tick-min)*mx/(max-min)-0.1*p, my-fontHeight-2*p,0.2*p+0.5,-0.5*fontHeight);
 				textwidth=ctx.measureText(tick).width;
 				ctx.fillText(tick,(tick-min)*mx/(max-min)-0.5*textwidth,my-1*p);
 				i++;
@@ -300,8 +307,8 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			//Plot XY
 			posxaxis=my-fontHeight-2*p-0.5*fontHeight;
 			yscale=(posxaxis-1.5*fontHeight-2*p)/ymax;
-			ctx.strokeStyle = "rgb(200 0 0)";
-			ctx.fillStyle = "rgb(0 0 200 / 10%)";
+			ctx.strokeStyle="rgba("+linecolor+")";
+			ctx.fillStyle="rgba("+fillcolor+")";
 			ctx.beginPath();
 			ctx.moveTo(0,posxaxis)
 			
@@ -314,14 +321,15 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			ctx.fill();
 			
 			//Find local maxima
+			ctx.strokeStyle="rgba("+axcolor+")";
+			ctx.fillStyle="rgba("+axcolor+")";
 			let maxY=[];
 			let maxX=[];
-			ctx.fillStyle = "rgb(0 0 0)";
 			for (i=1;i<X.length-1;i++){
 				if (Y[i-1]<Y[i] && Y[i]>=Y[i+1]){
 					maxY.push(Y[i]);
 					maxX.push(X[i]);
-					ctx.fillRect((X[i]-min)*mx/(max-min)-0.1*p,posxaxis-yscale*Y[i]-0.5*p,0.1*p,0.5*fontHeight);
+					ctx.fillRect((X[i]-min)*mx/(max-min)-0.1*p,posxaxis-yscale*Y[i]+0.25*fontHeight,0.1*p,-0.5*fontHeight);
 					
 				}
 			}
@@ -373,6 +381,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 				}else{
 					ctx.font = "36px serif";
 				}
+				ctx.fillRect((maxX[i]-min)*mx/(max-min)-0.2*p,posxaxis-yscale*maxY[i]+0.25*fontHeight,0.4*p,-p-0.5*fontHeight);
 				ctx.fillText(value,(maxX[i]-min)*mx/(max-min)-0.5*textwidth,posxaxis-yscale*maxY[i]-p-0.5*fontHeight)
 			}
 		}
@@ -400,7 +409,7 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 			}
 				
 		}else{
-			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes(user['display-name'].toLowerCase()) || debug){
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes("#"+user['display-name'].toLowerCase()) || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
 					case ResetCommand:
@@ -420,10 +429,10 @@ use them like: ChatStat.htm?channel=Testchannel&to=10
 						generateData(n,m,x,r);
 						break;
 					case HideVoteCommand:
-						//document.getElementById("container").style.display="none";
+						document.getElementById("plot").style.display="none";
 						break;
 					case ShowVoteCommand:
-						//document.getElementById("container").style.display="flex";
+						document.getElementById("plot").style.display="block";
 						break;
 					case StopVoteCommand:
 						allowvoting=false;
