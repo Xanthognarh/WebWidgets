@@ -55,6 +55,7 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 - `axiscolor`: r,g,b,a value  for the axis-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
 - `linecolor`: r,g,b,a value  for the line-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
 - `fillcolor`: r,g,b,a value  for the fill-color (0-255) and alpha (0-1) [default: blue-transparent (50,50,255,0.5)]
+- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default=0]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?channel=Channelname&debug=1`

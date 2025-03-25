@@ -7,13 +7,14 @@ Config via URL-Parameters:
 - `axiscolor`: r,g,b,a value  for the axis-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
 - `linecolor`: r,g,b,a value  for the line-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
 - `fillcolor`: r,g,b,a value  for the fill-color (0-255) and alpha (0-1) [default: blue-transparent (50,50,255,0.5)]
+- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default=0]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 use them like: ChatStat.htm?channel=Testchannel&debug=1
 -->
 <html>
 	<header>
-		<title>Xanthopoll</title>
 		<meta charset="UTF-8">
+		<title>Xanthopoll</title>		
 	</header>
 	<script src="Scripts/tmi.min.js"></script>
 	<style>
@@ -63,7 +64,8 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 		if (linecolor==null){linecolor="0,0,0,1"}
 		fillcolor=siteURL.searchParams.get("fillcolor");
 		if (fillcolor==null){fillcolor="50,50,255,0.5"}
-		
+		hidden=siteURL.searchParams.get("hidden");
+		if (hidden*1==1){document.getElementById("plot").style.visibility="hidden"}
 		
 		debug=siteURL.searchParams.get("debug");
 		if (debug!=null){
@@ -412,8 +414,11 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes("#"+user['display-name'].toLowerCase()) || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
-					case ResetCommand:
 					case StartNewVoteCommand:
+						if (message.split(" ")[1].toLowerCase()!="kde"){document.getElementById("plot").style.visibility="hidden"; break;}
+						document.getElementById("plot").style.visibility="visible";
+						//no break
+					case ResetCommand:
 						//Reset Votes
 						votes=[];
 						//Reset Userlist
@@ -429,10 +434,10 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 						generateData(n,m,x,r);
 						break;
 					case HideVoteCommand:
-						document.getElementById("plot").style.display="none";
+						document.getElementById("plot").style.visibility="hidden";
 						break;
 					case ShowVoteCommand:
-						document.getElementById("plot").style.display="block";
+						document.getElementById("plot").style.visibility="visible";
 						break;
 					case StopVoteCommand:
 						allowvoting=false;
