@@ -155,7 +155,7 @@
 				//User in List, but maybe not in Table
 				AnswerEntry(userstate['display-name'],message.substr(TalkbackCommand.length+1,maxTalkbacklength))
 			}else{
-				if (userstate.mod || userstate['display-name']=="Xanthognarh" || TwitchChannel(userstate['display-name'].toLowerCase())){
+				if (userstate.mod || TwitchChannel.include("#"+userstate['display-name'].toLowerCase())){
 					//Mods
 					switch (message.split(" ")[0].toLowerCase()){
 						case AddCommand://!AddUser Name Amount Type

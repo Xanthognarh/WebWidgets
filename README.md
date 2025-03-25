@@ -50,19 +50,24 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
+- `kernel`: Kernel of the KDE Plot. Choose one of [Normal, Epanechnikov, Box, Biweight, Triweight, Triangular]  [default: normal]
+- `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white-transparent (230,230,255,0.8)]
+- `axiscolor`: r,g,b,a value  for the axis-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+- `linecolor`: r,g,b,a value  for the line-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
+- `fillcolor`: r,g,b,a value  for the fill-color (0-255) and alpha (0-1) [default: blue-transparent (50,50,255,0.5)]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?channel=Channelname&debug=1`
 
 
 ### Chat Commands:
-- `!newvote`: Resets votes and user blocklist, shows the chart
+- `!newvote KDE`: Resets votes and user blocklist, shows the chart
 - `!resetvote`: Alias for `!newvote` (shared command with Chat12)
 - `!stopvote`: Disables new entries (freeze the current view)
 - `!continuevote`: Allows new entries, old votes are still valid and the old user blocklist will be used. 
 - `!voteagain`: Allows all users to submit new votes. These votes are added to the old votes.
 - `!hidevote`: Changes the visibility of the chart. Votes will be still counted.
-- `!showvote`: Changes the visibility of the chart. Votes will be still counted.
+//- `!showvote`: Changes the visibility of the chart. Votes will be still counted.
 - `!testdata n [modes max digits]`: Generates n random votes with given modes [default: 2], from 0 to max [default:100] and rounds the result to digits [default:2].
 
 ## Chat12

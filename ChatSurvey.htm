@@ -290,7 +290,7 @@ use them like: ChatSurvey.htm?channel=Testchannel&min=1&max=5
 				myChart.update();
 			}			
 		}else{
-			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes(user['display-name'].toLowerCase()) || debug){
+			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes("#"+user['display-name'].toLowerCase()) || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
 				switch (message.split(" ")[0]){
 					case ResetCommand:
