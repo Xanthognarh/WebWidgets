@@ -300,17 +300,18 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 						ResetVoting();
 						break;
 					case StartNewVoteCommand:
+						ResetVoting();
 						ongoingvoting=true;
 						document.getElementById("plot").style.visibility = "hidden";
 						hidden=true;
 						CheckIntervalActive=false;
-						votes=[0,0];
-						Userlist=[];
 						clearInterval(VotingTimer);
 						break;
 					case HideVoteCommand:
 						ongoingvoting=false;
 						ResetVoting();
+						CheckIntervalActive=false;
+						clearInterval(VotingTimer);
 						document.getElementById("plot").style.visibility = "hidden";
 						break;
 					case StylechangeCommand:

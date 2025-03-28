@@ -23,24 +23,24 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
-- `min`: lowest accepted value for vote [default=1]
-- `max`: highest accepted value for vote [default=5]
+- `min`: lowest accepted value for vote [default: 1]
+- `max`: highest accepted value for vote [default: 5]
 - `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: transparent (0,0,0,0)]
-- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default=0]
+- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default: 0]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 You can click on the plot to open/close the config editor or edit the values manually. Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=Channelname&min=1&max=5&bg=50,70,100,0.3`
 
 
 ### Chat Commands:
-- `!newvote`: Resets votes and user blocklist, shows the chart
-- `!newvote min-max`: Resets votes and user blocklist, shows the chart and set range. Example for negative values: `!newvote -3--1`; Min/Max can be letters (case-insensitive)
+- `!newvote`: Reset votes and user blocklist, show the chart
+- `!newvote min-max`: Reset votes and user blocklist, show the chart and set range. Example for negative values: `!newvote -3--1`; Min/Max can be letters (case-insensitive)
 - `!resetvote`: Alias for `!newvote` (shared command with Chat12)
-- `!stopvote`: Disables new entries (freeze the current view)
-- `!continuevote`: Allows new entries, old votes are still valid and the old user blocklist will be used. 
-- `!voteagain`: Allows all users to submit new votes. These votes are added to the old votes.
-- `!hidevote`: Changes the visibility of the chart. Votes will be still counted.
-- `!showvote`: Changes the visibility of the chart. Votes will be still counted.
+- `!stopvote`: Disable new entries (freeze the current view)
+- `!continuevote`: Allow new entries, old votes are still valid and the old user blocklist will be used. 
+- `!voteagain`: Allow all users to submit new votes. These votes are added to the old votes.
+- `!hidevote`: Change the visibility of the chart. Votes will be still counted.
+- `!showvote`: Change the visibility of the chart. Votes will be still counted.
 
 ### Feature Ideas
 - `!vote Text` e.g. Names
@@ -55,21 +55,23 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 - `axiscolor`: r,g,b,a value  for the axis-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
 - `linecolor`: r,g,b,a value  for the line-color (0-255) and alpha (0-1) [default: black (0,0,0,1)]
 - `fillcolor`: r,g,b,a value  for the fill-color (0-255) and alpha (0-1) [default: blue-transparent (50,50,255,0.5)]
-- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default=0]
+- `hidden`: 0: Not hidden or 1: hidden when loading the page. Visibility can be changed by chat commands. [default: 0]
+- `bandwidth`: Fixed value for the bandwith (h) [default: auto]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?channel=Channelname&debug=1`
 
 
 ### Chat Commands:
-- `!newvote KDE`: Resets votes and user blocklist, shows the chart
+- `!newvote KDE`: Reset votes and user blocklist, show the chart
 - `!resetvote`: Alias for `!newvote` (shared command with Chat12)
-- `!stopvote`: Disables new entries (freeze the current view)
-- `!continuevote`: Allows new entries, old votes are still valid and the old user blocklist will be used. 
-- `!voteagain`: Allows all users to submit new votes. These votes are added to the old votes.
-- `!hidevote`: Changes the visibility of the chart. Votes will be still counted.
-//- `!showvote`: Changes the visibility of the chart. Votes will be still counted.
-- `!testdata n [modes max digits]`: Generates n random votes with given modes [default: 2], from 0 to max [default:100] and rounds the result to digits [default:2].
+- `!stopvote`: Disable new entries (freeze the current view)
+- `!continuevote`: Allow new entries, old votes are still valid and the old user blocklist will be used. 
+- `!voteagain`: Allow all users to submit new votes. These votes are added to the old votes.
+- `!hidevote`: Change the visibility of the chart. Votes will be still counted.
+- `!showvotekde`: Change the visibility of the chart. Votes will be still counted.
+- `!setkernel`:  Change the kernel of the KDE Plot. Choose one of [Normal, Epanechnikov, Box, Biweight, Triweight, Triangular]
+- `!testdata n [modes max digits]`: Generate n random votes with given modes [default: 2], from 0 to max [default: 100] and rounds the result to digits [default: 2].
 
 ## Chat12
 Reads the chat of a Twitch channel and interprets the messages "1" and "2" as votes. The voting result is displayed as a bar with a marker at the center.
@@ -79,22 +81,22 @@ Only the first number of each user is accepted until a new vote is started. Afte
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
-- `to`: Approximate time in seconds after the last vote to reset the voting [default=30]
-- `minvotes`: Necessary amount of votes to display the bar [default=3]
+- `to`: Approximate time in seconds after the last vote to reset the voting [default: 30]
+- `minvotes`: Necessary amount of votes to display the bar [default: 3]
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: blue (29,105,253,1)]
 - `c2`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: pink (217,1,177,1)]
-- `stats`: 0: Not displayed or 1: Number of votes displayed [default=0]
-- `fontsize`: Value between 0-100, if ≤50: Left text top, right text bottom [default=50]
-- `style`: Choose a predefined design (0-4) [default=0]
+- `stats`: 0: Not displayed or 1: Number of votes displayed [default: 0]
+- `fontsize`: Value between 0-100, if ≤50: Left text top, right text bottom [default: 50]
+- `style`: Choose a predefined design (0-4) [default: 0]
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channel=Channelname&to=10`
 
 ### Chat Commands:
-- `!hidevote`: Resets votes and user blocklist and hides the bar (shared command with ChatSurvey, but without background voting)
-- `!resetvote`: Resets votes and user blocklist (shared command with ChatSurvey); like `!hidevote` 
-- `!disablevote`: Disables new votes until `!enablevote` and hides the bar
-- `!enablevote`: Allows new votes
+- `!hidevote`: Reset votes and user blocklist and hide the bar (shared command with ChatSurvey, but without background voting)
+- `!resetvote`: Reset votes and user blocklist (shared command with ChatSurvey); like `!hidevote` 
+- `!disablevote`: Disable new votes until `!enablevote` and hides the bar
+- `!enablevote`: Allow new votes
 - `!votestyle style`: Change the design
 - `!votetitle Title`: Set a Title/Question
 
@@ -107,11 +109,11 @@ Shows a list of Subs/Bits for future interaction. The listet users can display a
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
-- `len`: max Number of Entries displayed [default=5]
-- `bitprice`: Amount of Bits that equals 1 [default=300]
-- `subprice`: Amount of Subs that equals 1 [default=1]
-- `maxmessage`: max length of Message to be displayed [default=30]
-- `showtype`: 0: Hide the column with the Sub/Resub/Bit 1: Show the column [default=1]
+- `len`: max Number of Entries displayed [default: 5]
+- `bitprice`: Amount of Bits that equals 1 [default: 300]
+- `subprice`: Amount of Subs that equals 1 [default: 1]
+- `maxmessage`: max length of Message to be displayed [default: 30]
+- `showtype`: 0: Hide the column with the Sub/Resub/Bit 1: Show the column [default: 1]
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/sublist.htm?channel=channelname&len=3` 
 If you want a background-color add this custom CSS in OBS: `table{background-color:rgba(255,255,255,0.4)}`
@@ -119,9 +121,9 @@ If you want a background-color add this custom CSS in OBS: `table{background-col
 - `!pick message`: Command for the person shown in table to send a Message
 - `!pick username message`: Mod command to send a message instead
 - `!AddUser username [amount][type]`: Add username to the queue, amount and type can be empty
-- `!RemoveUser username [Pos=0]`: Removes the pos-th entry of the given user
-- `!ShowType`: Shows the column with the Sub/Resub/Bit info
-- `!HideType`: Hides the column with the Sub/Resub/Bit info
+- `!RemoveUser username [Pos=0]`: Remove the pos-th entry of the given user
+- `!ShowType`: Show the column with the Sub/Resub/Bit info
+- `!HideType`: Hide the column with the Sub/Resub/Bit info
 
 ### Feature Ideas
 - `!Purgeuser`: Remove all entries of this user
@@ -144,9 +146,9 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 
 ### Chat Commands:
 - `!overlay Content`: Display an overlay with the content
-- `!showoverlay`: Shows the overlay
-- `!hideoverlay`: Hides the overlay
-- `!overlaypos pos [offset-x] [offset-y]`: Moves the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel. Pos 0 hides the background.
+- `!showoverlay`: Show the overlay
+- `!hideoverlay`: Hide the overlay
+- `!overlaypos pos [offset-x] [offset-y]`: Move the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel. Pos 0 hides the background.
 - `!overlayscale scale`: Scale the overlay [default: 1]
 - `!overlaycolor background [font]`: Set the color using CSS Color values e. g. #RRGGBBAA #RRGGBB rgba(255,255,255,1) blue. Use "-" as background to change only font color.
 - `!overlayfont font`: Set the font-family. Use " for font names with spaces. You can add fallback fonts (e. g. `!overlayfont Georgia, "Times New Roman", serif`). Use `!overlayfont 1-6` to use a font from this list:
