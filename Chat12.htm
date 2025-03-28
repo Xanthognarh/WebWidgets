@@ -310,8 +310,7 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 					case HideVoteCommand:
 						ongoingvoting=false;
 						ResetVoting();
-						CheckIntervalActive=false;
-						clearInterval(VotingTimer);
+						hidden=true;
 						document.getElementById("plot").style.visibility = "hidden";
 						break;
 					case StylechangeCommand:
