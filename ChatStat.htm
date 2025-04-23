@@ -47,7 +47,8 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 		StartVoteCommand="!continuevote";
 		KernelCommand="!setkernel";
 		hCommand="!seth";
-		percentCommand="!setp"
+		percentCommand="!setp";
+		rangelimitCommand="!limit";
 		TestCommand="!testdata";
 		
 		
@@ -73,6 +74,8 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 		bandwidth=siteURL.searchParams.get("bandwidth");
 		if (bandwidth==null){bandwidth="auto"}
 		percent=siteURL.searchParams.get("percent");
+		minX=siteURL.searchParams.get("minX");
+		maxX=siteURL.searchParams.get("maxX");
 		if (percent==null){percent=100}
 		debug=siteURL.searchParams.get("debug");
 		if (debug!=null){
@@ -133,7 +136,45 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 		Userlist=[];
 		allowvoting=true;
 		const sqrt2PI=Math.sqrt(2*Math.PI);
+		
+		function shuffleArray(array){
+			for (let i = array.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[array[i], array[j]] = [array[j], array[i]];
+			}
+		}
+		
+		testdata=[];
+		function sendTestData(sleep=100){
+			if (testdata.length>0){
+				newvote(testdata.pop());
+			}else{
+				return true;
+			}
+			setTimeout(sendTestData,sleep);
+		}
 		function generateData(n=10,modes=2,maxvalue=100,r=2){
+			if (n<0 && modes==2 && maxvalue==100 && r==2){
+				let newtestdata=[];
+				switch (n){
+					case -1:
+						newtestdata=[1,1,1,1,8,10,10,10,15,16,20,20,20,24,25,30,30,30,30,30,30,30,30,30,32,40,40,50,50,60,60,100,100,100,100,100,120,129,150,200,200,200,400,1500];
+						break;
+					case -2:
+						newtestdata=[0,0,1,2,2.5,2.99,5,5,5,9.99,10,10,12,13.95,15,16,20,24.99,30,30,32.5,35,39.9,39.99,40,40,40,42,50,50,50,69,75.35,269,275,430,1000,5000,6969,7850];
+						break;
+					case -3:
+						newtestdata=[];
+						break;
+					default:
+						return false;
+						break;
+				}
+				shuffleArray(newtestdata);
+				testdata.push.apply(testdata,newtestdata);
+				sendTestData();
+				return true;
+			}
 			if (n<1 || modes<1){return false;}
 			for (let i=0;i<n;i++){
 				newvote(Number(Math.round(Math.random()*maxvalue/modes + Math.round((modes-1)*Math.random())*maxvalue/modes +"e"+r)+"e-"+r));
@@ -163,6 +204,8 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 			if (isNaN(h)){h=null;}
 			let filter_percent=options.percent*1 || percent*1;
 			let kernel_type=options.kernel_type || kernel;
+			let MinLimit=options.MinLimit || minX;
+			let MaxLimit=options.MaxLimit || maxX;
 			
 			const resolution=document.getElementById("canvas").clientWidth/1;
 			if (filter_percent>100 || filter_percent<0){filter_percent=100;}
@@ -172,8 +215,14 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 			let max=votes.at(-skip-1);
 			console.log("Real min="+min+" max="+max);
 			min=min-(max-min)*0.01;
-			max=max+(max-min)*0.01
+			max=max+(max-min)*0.01;
+			if (MinLimit!=null){min=Math.max(MinLimit,min);}
+			if (MaxLimit!=null){max=Math.min(MaxLimit,max);}
+			console.log("Min:"+min+" Max:"+max);
+			
 			const stepsize=(max-min)/resolution;
+			
+			//calculate h if not given
 			if (h==null || h<=0){				
 				let mean=0;
 				for (i=skip;i<votes.length-skip;i++){
@@ -273,10 +322,10 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 				}else{
 					value=0.5*(votes[Math.floor(votes.length*i)]+votes[Math.ceil(votes.length*i)]);
 				}
-				console.log(i+": "+value);
+				//console.log(i+": "+value);
 				if (j%2==0){
 					ctx.fillRect(oldvalue*mx/(max-min),0,(value-oldvalue)*mx/(max-min),my);
-					console.log("Gezeichnet");
+					//console.log("Gezeichnet");
 				}
 				
 				oldvalue=value;
@@ -457,6 +506,7 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 		}else{
 			if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes("#"+user['display-name'].toLowerCase()) || debug){
 				//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
+				message+=" ";
 				switch (message.split(" ")[0]){
 					case StartNewVoteCommand:
 						if (message.split(" ")[1].toLowerCase()!="kde"){document.getElementById("plot").style.visibility="hidden"; break;}
@@ -503,6 +553,20 @@ use them like: ChatStat.htm?channel=Testchannel&debug=1
 						break;
 					case ResetBlocklistCommand:
 						Userlist=[];
+						break;
+					case rangelimitCommand:
+						werte=(message.split(" ")[1]+"-").split("-");
+						if (werte[0].trim()==""){
+							minX=null;
+						}else{
+							minX=werte[0]*1;
+						}
+						if (werte[1].trim()==""){
+							maxX=null;
+						}else{
+							maxX=werte[1]*1;
+						}
+						update();
 						break;
 				}
 			}
