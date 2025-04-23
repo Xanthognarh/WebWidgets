@@ -71,7 +71,11 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?chan
 - `!hidevote`: Change the visibility of the chart. Votes will be still counted.
 - `!showvotekde`: Change the visibility of the chart. Votes will be still counted.
 - `!setkernel`:  Change the kernel of the KDE Plot. Choose one of [Normal, Epanechnikov, Box, Biweight, Triweight, Triangular]
+- `!seth width`: Set the width (bandwith h). Without a number h is estimated.
+- `!setp percent`: Set the displayed percentil (skips the lowest and highest values). 0: No Data used, 100: All Data used.
+- `!limit min-max`: Set the range of displayed values. If no min or max is given, it is unlimited.
 - `!testdata n [modes max digits]`: Generate n random votes with given modes [default: 2], from 0 to max [default: 100] and rounds the result to digits [default: 2].
+Use negative values for n to load example testdata (-1, -2). 
 
 ## Chat12
 Reads the chat of a Twitch channel and interprets the messages "1" and "2" as votes. The voting result is displayed as a bar with a marker at the center.
