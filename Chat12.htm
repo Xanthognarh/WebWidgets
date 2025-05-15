@@ -191,7 +191,17 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 			if (borderstyle>border.length || borderstyle<0){borderstyle=0;}
 			if (borderstyle==0){
 				document.getElementById("Overlay").style.display="none";
-				document.getElementById("direct").style.display="unset"			
+				document.getElementById("direct").style.display="unset";
+
+                if (anon){
+                    document.getElementById("t1e").style.display="none";                    
+                    document.getElementById("t2e").style.display="none";
+                    document.getElementById("bar2").style.backgroundColor="rgba("+c2")";
+                }else{
+                    document.getElementById("t1e").style.display="unset";                    
+                    document.getElementById("t2e").style.display="unset";
+                    document.getElementById("bar2").style.backgroundColor="rgba("+c1")";
+                }
 			}else{
 				document.getElementById("direct").style.display="none";
 				document.getElementById("Overlay").style.display="unset";
