@@ -101,7 +101,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channe
 - `!resetvote`: Reset votes and user blocklist (shared command with ChatSurvey); like `!hidevote` 
 - `!disablevote`: Disable new votes until `!enablevote` and hides the bar
 - `!enablevote`: Allow new votes
-- `!votestyle style`: Change the design
+- `!votestyle style`: Change the design. Add 00 (e.g. !votestyle 100) to make hidden voting.
 - `!votetitle Title`: Set a Title/Question
 
 

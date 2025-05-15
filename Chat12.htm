@@ -181,6 +181,12 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 		'0 0 512 112',40,81,105,430,105,'middle','middle',40,60,36,'begin']);
 
 		function changeStyle(borderstyle){
+            let anon=false;
+            if (borderstyle>=100){
+                borderstyle=borderstyle/100;
+                anon=true;
+                console.log("Anonym: "+borderstyle);
+            }
 			borderstyle=Math.round(borderstyle);
 			if (borderstyle>border.length || borderstyle<0){borderstyle=0;}
 			if (borderstyle==0){
@@ -204,6 +210,16 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 				document.getElementById("t3").setAttribute("x",border[borderstyle][11]);
 				document.getElementById("t3").setAttribute("y",border[borderstyle][12]);
 				document.getElementById("t3").setAttribute("text-anchor",border[borderstyle][13]);
+
+                if (anon){
+                    document.getElementById("t1").style.display="none";
+                    document.getElementById("t2").style.display="none";
+                    document.getElementById("bar").style.fill="rgba("+c2+")";
+                }else{
+                    document.getElementById("bar").style.fill="rgba("+c1+")";
+                    document.getElementById("t1").style.display="unset";
+                    document.getElementById("t2").style.display="unset";
+                }
 			}
 		}
 		changeStyle(borderstyle);
