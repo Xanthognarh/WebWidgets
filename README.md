@@ -5,6 +5,7 @@ A collection of Tools for more interaction with your Twitch chat. The tools can 
 3. [Chat12](#chat12)
 4. [Sublist](#sublist)
 5. [Overlay](#overlay)
+6. [PDF-Overlay](#PDF-Overlay)
 
 General Information:
 - Config via URL: Use the base url `https://xanthognarh.github.io/WebWidgets/`+Tool+`.htm?channel=`+Channelname and add optional parameters like `&parameter1=value1&parameter2=value2`
