@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Viewer</title>
+    <style>
+		body{
+			width:100vw;
+			height:100vh;
+		}
+        #canvas-container {
+            position: relative;
+        }
+        canvas {
+            border: 0px solid white;
+			background-color:green;
+            display: block;
+        }
+    </style>
+	<script src="Scripts/tmi.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs"></script>
+</head>
+<body onclick="document.getElementById('fileInput').click();">
+    <input type="file" id="fileInput" style="display: none;" accept="application/pdf">
+    <div id="canvas-container">
+        <canvas id="pdfCanvas"></canvas>
+    </div>
+    <script type="module" >
+const DisableCommand="!hidepdf";
+const EnableCommand="!showpdf";
+const NextCommand="!pdf+";
+const PreviousCommand="!pdf-";
+const SetPageCommand="!pdf";
+
+const extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
+
+const siteURL=new URL(window.location);
+const TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");	
+	
+	
+import { getDocument } from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc ='https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.worker.min.mjs';
+
+let pdfDoc = null;
+let currentPage = 1;
+const pdfCanvas = document.getElementById('pdfCanvas');
+document.getElementById('fileInput').addEventListener('change', loadPDF);
+
+async function loadPDF(event) {
+	const file = event.target.files[0];
+	if (file) {
+		const fileURL = URL.createObjectURL(file);
+		pdfDoc = await pdfjsLib.getDocument(fileURL).promise;
+		currentPage = 1;
+		renderPage(currentPage);
+	}
+}
+async function renderPage(num) {
+	const page = await pdfDoc.getPage(num);
+	const desiredHeight = window.screen.availHeight ;
+	const desiredWidth = window.screen.availWidth ;
+	const viewport = page.getViewport({ scale: 1, });
+	const scale = Math.min(desiredHeight / viewport.height, desiredWidth / viewport.width);
+	const scaledViewport = page.getViewport({ scale: scale, });
+
+	pdfCanvas.width = scaledViewport.width;
+	pdfCanvas.height = scaledViewport.height;
+
+	await page.render({canvasContext: pdfCanvas.getContext('2d'), viewport: scaledViewport}).promise;
+}
+
+function nextPage(amount=1) {
+	console.log("Next "+amount);
+	if (pdfDoc){
+		if (currentPage+amount <= pdfDoc.numPages) {
+		currentPage+=amount;
+		}else{
+			currentPage=pdfDoc.numPages;
+		}
+	renderPage(currentPage);
+	}
+}
+
+function previousPage(amount=1) {
+	console.log("Previous "+amount);
+	if (pdfDoc){
+		if (currentPage-amount >1) {
+		currentPage-=amount;
+		}else{
+			currentPage=1;
+		}
+	renderPage(currentPage);
+	}
+}
+
+function jumpToPage(pageNum) {
+	if (pdfDoc && pageNum > 0 && pageNum <= pdfDoc.numPages) {
+		currentPage = pageNum;
+		renderPage(currentPage);
+	}
+}
+
+//Connect to Twitchchat:
+const client = new tmi.Client({
+	options: { debug: false },
+	channels: TwitchChannel
+});
+client.connect().catch(console.error);
+client.on('message', (channel, user, message, self) => {
+	// "Alca: Hello, World!"
+	if (user.mod || extraMods.includes(user['display-name'].toLowerCase()) || TwitchChannel.includes("#"+user['display-name'].toLowerCase())){
+		//Authorised Users (Twitch Mods, extraMods, Broadcaster or in case of debug-mode: everyone)
+		switch (message.split(" ")[0]){
+			case EnableCommand:
+				pdfCanvas.style.visibility = "visible";
+				break;
+			case DisableCommand:
+				pdfCanvas.style.visibility = "hidden";
+				break;
+			case NextCommand:
+				if (isNaN(message.split(" ")[1]*1)){nextPage();}else{nextPage(message.split(" ")[1]*1);}
+				break;
+			case PreviousCommand:
+				if (isNaN(message.split(" ")[1]*1)){previousPage();}else{previousPage(message.split(" ")[1]*1);}
+				break;	
+			case SetPageCommand:
+				if (isNaN(message.split(" ")[1]*1)){break;}
+				jumpToPage(message.split(" ")[1]*1);
+				break;
+		}
+	}
+});
+	</script>
+</body>
+</html>

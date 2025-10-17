@@ -75,7 +75,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?chan
 - `!setp percent`: Set the displayed percentil (skips the lowest and highest values). 0: No Data used, 100: All Data used.
 - `!limit min-max`: Set the range of displayed values. If no min or max is given, it is unlimited.
 - `!testdata n [modes max digits]`: Generate n random votes with given modes [default: 2], from 0 to max [default: 100] and rounds the result to digits [default: 2].
-Use negative values for n to load example testdata (-1, -2). 
+Use negative values for n to load example testdata (-1,...,-25). 
 
 ## Chat12
 Reads the chat of a Twitch channel and interprets the messages "1" and "2" as votes. The voting result is displayed as a bar with a marker at the center.
@@ -173,3 +173,20 @@ A more convenient way for overlays could be MS PowerPoint or Google Slides. The 
 8. Change the background-color of the slides to black and don't use the black color for anything (use a very dark gray)
 
 To reduce the contures, you could increase the step 3 resolution (and update the step 5 values when using MS).
+
+## PDF-Overlay
+Shows a PDF file as an overlay. 
+![Example table of Subs](Examples/Xanthosub.png)
+
+### Config via URL-Parameters:
+- `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
+
+Embed the link like: `https://xanthognarh.github.io/WebWidgets/pdfoverlay.htm?channel=channelname`
+
+### Chat Commands:
+- `!hidepdf`: Hide the pdf
+- `!showpdf`: Show the pdf
+- `!pdf+ [amount]`: Turn to the next page
+- `!pdf- [amount]`: Turn to the previous page
+- `!pdf page`: Jump to page
+
