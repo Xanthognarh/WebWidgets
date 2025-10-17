@@ -5,8 +5,8 @@
     <title>PDF Viewer</title>
     <style>
 		body{
-			width:100vw;
-			height:100vh;
+			margin:0;
+			background-color: rgba(0,0,0,0);
 		}
         #canvas-container {
             position: relative;
@@ -16,15 +16,25 @@
 			background-color:green;
             display: block;
         }
+		#All{
+			width:100%;
+			height:100%;
+			position:absolute;
+			display:flex;
+			align-items:flex-end;
+			justify-content:center;
+		}
     </style>
 	<script src="Scripts/tmi.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs"></script>
 </head>
 <body onclick="document.getElementById('fileInput').click();">
+<div id="All">
     <input type="file" id="fileInput" style="display: none;" accept="application/pdf">
     <div id="canvas-container">
         <canvas id="pdfCanvas"></canvas>
     </div>
+</div>
     <script type="module" >
 const DisableCommand="!hidepdf";
 const EnableCommand="!showpdf";
@@ -33,6 +43,7 @@ const PreviousCommand="!pdf-";
 const SetPageCommand="!pdf";
 const RotatePageCommand="!pdfrotation";
 const SetScaleCommand="!pdfzoom";
+const SetPosCommand="!pdfpos";
 
 let rotationangle=0;
 let zoom=0;
@@ -41,6 +52,8 @@ const extraMods=[]; //only lower-case usernames (like in the url): extraMods=["n
 
 const siteURL=new URL(window.location);
 const TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");	
+let pos=siteURL.searchParams.get("pos");
+if (pos==null){pos="7"}
 	
 	
 import { getDocument } from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs';
@@ -49,6 +62,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc ='https://cdn.jsdelivr.net/npm/pdfjs-dist
 let pdfDoc = null;
 let currentPage = 1;
 const pdfCanvas = document.getElementById('pdfCanvas');
+const All=document.getElementById('All');
 document.getElementById('fileInput').addEventListener('change', loadPDF);
 
 async function loadPDF(event) {
@@ -58,6 +72,7 @@ async function loadPDF(event) {
 		pdfDoc = await pdfjsLib.getDocument(fileURL).promise;
 		currentPage = 1;
 		renderPage(currentPage);
+		ChangePosition(pos);
 	}
 }
 async function renderPage(num) {
@@ -138,6 +153,92 @@ function fixedscale(val=0){
 	renderPage(currentPage);
 }
 
+function ChangePosition(text){
+	let offsetx=text.split(" ")[1]*1;
+	let offsety=text.split(" ")[2]*1;
+	if (isNaN(offsety)){offsety=0;}
+	if (isNaN(offsetx)){offsetx=0;}
+	const margin="0%";
+	pos=text[0]*1;
+	switch (pos){
+		case 7:
+			All.style.alignItems="flex-start";
+			All.style.justifyContent="flex-start";
+			pdfCanvas.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+			pdfCanvas.style.marginTop="calc("+margin+" + "+offsety+"px)";
+			pdfCanvas.style.marginRight=margin;
+			pdfCanvas.style.marginBottom=margin;
+			break;
+		case 8:
+			All.style.alignItems="flex-start";
+			All.style.justifyContent="center";
+			pdfCanvas.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+			pdfCanvas.style.marginTop="calc("+margin+" + "+offsety+"px)";
+			pdfCanvas.style.marginRight=margin;
+			pdfCanvas.style.marginBottom=margin;
+			break;
+		case 9:
+			All.style.alignItems="flex-start";
+			All.style.justifyContent="flex-end";
+			pdfCanvas.style.marginLeft=margin;
+			pdfCanvas.style.marginTop="calc("+margin+" + "+offsety+"px)";
+			pdfCanvas.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+			pdfCanvas.style.marginBottom=margin;
+			break;
+			
+		case 4:
+			All.style.alignItems="center";
+			All.style.justifyContent="flex-start";
+			pdfCanvas.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+			pdfCanvas.style.marginTop="calc("+margin+" + "+offsety+"px)";
+			pdfCanvas.style.marginRight=margin;
+			pdfCanvas.style.marginBottom=margin;
+			break;
+		case 5:
+			All.style.alignItems="center";
+			All.style.justifyContent="center";
+			pdfCanvas.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+			pdfCanvas.style.marginTop="calc("+margin+" + "+offsety+"px)";
+			pdfCanvas.style.marginRight=margin;
+			pdfCanvas.style.marginBottom=margin;
+			break;
+		case 6:
+			All.style.alignItems="center";
+			All.style.justifyContent="flex-end";
+			pdfCanvas.style.marginLeft=margin;
+			pdfCanvas.style.marginTop="calc("+margin+" + "+offsety+"px)";
+			pdfCanvas.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+			pdfCanvas.style.marginBottom=margin;
+			break;
+		
+		case 1:
+			All.style.alignItems="flex-end";
+			All.style.justifyContent="flex-start";
+			pdfCanvas.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+			pdfCanvas.style.marginTop=margin;
+			pdfCanvas.style.marginRight=margin;
+			pdfCanvas.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+			break;
+		case 2:
+			All.style.alignItems="flex-end";
+			All.style.justifyContent="center";
+			pdfCanvas.style.marginLeft="calc("+margin+" + "+offsetx+"px)";
+			pdfCanvas.style.marginTop=margin;
+			pdfCanvas.style.marginRight=margin;
+			pdfCanvas.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+			break;
+		case 3:
+			All.style.alignItems="flex-end";
+			All.style.justifyContent="flex-end";
+			pdfCanvas.style.marginLeft=margin;
+			pdfCanvas.style.marginTop=margin;
+			pdfCanvas.style.marginRight="calc("+margin+" - "+offsetx+"px)";
+			pdfCanvas.style.marginBottom="calc("+margin+" - "+offsety+"px)";
+			break;
+	}
+}
+
+
 //Connect to Twitchchat:
 const client = new tmi.Client({
 	options: { debug: false },
@@ -173,6 +274,16 @@ client.on('message', (channel, user, message, self) => {
 				let val=message.split(" ")[1].replace(",",".");
 				if (isNaN(val*1)){fixedscale(0);break;}
 				fixedscale(val*1);
+				break;
+			case SetPosCommand:
+				const text=message.substr(SetPosCommand.length +1).trim();
+				
+				ChangePosition(text);					
+				if (text[0]*1==0){
+					All.style.backgroundColor="black";
+				}else{
+					All.style.backgroundColor="rgba(0,0,0,0)";
+				}
 				break;
 		}
 	}
