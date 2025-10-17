@@ -189,4 +189,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/pdfoverlay.htm?ch
 - `!pdf+ [amount]`: Turn to the next page
 - `!pdf- [amount]`: Turn to the previous page
 - `!pdf page`: Jump to page
+- `!pdfrotation angle`: Rotate page to angle [0, 1, 90, 2, 180, 3, 270]
+- `!pdfzoom percent`: Scale the pdf to percent of its maximum size. 0 and 100 scales the pdf to the maximum display size.
+
 

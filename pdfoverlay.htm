@@ -31,6 +31,11 @@ const EnableCommand="!showpdf";
 const NextCommand="!pdf+";
 const PreviousCommand="!pdf-";
 const SetPageCommand="!pdf";
+const RotatePageCommand="!pdfrotation";
+const SetScaleCommand="!pdfzoom";
+
+let rotationangle=0;
+let zoom=0;
 
 const extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
 
@@ -59,13 +64,16 @@ async function renderPage(num) {
 	const page = await pdfDoc.getPage(num);
 	const desiredHeight = window.screen.availHeight ;
 	const desiredWidth = window.screen.availWidth ;
-	const viewport = page.getViewport({ scale: 1, });
-	const scale = Math.min(desiredHeight / viewport.height, desiredWidth / viewport.width);
-	const scaledViewport = page.getViewport({ scale: scale, });
+	const viewport = page.getViewport({ scale: 1, rotation: rotationangle});
+	let scale = Math.min(desiredHeight / viewport.height, desiredWidth / viewport.width);
+	if (zoom!=0){ 
+		scale=zoom*scale/100;
+	}
+	const scaledViewport = page.getViewport({ scale: scale, rotation: rotationangle});
 
 	pdfCanvas.width = scaledViewport.width;
 	pdfCanvas.height = scaledViewport.height;
-
+	console.log("Render Page "+num+" with scale "+scale+" and rotation "+rotationangle);
 	await page.render({canvasContext: pdfCanvas.getContext('2d'), viewport: scaledViewport}).promise;
 }
 
@@ -100,6 +108,36 @@ function jumpToPage(pageNum) {
 	}
 }
 
+function rotate(angle){
+	if (pdfDoc){
+		switch(angle){
+			case 0:
+			case 360:
+			case 4:
+			rotationangle=0;
+			break;
+			case 1:
+			case 90:
+			rotationangle=90;
+			break;
+			case 2:
+			case 180:
+			rotationangle=180;
+			break;
+			case 3:
+			case 270:
+			rotationangle=270;
+			break;
+		}
+		renderPage(currentPage);
+	}
+}
+
+function fixedscale(val=0){
+	zoom=val;
+	renderPage(currentPage);
+}
+
 //Connect to Twitchchat:
 const client = new tmi.Client({
 	options: { debug: false },
@@ -126,6 +164,15 @@ client.on('message', (channel, user, message, self) => {
 			case SetPageCommand:
 				if (isNaN(message.split(" ")[1]*1)){break;}
 				jumpToPage(message.split(" ")[1]*1);
+				break;
+			case RotatePageCommand:
+				if (isNaN(message.split(" ")[1]*1)){break;}
+				rotate(message.split(" ")[1]*1);
+				break;
+			case SetScaleCommand:
+				let val=message.split(" ")[1].replace(",",".");
+				if (isNaN(val*1)){fixedscale(0);break;}
+				fixedscale(val*1);
 				break;
 		}
 	}
