@@ -176,7 +176,7 @@ A more convenient way for overlays could be MS PowerPoint or Google Slides. The 
 To reduce the contures, you could increase the step 3 resolution (and update the step 5 values when using MS).
 
 ## PDF-Overlay
-Shows a PDF file as an overlay. 
+Shows a PDF file as an overlay. To select the pdf file you have to enter the interactive mode in OBS and click anywhere on the page. Then you can leave the interactive mode.
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
