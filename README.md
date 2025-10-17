@@ -177,7 +177,6 @@ To reduce the contures, you could increase the step 3 resolution (and update the
 
 ## PDF-Overlay
 Shows a PDF file as an overlay. 
-![Example table of Subs](Examples/Xanthosub.png)
 
 ### Config via URL-Parameters:
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
