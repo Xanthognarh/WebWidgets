@@ -13,7 +13,7 @@
         }
         canvas {
             border: 0px solid white;
-			background-color:green;
+			background-color:lightgreen;
             display: block;
         }
 		#All{
@@ -24,6 +24,74 @@
 			align-items:flex-end;
 			justify-content:center;
 		}
+        #Help{
+            position:absolute;
+            width:100%;
+            height:100%;
+            margin:0;
+            padding:0;
+            background-color:rgba(150,150,150,0.5);
+        }
+        #Placeholder{
+            width:100%;
+            height:100%;
+            margin:0;
+            padding:0;
+        }
+        #Placeholder div{
+            width:100%;
+            height:100%;
+            margin:0;
+            padding:0;
+            position:absolute;
+			display:flex;
+        }
+        #Placeholder div span {
+            width:calc(100vw / 5);
+            height:calc(100vh / 5);
+            background-color:green;
+            text-align:center;
+            font-size:calc(100vh / 5);
+        }
+        #p1{align-items:flex-end;justify-content:flex-start;}
+        #p2{align-items:flex-end;justify-content:center;}
+        #p3{align-items:flex-end;justify-content:flex-end;}
+        #p4{align-items:center;justify-content:flex-start;}
+        #p5{align-items:center;justify-content:center;}
+        #p6{align-items:center;justify-content:flex-end;}
+        #p7{align-items:flex-start;justify-content:flex-start;}
+        #p8{align-items:flex-start;justify-content:center;}
+        #p9{align-items:flex-start;justify-content:flex-end;}
+        #Anleitung{
+            position:absolute;
+            height:calc(100vh / 5);
+            top:calc(100vh / 5);
+            font-size:calc(100vh / 20);
+            text-align:center;
+        }
+        #Commands{
+            position:absolute;
+            height:calc(100vh / 5);
+            top:calc(100vh / 5 * 3);
+            font-size:calc(100vh / 40);
+        }
+        strong{
+            text-align:initial;
+            font-size:inherit;
+            display:contents;
+            white-space:nowrap;
+        }
+        #Commands div span{
+            background: #7fc3ff;
+            margin: 5px;
+            border-radius: 10px;
+            padding: 4px;
+            font-size:calc(100vh / 30);
+            line-height: calc(100vh / 30 + 15px);
+        }
+        #Commands div{
+            width:100%;
+        }
     </style>
 	<script src="Scripts/tmi.min.js"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs"></script>
@@ -34,6 +102,21 @@
     <div id="canvas-container">
         <canvas id="pdfCanvas"></canvas>
     </div>
+</div>
+<div id="Help">
+    <div id="Placeholder">
+        <div id="p1"><span>1<span></div>
+        <div id="p2"><span>2<span></div>
+        <div id="p3"><span>3<span></div>
+        <div id="p4"><span>4<span></div>
+        <div id="p5"><span>5<span></div>
+        <div id="p6"><span>6<span></div>
+        <div id="p7"><span>7<span></div>
+        <div id="p8"><span>8<span></div>
+        <div id="p9"><span>9<span></div>
+    </div>
+    <div id="Anleitung">Open a PDF by clicking (OBS: Use the 'Interact' Button to open the interactive window) anywhere on this page. A file open dialog should open.</div>
+    <div id="Commands"></div>
 </div>
     <script type="module" >
 const DisableCommand="!hidepdf";
@@ -51,9 +134,17 @@ let zoom=0;
 const extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
 
 const siteURL=new URL(window.location);
-const TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");	
+let TwitchChannel="";
+try{
+    TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");
+}catch{
+    document.getElementById("Anleitung").innerHTML="<strong style='color:red'>!!! Add ?channel=YourChannelName to the URL !!!</strong>";
+    throw new Error("Channelname missing in url");
+}	
 let pos=siteURL.searchParams.get("pos");
 if (pos==null){pos="7"}
+
+document.getElementById("Commands").innerHTML=`<div>Commands for Mods and ${[TwitchChannel,extraMods.join(', ')].join(', ')}:</div><div><span>Next Page: <strong>${NextCommand}</strong></span><span> Previous Page: <strong>${PreviousCommand}</strong></span><span> Set Page: <strong>${SetPageCommand}</strong></span><span> Show/Hide: <strong>${EnableCommand}/${DisableCommand}</strong></span><span> Rotate: <strong>${RotatePageCommand}</strong> 0/1=90°/2=180°/3=270°</span><span> Zoom <strong>${SetScaleCommand}</strong> 100</span><span> Move <strong>${SetPosCommand}</strong> 1-9 [offset-x] [offset-y]</span></div>`;
 	
 	
 import { getDocument } from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs';
@@ -73,7 +164,10 @@ async function loadPDF(event) {
 		currentPage = 1;
 		renderPage(currentPage);
 		ChangePosition(pos);
-	}
+        document.getElementById("Help").style.visibility="hidden";
+	}else{
+        document.getElementById("Help").style.visibility="visible";
+    }
 }
 async function renderPage(num) {
 	const page = await pdfDoc.getPage(num);
