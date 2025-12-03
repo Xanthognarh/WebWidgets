@@ -188,17 +188,18 @@ strong {
 	position: absolute;
 	background: red;
 	pointer-events: none;
-/* don't block mouse */
 }
 #line-top,
 #line-bottom {
-	width: 100vw;
+	width: 200vw;
 	height: 1px;
+    left:0px;
 }
 #line-left,
 #line-right {
 	width: 1px;
-	height: 100vh;
+	height: 200vh;
+    top:0px;
 }
         </style>
 <script type="module" src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs"></script>
@@ -210,18 +211,13 @@ strong {
                 <div id="All">
                     <input type="file" id="fileInput" style="display: none;" accept="application/pdf">
                     <div id="canvas-container">
-                        <canvas id="pdfCanvas">
-                        </canvas>
+                        <canvas id="pdfCanvas"></canvas>
                     </div>
                     <!-- Helper lines -->
-                    <div id="line-top" class="helper-line">
-                    </div>
-                    <div id="line-bottom" class="helper-line">
-                    </div>
-                    <div id="line-left" class="helper-line">
-                    </div>
-                    <div id="line-right" class="helper-line">
-                    </div>
+                    <div id="line-top" class="helper-line"></div>
+                    <div id="line-bottom" class="helper-line"></div>
+                    <div id="line-left" class="helper-line"></div>
+                    <div id="line-right" class="helper-line"></div>
                 </div>
                 <div id="Help">
                     <div id="Placeholder">
@@ -243,23 +239,28 @@ strong {
         </div>
     </div>
     <div id="settings">
-        <label>Channel Name:
+        <h5>Prepare Tool</h5>
+        <label>Channel Name (for background image):
             <input type="text" id="channel" placeholder="channel name">
         </label>
         <label>Resolution:
             <input type="text" id="resolution" value="1920x1080">
         </label>
-        <button id="fileButton" onclick="document.getElementById('fileInput').click();">Open File
+        <button id="fileButton" onclick="document.getElementById('fileInput').click();">Open PDF File
         </button>
+        <br><hr>
+        <h5>Edit Config</h5>
         <label>Pos X:
             <input type="number" min="-8191" max="8191" id="posX" value="0">
         </label>
         <label>Pos Y:
             <input type="number" min="-8191" max="8191" id="posY" value="0">
         </label>
+        Or move with Arrows (slow: ctrl/shift)
         <label>Scale:
             <input type="number" id="scale" min="0" max="2621.43" value="100" step="0.01">
         </label>
+        Or zoom with mouse wheel (slow: ctrl/shift)
         <label>Rotation:
             <select id="rotation">
                 <option>0</option>
@@ -277,12 +278,13 @@ strong {
             <span id="maxPage">1
             </span>
         </label>
+        <br><hr>
+        <h5>Paste this command in Chat:</h5>
         <input type="text" id="compressed" readonly title="Click to copy">
+        <br>
         <label>Description:
-            <input type="text" id="description">
+            <input type="text" id="description"><button id="saveBtn">Save as Preset</button>
         </label>
-        <button id="saveBtn">Save
-        </button>
         <table id="savedTable">
             <thead><tr><th>Command</th><th>Description</th></tr></thead>
             <tbody>
@@ -290,7 +292,7 @@ strong {
         </table>
         <br>
         <hr>
-        <br>
+        <h5>Preferences</h5>
         <button id="refreshBtn">Refresh Background
         </button>
         <br>
@@ -299,6 +301,12 @@ strong {
         </label>
         <label>
             <input type="checkbox" id="toggleHelperLines" checked>Show helper lines
+        </label>
+        <label>Helper Line Thickness: 
+          <input type="range" id="helperLineThickness" min="1" max="10" value="1">
+        </label>
+        <label>Helper Line Color: 
+          <input type="color" id="helperLineColor" value="#ff0000">
         </label>
     </div>
 <script type="module" >
@@ -666,6 +674,7 @@ function updatePreview() {
     rotate(rotationInput.value);
     jumpToPage(pageInputField.value);
     ChangePosition("7 " + posXInput.value + " " + posYInput.value);
+    updateHelperLines();
     updateCompressed();
 
     if (renderTimeout)
@@ -818,9 +827,7 @@ async function loadChannelPreview() {
         w,
         h
     } = parseResolution(resolutionInput.value);
-
-    const url = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${channel}-${w}x${h}.jpg`;
-
+    const url = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${channel.toLocaleLowerCase()}-${w}x${h}.jpg`;
     const res = await fetch(url, {
         cache: "no-store"
     });
@@ -861,28 +868,19 @@ const lines = {
     right: document.getElementById('line-right')
 };
 function updateHelperLines() {
+    const scale = parseFloat(previewWrapper.style.transform.replace('scale(','').replace(')','')) || 1;
+    const thickness = parseFloat(helperLineThicknessInput.value) || 1;
+    
     const rect = pdfCanvas.getBoundingClientRect();
     const parentRect = All.getBoundingClientRect();
-    const top = rect.top - parentRect.top;
-    const left = rect.left - parentRect.left;
-    const width = rect.width;
-    const height = rect.height;
-    Object.assign(lines.top.style, {
-        top: `${top}px`,
-        left: `0px`
-    });
-    Object.assign(lines.bottom.style, {
-        top: `${top + height}px`,
-        left: `0px`
-    });
-    Object.assign(lines.left.style, {
-        top: `0px`,
-        left: `${left}px`
-    });
-    Object.assign(lines.right.style, {
-        top: `0px`,
-        left: `${left + width}px`
-    });
+    const top = (rect.top - parentRect.top) / scale;
+    const left = (rect.left - parentRect.left) / scale;
+    const width = pdfCanvas.width;
+    const height = pdfCanvas.height;
+    lines.top.style.top=(top-thickness)+"px";
+    lines.bottom.style.top=(top+height+0)+"px";
+    lines.left.style.left=(left-thickness)+"px";
+    lines.right.style.left=(left+width+0)+"px";
 }
 const toggleHelperLines = document.getElementById('toggleHelperLines');
 toggleHelperLines.addEventListener('change', () => {
@@ -890,6 +888,32 @@ toggleHelperLines.addEventListener('change', () => {
     Object.values(lines).forEach(line => line.style.display = display);
 });
 Object.values(lines).forEach(line => line.style.display = toggleHelperLines.checked ? 'block' : 'none');
+
+const helperLineThicknessInput = document.getElementById('helperLineThickness');
+function updateHelperLineThickness() {
+    const thickness = helperLineThicknessInput.value + 'px';
+    lines.top.style.height = thickness;
+    lines.bottom.style.height = thickness;
+    lines.left.style.width = thickness;
+    lines.right.style.width = thickness;
+}
+helperLineThicknessInput.addEventListener('input', () => {
+    updateHelperLineThickness();
+    updateHelperLines(); // optional, falls Position neu berechnet werden muss
+});
+updateHelperLineThickness();
+const helperLineColorInput = document.getElementById('helperLineColor');
+function updateHelperLineColor() {
+    const color = helperLineColorInput.value;
+    lines.top.style.backgroundColor = color;
+    lines.bottom.style.backgroundColor = color;
+    lines.left.style.backgroundColor = color;
+    lines.right.style.backgroundColor = color;
+}
+helperLineColorInput.addEventListener('input', () => {
+    updateHelperLineColor();
+});
+updateHelperLineColor();
 
 updatePreview();
 loadChannelPreview();
