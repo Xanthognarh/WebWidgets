@@ -193,3 +193,5 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/pdfoverlay.htm?ch
 - `!pdfzoom percent`: Scale the pdf to percent of its maximum size. 0 and 100 scales the pdf to the maximum display size.
 - `!pdfpos pos [offset-x] [offset-y]`: Move the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel. Pos 0 hides the background.
 
+Or use the [PDF Config Preview](https://xanthognarh.github.io/WebWidgets/pdfoverlay-config.htm) to preview your changes and send them all in one !pdfconfig command.
+

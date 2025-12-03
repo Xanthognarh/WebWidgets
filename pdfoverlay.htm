@@ -127,11 +127,125 @@ const SetPageCommand="!pdf";
 const RotatePageCommand="!pdfrotation";
 const SetScaleCommand="!pdfzoom";
 const SetPosCommand="!pdfpos";
+const ConfigCommand="!pdfconfig";
 
 let rotationangle=0;
 let zoom=0;
 
 const extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
+
+const ranges = [
+    [0x0021, 0x007E],         // Basic Latin punctuation, digits, letters (94)
+    [0x00A1, 0x00FF],         // Latin-1 Supplement (95)
+    [0x0100, 0x017F],         // Latin Extended-A (128)
+    [0x0180, 0x024F],         // Latin Extended-B (208)
+    [0x0370, 0x03FF],         // Greek and Coptic (144)
+    [0x0400, 0x04FF],         // Cyrillic (256)
+    [0x0530, 0x058F],         // Armenian (96)
+    [0x0590, 0x05FF],         // Hebrew (112)
+    [0x0600, 0x06FF],         // Arabic (256)
+    [0x0700, 0x074F],         // Syriac (80)
+    [0x0780, 0x07BF],         // Thaana (64)
+    [0x07C0, 0x07FF],         // NKo (64)
+    [0x0800, 0x083F],         // Samaritan (64)
+    [0x0840, 0x085F],         // Mandaic (32)
+    [0x0900, 0x097F],         // Devanagari (128)
+    [0x0980, 0x09FF],         // Bengali (128)
+    [0x0A00, 0x0A7F],         // Gurmukhi (128)
+    [0x0A80, 0x0AFF],         // Gujarati (128)
+    [0x0B00, 0x0B7F],         // Oriya (128)
+    [0x0B80, 0x0BFF],         // Tamil (128)
+    [0x0C00, 0x0C7F],         // Telugu (128)
+    [0x0C80, 0x0CFF],         // Kannada (128)
+    [0x0D00, 0x0D7F],         // Malayalam (128)
+    [0x0D80, 0x0DFF],         // Sinhala (128)
+    [0x0E00, 0x0E7F],         // Thai (128)
+    [0x0E80, 0x0EFF],         // Lao (128)
+    [0x0F00, 0x0FFF],         // Tibetan (256)
+    [0x1000, 0x109F],         // Myanmar (160)
+    [0x10A0, 0x10FF],         // Georgian (96)
+    [0x1200, 0x137F],         // Ethiopic (384)
+    [0x1780, 0x17FF],         // Khmer (128)
+    [0x1800, 0x18AF],         // Mongolian (176)
+    [0x1E00, 0x1EFF],         // Latin Extended Additional (256)
+    [0x1F00, 0x1FFF],         // Greek Extended (256)
+    [0x2200, 0x22FF],         // Mathematical Operators (256)
+    [0x2600, 0x26FF],         // Miscellaneous Symbols (256)
+    [0x2B00, 0x2BFF],         // Misc Symbols & Arrows (256)
+    [0x3040, 0x309F],         // Hiragana (96)
+    [0x30A0, 0x30FF],         // Katakana (96)
+    [0x31F0, 0x31FF],         // Katakana Phonetic Extensions (16)
+    [0x3130, 0x318F],         // Hangul Compatibility Jamo (96)
+    [0x1F300, 0x1F5FF],       // Miscellaneous Symbols and Pictographs (768)
+    [0x1F600, 0x1F64F],       // Emoticons (80)
+    [0x1F680, 0x1F6FF],       // Transport & Map Symbols (128)
+    [0x1F700, 0x1F77F],       // Alchemical Symbols (128)
+    [0x1F780, 0x1F7FF],       // Geometric Shapes Extended (128)
+    [0x1F800, 0x1F8FF],       // Supplemental Arrows-C (256)
+    [0x1F900, 0x1F9FF],       // Supplemental Symbols and Pictographs (256)
+    [0x1FA00, 0x1FA6F],       // Chess Symbols, Symbols & Pictographs (112)
+    [0x1FC00, 0x1FCFF],       // Mahjong Tiles (256)
+    [0x1FD00, 0x1FDFF],       // Domino Tiles (256)
+    [0x1FE00, 0x1FEFF],       // Playing Cards (256)
+    [0xFF01, 0xFF9F]          // Halfwidth & Fullwidth Forms (159)
+];
+const blockSizes = ranges.map(([s,e])=>e-s+1);
+const cumSizes = blockSizes.reduce((acc,size,i)=>{
+    acc.push((acc[i-1]||0)+size);
+    return acc;
+}, []);
+const totalSize = cumSizes.at(-1);
+
+// 16-bit scrambler (invertible)
+function scramble16bit(x){
+    x = ((x & 0xAAAA) >> 1) | ((x & 0x5555) << 1);
+    x = ((x & 0xCCCC) >> 2) | ((x & 0x3333) << 2);
+    x = ((x & 0xF0F0) >> 4) | ((x & 0x0F0F) << 4);
+    x = ((x & 0xFF00) >> 8) | ((x & 0x00FF) << 8);
+    return x & 0xFFFF;
+}
+function unscramble16bit(x){ return scramble16bit(x); }
+function getIndexFromChar(char){
+    const code = char.codePointAt(0);
+    let blockIdx = ranges.findIndex(([start,end]) => code >= start && code <= end);
+    if(blockIdx === -1) throw new Error("Char not in range: "+char);
+    const prevCum = blockIdx>0 ? cumSizes[blockIdx-1] : 0;
+    const scaledIndex = prevCum + (code - ranges[blockIdx][0]);
+    return unscramble16bit(scaledIndex);
+}
+function* unicodeChars(str) {
+    let i = 0;
+    while (i < str.length) {
+        const code = str.codePointAt(i);
+        yield code;
+        i += code > 0xFFFF ? 2 : 1; // skip 2 for surrogate pairs
+    }
+}
+// Decode 5 chars back to 64-bit number
+function decode64Bit(str){
+    let v=0n;
+    let i = 0;
+    for (const code of unicodeChars(str)) {
+        const ch = String.fromCodePoint(code);
+        const idx16 = BigInt(getIndexFromChar(ch));
+        const part13 = idx16 >> 3n;
+        const shift = BigInt((4-i)*13);
+        v |= BigInt(part13 & 0x1FFFn) << shift;
+        i++;
+    }
+    return v;
+}
+function decompressData(str){
+    const v = decode64Bit(str);
+    return {
+        x: Number((v >> 50n) & 0x3FFFn) - 8191,
+        y: Number((v >> 36n) & 0x3FFFn) - 8191,
+        scale: Number((v >> 20n) & 0xFFFFn),
+        rotation: Number((v >> 18n) & 0x3n),
+        visible: Boolean((v >> 17n) & 0x1n),
+        page: Number(v & 0x1FFFFn)
+    };
+}
 
 const siteURL=new URL(window.location);
 let TwitchChannel="";
@@ -379,6 +493,17 @@ client.on('message', (channel, user, message, self) => {
 					All.style.backgroundColor="rgba(0,0,0,0)";
 				}
 				break;
+            case ConfigCommand:
+                const encoded=message.split(" ")[1];
+                console.log(encoded);
+                const data=decompressData(encoded);
+                console.log(data);
+                pdfCanvas.style.visibility = data.visible ? "visible" : "hidden";
+                jumpToPage(data.page);
+                rotate(data.rotation);
+                fixedscale(data.scale);
+                ChangePosition(`7 ${data.x} ${data.y}`);
+                break;
 		}
 	}
 });

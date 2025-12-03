@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>PDF Config Preview</title>
+		<style>
+body {
+	display: flex;
+	font-family: sans-serif;
+	margin: 0;
+	padding: 0;
+	height: 100vh;
+}
+#preview-container {
+	flex: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: #eee;
+	overflow: auto;
+}
+#preview-wrapper {
+	position: relative;
+	transform-origin: top left;
+}
+#preview {
+	width: 100%;
+	height: 100%;
+	background-size: cover;
+	background-position: center;
+}
+#settings {
+	width: 350px;
+	padding: 10px;
+	overflow-y: auto;
+	box-sizing: border-box;
+	background: #f7f7f7;
+}
+#settings label {
+	display: block;
+	margin-top: 10px;
+}
+#compressed {
+	width: 100%;
+	margin-top: 10px;
+	cursor: pointer;
+}
+table {
+	width: 100%;
+	margin-top: 10px;
+	border-collapse: collapse;
+}
+table, th, td {
+	border: 1px solid #ccc;
+}
+th, td {
+	padding: 4px 6px;
+}
+input[type=range] {
+	width: 100%;
+}
+		</style>
+		<style>
+body {
+	margin: 0;
+	background-color: rgba(0,0,0,0);
+}
+#canvas-container {
+	position: relative;
+}
+canvas {
+	border: 0px solid white;
+	background-color: lightgreen;
+	display: block;
+}
+#All {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+#Help {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background-color: rgba(150,150,150,0.5);
+}
+#Placeholder {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+#Placeholder div {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	display: flex;
+}
+#Placeholder div span {
+	width: calc(100% / 5);
+	height: calc(100% / 5);
+	background-color: green;
+	text-align: center;
+	font-size: 100px;
+}
+#p1 {
+	align-items: flex-end;
+	justify-content: flex-start;
+}
+#p2 {
+	align-items: flex-end;
+	justify-content: center;
+}
+#p3 {
+	align-items: flex-end;
+	justify-content: flex-end;
+}
+#p4 {
+	align-items: center;
+	justify-content: flex-start;
+}
+#p5 {
+	align-items: center;
+	justify-content: center;
+}
+#p6 {
+	align-items: center;
+	justify-content: flex-end;
+}
+#p7 {
+	align-items: flex-start;
+	justify-content: flex-start;
+}
+#p8 {
+	align-items: flex-start;
+	justify-content: center;
+}
+#p9 {
+	align-items: flex-start;
+	justify-content: flex-end;
+}
+#Anleitung {
+	position: absolute;
+	height: calc(100% / 5);
+	top: calc(100% / 5);
+	font-size: 50px;
+	text-align: center;
+}
+#Commands {
+	position: absolute;
+	height: calc(100% / 5);
+	top: calc(100% / 5 * 3);
+	font-size: 50px;
+}
+strong {
+	text-align: initial;
+	font-size: inherit;
+	display: contents;
+	white-space: nowrap;
+}
+#Commands div span {
+	background: #7fc3ff;
+	margin: 5px;
+	border-radius: 10px;
+	padding: 4px;
+	font-size: 35px;
+	line-height: calc(100% / 30 + 15px);
+}
+#Commands div {
+	width: 100%;
+}
+#preview > * {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	transform-origin: top left;
+}
+.helper-line {
+	position: absolute;
+	background: red;
+	pointer-events: none;
+/* don't block mouse */
+}
+#line-top,
+#line-bottom {
+	width: 100vw;
+	height: 1px;
+}
+#line-left,
+#line-right {
+	width: 1px;
+	height: 100vh;
+}
+        </style>
+<script type="module" src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs"></script>
+</head>
+<body>
+    <div id="preview-container">
+        <div id="preview-wrapper">
+            <div id="preview">
+                <div id="All">
+                    <input type="file" id="fileInput" style="display: none;" accept="application/pdf">
+                    <div id="canvas-container">
+                        <canvas id="pdfCanvas">
+                        </canvas>
+                    </div>
+                    <!-- Helper lines -->
+                    <div id="line-top" class="helper-line">
+                    </div>
+                    <div id="line-bottom" class="helper-line">
+                    </div>
+                    <div id="line-left" class="helper-line">
+                    </div>
+                    <div id="line-right" class="helper-line">
+                    </div>
+                </div>
+                <div id="Help">
+                    <div id="Placeholder">
+                        <div id="p1"> <span>1 <span></div>
+                        <div id="p2"> <span>2 <span></div>
+                        <div id="p3"> <span>3 <span></div>
+                        <div id="p4"> <span>4 <span></div>
+                        <div id="p5"> <span>5 <span></div>
+                        <div id="p6"> <span>6 <span></div>
+                        <div id="p7"> <span>7 <span></div>
+                        <div id="p8"> <span>8 <span></div>
+                        <div id="p9"> <span>9 <span></div>
+                    </div>
+                    <div id="Anleitung">Open a PDF by clicking (OBS: Use the 'Interact' Button to open the interactive window) anywhere on this page. A file open dialog should open.
+                    </div>
+                    <div id="Commands">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="settings">
+        <label>Channel Name:
+            <input type="text" id="channel" placeholder="channel name">
+        </label>
+        <label>Resolution:
+            <input type="text" id="resolution" value="1920x1080">
+        </label>
+        <button id="fileButton" onclick="document.getElementById('fileInput').click();">Open File
+        </button>
+        <label>Pos X:
+            <input type="number" min="-8191" max="8191" id="posX" value="0">
+        </label>
+        <label>Pos Y:
+            <input type="number" min="-8191" max="8191" id="posY" value="0">
+        </label>
+        <label>Scale:
+            <input type="number" id="scale" min="0" max="2621.43" value="100" step="0.01">
+        </label>
+        <label>Rotation:
+            <select id="rotation">
+                <option>0</option>
+                <option>90</option>
+                <option>180</option>
+                <option>270</option>
+            </select>
+        </label>
+        <label>Visible:
+            <input type="checkbox" id="visible" checked>
+        </label>
+        <label>Page:
+            <input type="range" id="page" min="1" max="2000" value="0">
+            <input type="number" id="pageInputField" min="1" max="1" value="1" style="width:60px;"> /
+            <span id="maxPage">1
+            </span>
+        </label>
+        <input type="text" id="compressed" readonly title="Click to copy">
+        <label>Description:
+            <input type="text" id="description">
+        </label>
+        <button id="saveBtn">Save
+        </button>
+        <table id="savedTable">
+            <thead><tr><th>Command</th><th>Description</th></tr></thead>
+            <tbody>
+            </tbody>
+        </table>
+        <br>
+        <hr>
+        <br>
+        <button id="refreshBtn">Refresh Background
+        </button>
+        <br>
+        <label>
+            <input type="checkbox" id="clipPreview" checked>Hide overflow in preview
+        </label>
+        <label>
+            <input type="checkbox" id="toggleHelperLines" checked>Show helper lines
+        </label>
+    </div>
+<script type="module" >
+// Overlay
+const DisableCommand = "!hidepdf";
+const EnableCommand = "!showpdf";
+const NextCommand = "!pdf+";
+const PreviousCommand = "!pdf-";
+const SetPageCommand = "!pdf";
+const RotatePageCommand = "!pdfrotation";
+const SetScaleCommand = "!pdfzoom";
+const SetPosCommand = "!pdfpos";
+
+let rotationangle = 0;
+let zoom = 0;
+
+let TwitchChannel = document.getElementById("channel").value;
+document.getElementById("Commands").innerHTML = `<div>Commands for Mods and ${TwitchChannel}:</div><div><span>Next Page: <strong>${NextCommand}</strong></span><span> Previous Page: <strong>${PreviousCommand}</strong></span><span> Set Page: <strong>${SetPageCommand}</strong></span><span> Show/Hide: <strong>${EnableCommand}/${DisableCommand}</strong></span><span> Rotate: <strong>${RotatePageCommand}</strong> 0/1=90°/2=180°/3=270°</span><span> Zoom <strong>${SetScaleCommand}</strong> 100</span><span> Move <strong>${SetPosCommand}</strong> 1-9 [offset-x] [offset-y]</span></div>`;
+
+import {getDocument}from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.worker.min.mjs';
+
+let pdfDoc = null;
+let currentPage = 1;
+const pdfCanvas = document.getElementById('pdfCanvas');
+const All = document.getElementById('All');
+document.getElementById('fileInput').addEventListener('change', loadPDF);
+
+async function loadPDF(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const fileURL = URL.createObjectURL(file);
+        pdfDoc = await pdfjsLib.getDocument(fileURL).promise;
+        currentPage = 1;
+
+        pageSlider.max = pdfDoc.numPages;
+        pageInputField.max = pdfDoc.numPages;
+        maxPageSpan.textContent = pdfDoc.numPages;
+
+        pageSlider.value = currentPage;
+        pageInputField.value = currentPage;
+
+        renderPage(currentPage);
+        ChangePosition("7");
+        document.getElementById("Help").style.visibility = "hidden";
+    } else {
+        document.getElementById("Help").style.visibility = "visible";
+    }
+    updatePreview();
+}
+let currentRenderTask = null;
+async function renderPage(num) {
+    if (!pdfDoc)
+        return;
+    num *= 1;
+    const page = await pdfDoc.getPage(num);
+    const {
+        w: resW,
+        h: resH
+    } = parseResolution(resolutionInput.value);
+
+    const viewport = page.getViewport({
+        scale: 1,
+        rotation: rotationangle
+    });
+    const scaleX = resW / viewport.width;
+    const scaleY = resH / viewport.height;
+    let scale = Math.min(scaleX, scaleY);
+
+    const userScale = parseFloat(scaleInput.value) || 100;
+    scale *= userScale / 100;
+
+    const scaledViewport = page.getViewport({
+        scale,
+        rotation: rotationangle
+    });
+
+    pdfCanvas.width = scaledViewport.width;
+    pdfCanvas.height = scaledViewport.height;
+
+    if (currentRenderTask)
+        currentRenderTask.cancel();
+    currentRenderTask = page.render({
+        canvasContext: pdfCanvas.getContext('2d'),
+        viewport: scaledViewport
+    });
+    try {
+        await currentRenderTask.promise;
+    } catch (err) {
+        if (err.name !== 'RenderingCancelledException') {
+            console.error(err);
+        }
+    } finally {
+        currentRenderTask = null;
+    }
+    updateHelperLines();
+}
+
+function jumpToPage(pageNum) {
+    if (pdfDoc && pageNum > 0 && pageNum <= pdfDoc.numPages) {
+        currentPage = pageNum;
+    }
+}
+function rotate(angle) {
+    if (pdfDoc) {
+        rotationangle = angle;
+    }
+}
+function fixedscale(val = 0) {
+    zoom = val;
+}
+function ChangePosition(text) {
+    let offsetx = text.split(" ")[1] * 1;
+    let offsety = text.split(" ")[2] * 1;
+    if (isNaN(offsety)) {
+        offsety = 0;
+    }
+    if (isNaN(offsetx)) {
+        offsetx = 0;
+    }
+    const margin = "0%";
+    let pos = 7;
+    switch (pos) {
+    case 7:
+        All.style.alignItems = "flex-start";
+        All.style.justifyContent = "flex-start";
+        pdfCanvas.style.marginLeft = "calc(" + margin + " + " + offsetx + "px)";
+        pdfCanvas.style.marginTop = "calc(" + margin + " + " + offsety + "px)";
+        pdfCanvas.style.marginRight = margin;
+        pdfCanvas.style.marginBottom = margin;
+        break;
+    }
+}
+
+// Config
+// --- Compression ---
+/*
+[0x0021, 0x007E],         // Basic Latin punctuation, digits, letters (94)
+[0x00A1, 0x00FF],         // Latin-1 Supplement (95)
+[0x0100, 0x017F],         // Latin Extended-A (128)
+[0x0180, 0x024F],         // Latin Extended-B (208)
+[0x0370, 0x03FF],         // Greek and Coptic (144)
+[0x0400, 0x04FF],         // Cyrillic (256)
+[0x0500, 0x052F],         // Cyrillic Supplement (48)
+[0x0530, 0x058F],         // Armenian (96)
+[0x0590, 0x05FF],         // Hebrew (112)
+[0x0600, 0x06FF],         // Arabic (256)
+[0x0700, 0x074F],         // Syriac (80)
+[0x0750, 0x077F],         // Arabic Supplement (48)
+[0x0780, 0x07BF],         // Thaana (64)
+[0x07C0, 0x07FF],         // NKo (64)
+[0x0800, 0x083F],         // Samaritan (64)
+[0x0840, 0x085F],         // Mandaic (32)
+[0x0900, 0x097F],         // Devanagari (128)
+[0x0980, 0x09FF],         // Bengali (128)
+[0x0A00, 0x0A7F],         // Gurmukhi (128)
+[0x0A80, 0x0AFF],         // Gujarati (128)
+[0x0B00, 0x0B7F],         // Oriya (128)
+[0x0B80, 0x0BFF],         // Tamil (128)
+[0x0C00, 0x0C7F],         // Telugu (128)
+[0x0C80, 0x0CFF],         // Kannada (128)
+[0x0D00, 0x0D7F],         // Malayalam (128)
+[0x0D80, 0x0DFF],         // Sinhala (128)
+[0x0E00, 0x0E7F],         // Thai (128)
+[0x0E80, 0x0EFF],         // Lao (128)
+[0x0F00, 0x0FFF],         // Tibetan (256)
+[0x1000, 0x109F],         // Myanmar (160)
+[0x10A0, 0x10FF],         // Georgian (96)
+[0x1200, 0x137F],         // Ethiopic (384)
+[0x1400, 0x167F],         // Unified Canadian Aboriginal Syllabics (640)
+[0x1780, 0x17FF],         // Khmer (128)
+[0x1800, 0x18AF],         // Mongolian (176)
+[0x1E00, 0x1EFF],         // Latin Extended Additional (256)
+[0x1F00, 0x1FFF],         // Greek Extended (256)
+[0x2200, 0x22FF],         // Mathematical Operators (256)
+[0x2600, 0x26FF],         // Miscellaneous Symbols (256)
+[0x2B00, 0x2BFF],         // Misc Symbols & Arrows (256)
+[0x3040, 0x309F],         // Hiragana (96)
+[0x30A0, 0x30FF],         // Katakana (96)
+[0x31F0, 0x31FF],         // Katakana Phonetic Extensions (16)
+[0x3130, 0x318F],         // Hangul Compatibility Jamo (96)
+[0x3400, 0x4DBF],         // CJK Unified Ideographs Extension A (6592)
+[0x4E00, 0x9FFF],         // CJK Unified Ideographs (20992)
+[0xAC00, 0xD7A3],         // Hangul Syllables (11172)
+[0x20000, 0x24162],       // Reduced CJK Unified Ideographs Extension B (4096)
+[0x20000, 0x2A6DF],       // CJK Unified Ideographs Extension B (~173,824)
+[0x1F300, 0x1F5FF],       // Miscellaneous Symbols and Pictographs (768)
+[0x1F600, 0x1F64F],       // Emoticons (80)
+[0x1F680, 0x1F6FF],       // Transport & Map Symbols (128)
+[0x1F700, 0x1F77F],       // Alchemical Symbols (128)
+[0x1F780, 0x1F7FF],       // Geometric Shapes Extended (128)
+[0x1F800, 0x1F8FF],       // Supplemental Arrows-C (256)
+[0x1F900, 0x1F9FF],       // Supplemental Symbols and Pictographs (256)
+[0x1FA00, 0x1FA6F],       // Chess Symbols, Symbols & Pictographs (112)
+[0x1FC00, 0x1FCFF],       // Mahjong Tiles (256)
+[0x1FD00, 0x1FDFF],       // Domino Tiles (256)
+[0x1FE00, 0x1FEFF],       // Playing Cards (256)
+[0xFBD3, 0xFD3F],         // Arabic Presentation Forms-A (365)
+[0xFE70, 0xFEFF],         // Arabic Presentation Forms-B (144)
+[0xFF01, 0xFF9F]          // Halfwidth & Fullwidth Forms (159)
+ */
+const ranges = [
+    [0x0021, 0x007E], // Basic Latin punctuation, digits, letters (94)
+    [0x00A1, 0x00FF], // Latin-1 Supplement (95)
+    [0x0100, 0x017F], // Latin Extended-A (128)
+    [0x0180, 0x024F], // Latin Extended-B (208)
+    [0x0370, 0x03FF], // Greek and Coptic (144)
+    [0x0400, 0x04FF], // Cyrillic (256)
+    [0x0530, 0x058F], // Armenian (96)
+    [0x0590, 0x05FF], // Hebrew (112)
+    [0x0600, 0x06FF], // Arabic (256)
+    [0x0700, 0x074F], // Syriac (80)
+    [0x0780, 0x07BF], // Thaana (64)
+    [0x07C0, 0x07FF], // NKo (64)
+    [0x0800, 0x083F], // Samaritan (64)
+    [0x0840, 0x085F], // Mandaic (32)
+    [0x0900, 0x097F], // Devanagari (128)
+    [0x0980, 0x09FF], // Bengali (128)
+    [0x0A00, 0x0A7F], // Gurmukhi (128)
+    [0x0A80, 0x0AFF], // Gujarati (128)
+    [0x0B00, 0x0B7F], // Oriya (128)
+    [0x0B80, 0x0BFF], // Tamil (128)
+    [0x0C00, 0x0C7F], // Telugu (128)
+    [0x0C80, 0x0CFF], // Kannada (128)
+    [0x0D00, 0x0D7F], // Malayalam (128)
+    [0x0D80, 0x0DFF], // Sinhala (128)
+    [0x0E00, 0x0E7F], // Thai (128)
+    [0x0E80, 0x0EFF], // Lao (128)
+    [0x0F00, 0x0FFF], // Tibetan (256)
+    [0x1000, 0x109F], // Myanmar (160)
+    [0x10A0, 0x10FF], // Georgian (96)
+    [0x1200, 0x137F], // Ethiopic (384)
+    [0x1780, 0x17FF], // Khmer (128)
+    [0x1800, 0x18AF], // Mongolian (176)
+    [0x1E00, 0x1EFF], // Latin Extended Additional (256)
+    [0x1F00, 0x1FFF], // Greek Extended (256)
+    [0x2200, 0x22FF], // Mathematical Operators (256)
+    [0x2600, 0x26FF], // Miscellaneous Symbols (256)
+    [0x2B00, 0x2BFF], // Misc Symbols & Arrows (256)
+    [0x3040, 0x309F], // Hiragana (96)
+    [0x30A0, 0x30FF], // Katakana (96)
+    [0x31F0, 0x31FF], // Katakana Phonetic Extensions (16)
+    [0x3130, 0x318F], // Hangul Compatibility Jamo (96)
+    [0x1F300, 0x1F5FF], // Miscellaneous Symbols and Pictographs (768)
+    [0x1F600, 0x1F64F], // Emoticons (80)
+    [0x1F680, 0x1F6FF], // Transport & Map Symbols (128)
+    [0x1F700, 0x1F77F], // Alchemical Symbols (128)
+    [0x1F780, 0x1F7FF], // Geometric Shapes Extended (128)
+    [0x1F800, 0x1F8FF], // Supplemental Arrows-C (256)
+    [0x1F900, 0x1F9FF], // Supplemental Symbols and Pictographs (256)
+    [0x1FA00, 0x1FA6F], // Chess Symbols, Symbols & Pictographs (112)
+    [0x1FC00, 0x1FCFF], // Mahjong Tiles (256)
+    [0x1FD00, 0x1FDFF], // Domino Tiles (256)
+    [0x1FE00, 0x1FEFF], // Playing Cards (256)
+    [0xFF01, 0xFF9F]// Halfwidth & Fullwidth Forms (159)
+];
+const blockSizes = ranges.map(([s, e]) => e - s + 1);
+const cumSizes = blockSizes.reduce((acc, size, i) => {
+    acc.push((acc[i - 1] || 0) + size);
+    return acc;
+}, []);
+const totalSize = cumSizes.at(-1);
+console.log("Compression alphabet: " + totalSize + "/8192");
+
+// bit-scrambler for 16-bit value
+function scramble16bit(x) {
+    x = ((x & 0xAAAA) >> 1) | ((x & 0x5555) << 1);
+    x = ((x & 0xCCCC) >> 2) | ((x & 0x3333) << 2);
+    x = ((x & 0xF0F0) >> 4) | ((x & 0x0F0F) << 4);
+    x = ((x & 0xFF00) >> 8) | ((x & 0x00FF) << 8);
+    return x & 0xFFFF;
+}
+// Map a 16-bit scrambled value into a Unicode char from mixed blocks
+function getCharFromIndex(index16) {
+    const scrambled = scramble16bit(index16);
+    // Directly map to cumulative alphabet
+    let blockIdx = 0;
+    while (blockIdx < cumSizes.length && scrambled >= cumSizes[blockIdx])
+        blockIdx++;
+    const prevCum = blockIdx > 0 ? cumSizes[blockIdx - 1] : 0;
+    const blockStart = ranges[blockIdx][0];
+    const charCode = blockStart + (scrambled - prevCum);
+    return String.fromCodePoint(charCode);
+}
+// Encode 64-bit number into 5 chars (5 × 13 bits)
+function encode64Bit(num) {
+    const chars = [];
+    let v = BigInt(num);
+    for (let i = 4; i >= 0; i--) {
+        const shift = BigInt(i * 13);
+        const part13 = Number((v >> shift) & 0x1FFFn);
+        const part16 = part13 << 3;
+        chars.push(getCharFromIndex(part16));
+    }
+    return chars.join('');
+}
+function compressData({
+    x,
+    y,
+    scale,
+    rotation,
+    visible,
+    page
+}) {
+    let v = 0n;
+    v |= BigInt(x & 0x3FFF) << 50n;
+    v |= BigInt(y & 0x3FFF) << 36n;
+    v |= BigInt(scale & 0xFFFF) << 20n;
+    const rotBits = (rotation / 90) & 0x3; // rotation = 0,90,180,270 → rotBits = 0..3
+    v |= BigInt(rotBits & 0x3) << 18n;
+    v |= BigInt(visible ? 1 : 0) << 17n;
+    v |= BigInt(page & 0x1FFFF);
+    return encode64Bit(v);
+}
+
+const previewWrapper = document.getElementById('preview-wrapper');
+const preview = document.getElementById('preview');
+const channelInput = document.getElementById('channel');
+const resolutionInput = document.getElementById('resolution');
+const posXInput = document.getElementById('posX');
+const posYInput = document.getElementById('posY');
+const scaleInput = document.getElementById('scale');
+const rotationInput = document.getElementById('rotation');
+const visibleInput = document.getElementById('visible');
+const pageSlider = document.getElementById('page');
+const pageInputField = document.getElementById('pageInputField');
+const maxPageSpan = document.getElementById('maxPage');
+const compressedInput = document.getElementById('compressed');
+const descriptionInput = document.getElementById('description');
+const saveBtn = document.getElementById('saveBtn');
+const savedTable = document.querySelector('#savedTable tbody');
+const refreshBtn = document.getElementById('refreshBtn');
+
+function parseResolution(res) {
+    const [w, h] = res.split('x').map(Number);
+    return {
+        w,
+        h
+    };
+}
+let renderTimeout = null;
+function updatePreview() {
+    const {
+        w,
+        h
+    } = parseResolution(resolutionInput.value);
+    const container = document.getElementById('preview-container');
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
+
+    previewWrapper.style.width = w + 'px';
+    previewWrapper.style.height = h + 'px';
+
+    const scaleFactor = Math.min(containerW / w, containerH / h, 1);
+    previewWrapper.style.transform = `scale(${scaleFactor})`;
+    previewWrapper.style.transformOrigin = 'top left';
+
+    const offsetX = (containerW - w * scaleFactor) / 2;
+    const offsetY = (containerH - h * scaleFactor) / 2;
+    previewWrapper.style.position = 'absolute';
+    previewWrapper.style.left = offsetX + 'px';
+    previewWrapper.style.top = offsetY + 'px';
+
+    fixedscale(scaleInput.value);
+    rotate(rotationInput.value);
+    jumpToPage(pageInputField.value);
+    ChangePosition("7 " + posXInput.value + " " + posYInput.value);
+    updateCompressed();
+
+    if (renderTimeout)
+        clearTimeout(renderTimeout);
+    renderTimeout = setTimeout(() => {
+        renderPage(currentPage);
+    }, 50); // 50ms Debounce
+}
+window.addEventListener('resize', updatePreview);
+
+// --- Compressed data ---
+function updateCompressed() {
+    const data = {
+        x: parseInt(posXInput.value) + 8191 || 0 + 8191,
+        y: parseInt(posYInput.value) + 8191 || 0 + 8191,
+        scale: parseFloat(scaleInput.value) || 100,
+        rotation: parseInt(rotationInput.value) || 0,
+        visible: visibleInput.checked,
+        page: parseInt(pageInputField.value) || 0
+    };
+    compressedInput.value = "!pdfconfig " + compressData(data);
+}
+
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let initialPosX = 0;
+let initialPosY = 0;
+All.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    initialPosX = parseInt(posXInput.value) || 0;
+    initialPosY = parseInt(posYInput.value) || 0;
+    e.preventDefault();
+});
+document.addEventListener('mousemove', (e) => {
+    if (!isDragging)
+        return;
+    const dx = e.clientX - dragStartX;
+    const dy = e.clientY - dragStartY;
+
+    const newPosX = initialPosX + dx;
+    const newPosY = initialPosY + dy;
+
+    posXInput.value = newPosX;
+    posYInput.value = newPosY;
+
+    ChangePosition(`7 ${newPosX} ${newPosY}`);
+    updateHelperLines();
+});
+document.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        updateCompressed();
+    }
+});
+
+All.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    let currentScale = parseFloat(scaleInput.value) || 100;
+    let zoomStep = 5;
+    if (e.shiftKey)
+        zoomStep = 0.1;
+    if (e.ctrlKey)
+        zoomStep = 0.01;
+
+    if (e.deltaY < 0)
+        currentScale += zoomStep;
+    else
+        currentScale -= zoomStep;
+    // Clamp to min/max
+    currentScale = Math.max(0, Math.min(2621.43, currentScale));
+
+    scaleInput.value = Math.round(currentScale * 100) / 100;
+    fixedscale(currentScale);
+    renderPage(currentPage);
+});
+document.addEventListener('keydown', (e) => {
+    let step = 20;
+    if (e.shiftKey)
+        step = 5;
+    if (e.ctrlKey)
+        step = 1;
+
+    let posX = parseInt(posXInput.value) || 0;
+    let posY = parseInt(posYInput.value) || 0;
+
+    switch (e.key) {
+    case "ArrowUp":
+        posY -= step;
+        break;
+    case "ArrowDown":
+        posY += step;
+        break;
+    case "ArrowLeft":
+        posX -= step;
+        break;
+    case "ArrowRight":
+        posX += step;
+        break;
+    default:
+        return;
+    }
+    posXInput.value = posX;
+    posYInput.value = posY;
+    ChangePosition(`7 ${posX} ${posY}`);
+    updateHelperLines();
+    updateCompressed();
+
+    e.preventDefault(); // prevent scrolling
+});
+
+[posXInput, posYInput, scaleInput, rotationInput, visibleInput, resolutionInput].forEach(el => el.addEventListener('input', updatePreview));
+// Slider → Input
+pageSlider.addEventListener('input', () => {
+    currentPage = parseInt(pageSlider.value);
+    pageInputField.value = currentPage;
+    updatePreview();
+});
+// Input → Slider
+pageInputField.addEventListener('change', () => {
+    let val = parseInt(pageInputField.value);
+    if (isNaN(val) || val < 1)
+        val = 1;
+    if (pdfDoc && val > pdfDoc.numPages)
+        val = pdfDoc.numPages;
+    currentPage = val;
+    pageSlider.value = val;
+    pageInputField.value = val;
+    updatePreview();
+});
+
+const visibleCheckbox = document.getElementById('visible');
+
+visibleCheckbox.addEventListener('change', () => {
+    if (visibleCheckbox.checked) {
+        All.style.display = 'flex';
+    } else {
+        All.style.display = 'none';
+    }
+});
+All.style.display = visibleCheckbox.checked ? 'flex' : 'none';
+
+async function loadChannelPreview() {
+    const channel = channelInput.value.trim();
+    if (!channel)
+        return;
+    const {
+        w,
+        h
+    } = parseResolution(resolutionInput.value);
+
+    const url = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${channel}-${w}x${h}.jpg`;
+
+    const res = await fetch(url, {
+        cache: "no-store"
+    });
+    const blob = await res.blob();
+    preview.style.backgroundImage = `url(${URL.createObjectURL(blob)})`;
+}
+// Channel background updates on blur
+channelInput.addEventListener('blur', loadChannelPreview);
+refreshBtn.addEventListener('click', loadChannelPreview);
+
+// Copy compressed data
+compressedInput.addEventListener('click', () => {
+    compressedInput.select();
+    document.execCommand('copy');
+});
+
+// Add entry
+saveBtn.addEventListener('click', () => {
+    const tr = document.createElement('tr');
+    const tdData = document.createElement('td');
+    const tdDesc = document.createElement('td');
+    tdData.textContent = compressedInput.value;
+    tdDesc.textContent = descriptionInput.value;
+    tr.append(tdData, tdDesc);
+    savedTable.prepend(tr);
+    descriptionInput.value = '';
+});
+const clipPreviewCheckbox = document.getElementById('clipPreview');
+clipPreviewCheckbox.addEventListener('change', () => {
+    previewWrapper.style.overflow = clipPreviewCheckbox.checked ? 'hidden' : 'visible';
+});
+previewWrapper.style.overflow = clipPreviewCheckbox.checked ? 'hidden' : 'visible';
+
+const lines = {
+    top: document.getElementById('line-top'),
+    bottom: document.getElementById('line-bottom'),
+    left: document.getElementById('line-left'),
+    right: document.getElementById('line-right')
+};
+function updateHelperLines() {
+    const rect = pdfCanvas.getBoundingClientRect();
+    const parentRect = All.getBoundingClientRect();
+    const top = rect.top - parentRect.top;
+    const left = rect.left - parentRect.left;
+    const width = rect.width;
+    const height = rect.height;
+    Object.assign(lines.top.style, {
+        top: `${top}px`,
+        left: `0px`
+    });
+    Object.assign(lines.bottom.style, {
+        top: `${top + height}px`,
+        left: `0px`
+    });
+    Object.assign(lines.left.style, {
+        top: `0px`,
+        left: `${left}px`
+    });
+    Object.assign(lines.right.style, {
+        top: `0px`,
+        left: `${left + width}px`
+    });
+}
+const toggleHelperLines = document.getElementById('toggleHelperLines');
+toggleHelperLines.addEventListener('change', () => {
+    const display = toggleHelperLines.checked ? 'block' : 'none';
+    Object.values(lines).forEach(line => line.style.display = display);
+});
+Object.values(lines).forEach(line => line.style.display = toggleHelperLines.checked ? 'block' : 'none');
+
+updatePreview();
+loadChannelPreview();
+</script>
+</body>
+</html>
