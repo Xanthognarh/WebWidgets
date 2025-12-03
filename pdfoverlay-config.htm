@@ -239,7 +239,7 @@ strong {
         </div>
     </div>
     <div id="settings">
-        <h5>Prepare Tool</h5>
+        <h5>1. Prepare Tool</h5>
         <label>Channel Name (for background image):
             <input type="text" id="channel" placeholder="channel name">
         </label>
@@ -249,7 +249,7 @@ strong {
         <button id="fileButton" onclick="document.getElementById('fileInput').click();">Open PDF File
         </button>
         <br><hr>
-        <h5>Edit Config</h5>
+        <h5>2. Edit Config</h5>
         <label>Pos X:
             <input type="number" min="-8191" max="8191" id="posX" value="0">
         </label>
@@ -279,7 +279,7 @@ strong {
             </span>
         </label>
         <br><hr>
-        <h5>Paste this command in Chat:</h5>
+        <h5>3. Paste this command in Chat:</h5>
         <input type="text" id="compressed" readonly title="Click to copy">
         <br>
         <label>Description:
@@ -303,11 +303,16 @@ strong {
             <input type="checkbox" id="toggleHelperLines" checked>Show helper lines
         </label>
         <label>Helper Line Thickness: 
-          <input type="range" id="helperLineThickness" min="1" max="10" value="1">
+            <input type="range" id="helperLineThickness" min="1" max="10" value="1">
         </label>
         <label>Helper Line Color: 
-          <input type="color" id="helperLineColor" value="#ff0000">
+            <input type="color" id="helperLineColor" value="#ff0000">
         </label>
+        <label>Manual Scale: 
+            <input type="range" id="manualScaleSlider" step="0.01">
+            <span id="manualScaleValue">1.00</span>
+        </label>
+        <button id="fitToScreenBtn">Fit to screen</button>
     </div>
 <script type="module" >
 // Overlay
@@ -639,6 +644,9 @@ const descriptionInput = document.getElementById('description');
 const saveBtn = document.getElementById('saveBtn');
 const savedTable = document.querySelector('#savedTable tbody');
 const refreshBtn = document.getElementById('refreshBtn');
+const manualScaleSlider = document.getElementById('manualScaleSlider');
+const manualScaleValue = document.getElementById('manualScaleValue');
+const fitToScreenBtn = document.getElementById('fitToScreenBtn');
 
 function parseResolution(res) {
     const [w, h] = res.split('x').map(Number);
@@ -660,15 +668,17 @@ function updatePreview() {
     previewWrapper.style.width = w + 'px';
     previewWrapper.style.height = h + 'px';
 
-    const scaleFactor = Math.min(containerW / w, containerH / h, 1);
-    previewWrapper.style.transform = `scale(${scaleFactor})`;
+    const maxScale  = Math.min(containerW / w, containerH / h, 999);//maybe reduce to 1
+    let scale = parseFloat(manualScaleSlider.value) || maxScale;
+    previewWrapper.style.transform = `scale(${scale})`;
     previewWrapper.style.transformOrigin = 'top left';
 
-    const offsetX = (containerW - w * scaleFactor) / 2;
-    const offsetY = (containerH - h * scaleFactor) / 2;
+    const offsetX = (containerW - w * scale) / 2;
+    const offsetY = (containerH - h * scale) / 2;
     previewWrapper.style.position = 'absolute';
     previewWrapper.style.left = offsetX + 'px';
     previewWrapper.style.top = offsetY + 'px';
+    
 
     fixedscale(scaleInput.value);
     rotate(rotationInput.value);
@@ -914,6 +924,50 @@ helperLineColorInput.addEventListener('input', () => {
     updateHelperLineColor();
 });
 updateHelperLineColor();
+
+let calculatedMaxScale = 1;
+function rescaleWrapper(){
+    const scale = parseFloat(manualScaleSlider.value);
+    previewWrapper.style.transform = `scale(${scale})`;
+    const { w, h } = parseResolution(resolutionInput.value);
+    const container = document.getElementById('preview-container');
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
+    const offsetX = (containerW - w * scale) / 2;
+    const offsetY = (containerH - h * scale) / 2;
+    previewWrapper.style.left = offsetX + 'px';
+    previewWrapper.style.top = offsetY + 'px';
+}
+function updateScaleSliderLimits() {
+    const { w, h } = parseResolution(resolutionInput.value);
+    const container = document.getElementById('preview-container');
+    const containerW = container.clientWidth;
+    const containerH = container.clientHeight;
+    calculatedMaxScale = Math.min(containerW / w, containerH / h);
+    const min = calculatedMaxScale > 1 ? 0.3 : 0;
+    manualScaleSlider.min = min;
+    manualScaleSlider.max = calculatedMaxScale.toFixed(2);
+    manualScaleSlider.value = calculatedMaxScale.toFixed(2);
+    manualScaleSlider.step = 0.01;
+    const currentScale = parseFloat(previewWrapper.style.transform.replace('scale(','').replace(')','')) || 1;
+    manualScaleSlider.value = currentScale.toFixed(2);
+    manualScaleValue.textContent = currentScale.toFixed(2);
+    rescaleWrapper();
+}
+manualScaleSlider.addEventListener('input', () => {
+    rescaleWrapper(); 
+    manualScaleValue.textContent = scale.toFixed(2);
+    updateHelperLines();
+});
+fitToScreenBtn.addEventListener('click', () => {
+    previewWrapper.style.transform = `scale(${calculatedMaxScale})`;
+    manualScaleSlider.value = calculatedMaxScale.toFixed(2);
+    manualScaleValue.textContent = calculatedMaxScale.toFixed(2);
+    rescaleWrapper();
+    updateHelperLines();
+});
+window.addEventListener('resize', updateScaleSliderLimits);
+updateScaleSliderLimits();
 
 updatePreview();
 loadChannelPreview();
