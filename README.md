@@ -192,6 +192,8 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/pdfoverlay.htm?ch
 - `!pdfrotation angle`: Rotate page to angle [0, 1, 90, 2, 180, 3, 270]
 - `!pdfzoom percent`: Scale the pdf to percent of its maximum size. 0 and 100 scales the pdf to the maximum display size.
 - `!pdfpos pos [offset-x] [offset-y]`: Move the overlay to pos (Number 1-9 from Numpad) and optionally offset by the given values in pixel. Pos 0 hides the background.
+- `!pdfcrop`: Reset crop.
+- `!pdfcrop top right bottom left`: Crop PDF by %.
 
 Or use the [PDF Config Preview](https://xanthognarh.github.io/WebWidgets/pdfoverlay-config.htm) to preview your changes and send them all in one !pdfconfig command.
 

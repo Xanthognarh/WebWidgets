@@ -128,6 +128,7 @@ const RotatePageCommand="!pdfrotation";
 const SetScaleCommand="!pdfzoom";
 const SetPosCommand="!pdfpos";
 const ConfigCommand="!pdfconfig";
+const SetCropCommand="!pdfcrop";
 
 let rotationangle=0;
 let zoom=0;
@@ -195,56 +196,46 @@ const cumSizes = blockSizes.reduce((acc,size,i)=>{
     return acc;
 }, []);
 const totalSize = cumSizes.at(-1);
+console.log("Compression alphabet: " + totalSize + "/8192");
 
-// 16-bit scrambler (invertible)
-function scramble16bit(x){
-    x = ((x & 0xAAAA) >> 1) | ((x & 0x5555) << 1);
-    x = ((x & 0xCCCC) >> 2) | ((x & 0x3333) << 2);
-    x = ((x & 0xF0F0) >> 4) | ((x & 0x0F0F) << 4);
-    x = ((x & 0xFF00) >> 8) | ((x & 0x00FF) << 8);
-    return x & 0xFFFF;
-}
-function unscramble16bit(x){ return scramble16bit(x); }
-function getIndexFromChar(char){
-    const code = char.codePointAt(0);
-    let blockIdx = ranges.findIndex(([start,end]) => code >= start && code <= end);
-    if(blockIdx === -1) throw new Error("Char not in range: "+char);
-    const prevCum = blockIdx>0 ? cumSizes[blockIdx-1] : 0;
-    const scaledIndex = prevCum + (code - ranges[blockIdx][0]);
-    return unscramble16bit(scaledIndex);
-}
-function* unicodeChars(str) {
-    let i = 0;
-    while (i < str.length) {
-        const code = str.codePointAt(i);
-        yield code;
-        i += code > 0xFFFF ? 2 : 1; // skip 2 for surrogate pairs
-    }
-}
-// Decode 5 chars back to 64-bit number
-function decode64Bit(str){
-    let v=0n;
-    let i = 0;
-    for (const code of unicodeChars(str)) {
-        const ch = String.fromCodePoint(code);
-        const idx16 = BigInt(getIndexFromChar(ch));
-        const part13 = idx16 >> 3n;
-        const shift = BigInt((4-i)*13);
-        v |= BigInt(part13 & 0x1FFFn) << shift;
-        i++;
-    }
-    return v;
-}
 function decompressData(str){
-    const v = decode64Bit(str);
-    return {
-        x: Number((v >> 50n) & 0x3FFFn) - 8191,
-        y: Number((v >> 36n) & 0x3FFFn) - 8191,
-        scale: Number((v >> 20n) & 0xFFFFn),
-        rotation: Number((v >> 18n) & 0x3n),
-        visible: Boolean((v >> 17n) & 0x1n),
-        page: Number(v & 0x1FFFFn)
-    };
+    const chars = Array.from(str);
+    if(chars.length!==8) throw new Error("Expected 8 characters");
+    let v = 0n;
+    const base = 8192;
+
+    // Nimm die ersten 8192 Zeichen aus allen Ranges
+    const availableChars = [];
+    let count = 0;
+    for(const [start,end] of ranges){
+        for(let code=start;code<=end && count<base;code++){
+            availableChars.push(String.fromCodePoint(code));
+            count++;
+        }
+        if(count>=base) break;
+    }
+
+    for(const c of chars){
+        const index = BigInt(availableChars.indexOf(c));
+        if(index===-1n) throw new Error("Invalid character");
+        v = v * BigInt(base) + index;
+    }
+
+    console.log("v_dec="+v);
+
+    const x = Number((v >> 90n) & 0x3FFFn)-8191;
+    const y = Number((v >> 76n) & 0x3FFFn)-8191;
+    const scale = Number((v >> 63n) & 0x1FFFn);
+    const rotBits = Number((v >> 61n) & 0x3n);
+    const rotation = rotBits*90;
+    const visible = ((v >> 60n) & 0x1n)===1n;
+    const page = Number((v >> 48n) & 0xFFFn);
+    const cropLeft = Number((v >> 36n) & 0xFFFn);
+    const cropTop = Number((v >> 24n) & 0xFFFn);
+    const cropRight = Number((v >> 12n) & 0xFFFn);
+    const cropBottom = Number(v & 0xFFFn);
+
+    return {x,y,scale,rotation,visible,page,cropLeft,cropTop,cropRight,cropBottom};
 }
 
 const siteURL=new URL(window.location);
@@ -283,7 +274,11 @@ async function loadPDF(event) {
         document.getElementById("Help").style.visibility="visible";
     }
 }
+let renderTask = null;
 async function renderPage(num) {
+    if (renderTask) {
+        renderTask.cancel();
+    }
 	const page = await pdfDoc.getPage(num);
 	const desiredHeight = window.screen.availHeight ;
 	const desiredWidth = window.screen.availWidth ;
@@ -297,7 +292,18 @@ async function renderPage(num) {
 	pdfCanvas.width = scaledViewport.width;
 	pdfCanvas.height = scaledViewport.height;
 	console.log("Render Page "+num+" with scale "+scale+" and rotation "+rotationangle);
-	await page.render({canvasContext: pdfCanvas.getContext('2d'), viewport: scaledViewport}).promise;
+	renderTask = page.render({ canvasContext: pdfCanvas.getContext('2d'), viewport: scaledViewport });
+    try {
+        await renderTask.promise;
+    } catch (e) {
+        if (e.name === 'RenderingCancelledException') {
+            console.log('Previous render cancelled');
+        } else {
+            throw e;
+        }
+    } finally {
+        renderTask = null;
+    }
 }
 
 function nextPage(amount=1) {
@@ -308,7 +314,6 @@ function nextPage(amount=1) {
 		}else{
 			currentPage=pdfDoc.numPages;
 		}
-	renderPage(currentPage);
 	}
 }
 
@@ -320,14 +325,12 @@ function previousPage(amount=1) {
 		}else{
 			currentPage=1;
 		}
-	renderPage(currentPage);
 	}
 }
 
 function jumpToPage(pageNum) {
 	if (pdfDoc && pageNum > 0 && pageNum <= pdfDoc.numPages) {
 		currentPage = pageNum;
-		renderPage(currentPage);
 	}
 }
 
@@ -352,13 +355,11 @@ function rotate(angle){
 			rotationangle=270;
 			break;
 		}
-		renderPage(currentPage);
 	}
 }
 
 function fixedscale(val=0){
 	zoom=val;
-	renderPage(currentPage);
 }
 
 function ChangePosition(text){
@@ -445,7 +446,35 @@ function ChangePosition(text){
 			break;
 	}
 }
-
+let cropL=0;
+let cropR=0;
+let cropT=0;
+let cropB=0;
+function crop(){
+    let top = cropT, bottom = cropB, left = cropL, right = cropR;
+    switch(rotationangle) {
+        case 90:
+            // Swap axes
+            top = cropL;
+            bottom = cropR;
+            left = cropB;
+            right = cropT;
+            break;
+        case 180:
+            top = cropB;
+            bottom = cropT;
+            left = cropR;
+            right = cropL;
+            break;
+        case 270:
+            top = cropR;
+            bottom = cropL;
+            left = cropT;
+            right = cropB;
+            break;
+    }
+    pdfCanvas.style.clipPath = `inset(${top/ 4095 * 100}% ${right/ 4095 * 100}% ${bottom/ 4095 * 100}% ${left/ 4095 * 100}%)`;
+}
 
 //Connect to Twitchchat:
 const client = new tmi.Client({
@@ -466,22 +495,28 @@ client.on('message', (channel, user, message, self) => {
 				break;
 			case NextCommand:
 				if (isNaN(message.split(" ")[1]*1)){nextPage();}else{nextPage(message.split(" ")[1]*1);}
+                renderPage(currentPage);
 				break;
 			case PreviousCommand:
 				if (isNaN(message.split(" ")[1]*1)){previousPage();}else{previousPage(message.split(" ")[1]*1);}
+                renderPage(currentPage);
 				break;	
 			case SetPageCommand:
 				if (isNaN(message.split(" ")[1]*1)){break;}
 				jumpToPage(message.split(" ")[1]*1);
+                renderPage(currentPage);
 				break;
 			case RotatePageCommand:
 				if (isNaN(message.split(" ")[1]*1)){break;}
 				rotate(message.split(" ")[1]*1);
+                crop();
+                renderPage(currentPage);
 				break;
 			case SetScaleCommand:
 				let val=message.split(" ")[1].replace(",",".");
 				if (isNaN(val*1)){fixedscale(0);break;}
 				fixedscale(val*1);
+                renderPage(currentPage);
 				break;
 			case SetPosCommand:
 				const text=message.substr(SetPosCommand.length +1).trim();
@@ -493,16 +528,54 @@ client.on('message', (channel, user, message, self) => {
 					All.style.backgroundColor="rgba(0,0,0,0)";
 				}
 				break;
+            case SetCropCommand:
+                const tmp=message.split(" ");
+                console.log("Crop: "+tmp);
+                switch (tmp.length){
+                    case 1:
+                        cropL=0;
+                        cropR=0;
+                        cropT=0;
+                        cropB=0;
+                        break;
+                    case 2:
+                        cropL=tmp[1]*4095/100;
+                        cropR=tmp[1]*4095/100;
+                        cropT=tmp[1]*4095/100;
+                        cropB=tmp[1]*4095/100;
+                        break;
+                    case 3:
+                        cropT=tmp[1]*4095/100;
+                        cropB=tmp[1]*4095/100;
+                        cropL=tmp[2]*4095/100;
+                        cropR=tmp[2]*4095/100;
+                        break;
+                    case 5:
+                        cropT=tmp[1]*4095/100;
+                        cropR=tmp[2]*4095/100;
+                        cropB=tmp[3]*4095/100;
+                        cropL=tmp[4]*4095/100;
+                        break;
+                }
+                crop();
+                //renderPage(currentPage);
+                break;
             case ConfigCommand:
                 const encoded=message.split(" ")[1];
                 console.log(encoded);
                 const data=decompressData(encoded);
                 console.log(data);
                 pdfCanvas.style.visibility = data.visible ? "visible" : "hidden";
-                jumpToPage(data.page);
+                cropL=data.cropLeft;
+                cropR=data.cropRight;
+                cropT=data.cropTop;
+                cropB=data.cropBottom;
                 rotate(data.rotation);
+                crop();
+                jumpToPage(data.page);
                 fixedscale(data.scale);
                 ChangePosition(`7 ${data.x} ${data.y}`);
+                renderPage(currentPage);             
                 break;
 		}
 	}

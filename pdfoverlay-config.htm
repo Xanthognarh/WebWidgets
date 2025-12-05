@@ -201,6 +201,19 @@ strong {
 	height: 200vh;
     top:0px;
 }
+.crop-handle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: #ff0000; /* kannst du ändern */
+    border-radius: 4px;
+    z-index: 9999;
+}
+
+#crop-handle-top    { cursor: ns-resize; }
+#crop-handle-bottom { cursor: ns-resize; }
+#crop-handle-left   { cursor: ew-resize; }
+#crop-handle-right  { cursor: ew-resize; }
         </style>
 <script type="module" src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5/build/pdf.min.mjs"></script>
 </head>
@@ -218,7 +231,13 @@ strong {
                     <div id="line-bottom" class="helper-line"></div>
                     <div id="line-left" class="helper-line"></div>
                     <div id="line-right" class="helper-line"></div>
+                    <!-- Crop Handles -->
+                    <div id="crop-handle-top" class="crop-handle"></div>
+                    <div id="crop-handle-bottom" class="crop-handle"></div>
+                    <div id="crop-handle-left" class="crop-handle"></div>
+                    <div id="crop-handle-right" class="crop-handle"></div>
                 </div>
+
                 <div id="Help">
                     <div id="Placeholder">
                         <div id="p1"> <span>1 <span></div>
@@ -261,6 +280,12 @@ strong {
             <input type="number" id="scale" min="0" max="2621.43" value="100" step="0.01">
         </label>
         Or zoom with mouse wheel (slow: ctrl/shift)
+        <label>Crop Top:    <input id="crop-top"    type="number" value="0"></label>
+        <label>Crop Right:  <input id="crop-right"  type="number" value="0"></label>
+        <label>Crop Bottom: <input id="crop-bottom" type="number" value="0"></label>
+        <label>Crop Left:   <input id="crop-left"   type="number" value="0"></label>
+
+
         <label>Rotation:
             <select id="rotation">
                 <option>0</option>
@@ -407,7 +432,7 @@ async function renderPage(num) {
     } finally {
         currentRenderTask = null;
     }
-    updateHelperLines();
+    updateNonPDF();
 }
 
 function jumpToPage(pageNum) {
@@ -419,6 +444,7 @@ function rotate(angle) {
     if (pdfDoc) {
         rotationangle = angle;
     }
+    updateCropHandles();
 }
 function fixedscale(val = 0) {
     zoom = val;
@@ -576,55 +602,54 @@ const cumSizes = blockSizes.reduce((acc, size, i) => {
 const totalSize = cumSizes.at(-1);
 console.log("Compression alphabet: " + totalSize + "/8192");
 
-// bit-scrambler for 16-bit value
-function scramble16bit(x) {
-    x = ((x & 0xAAAA) >> 1) | ((x & 0x5555) << 1);
-    x = ((x & 0xCCCC) >> 2) | ((x & 0x3333) << 2);
-    x = ((x & 0xF0F0) >> 4) | ((x & 0x0F0F) << 4);
-    x = ((x & 0xFF00) >> 8) | ((x & 0x00FF) << 8);
-    return x & 0xFFFF;
-}
-// Map a 16-bit scrambled value into a Unicode char from mixed blocks
-function getCharFromIndex(index16) {
-    const scrambled = scramble16bit(index16);
-    // Directly map to cumulative alphabet
-    let blockIdx = 0;
-    while (blockIdx < cumSizes.length && scrambled >= cumSizes[blockIdx])
-        blockIdx++;
-    const prevCum = blockIdx > 0 ? cumSizes[blockIdx - 1] : 0;
-    const blockStart = ranges[blockIdx][0];
-    const charCode = blockStart + (scrambled - prevCum);
-    return String.fromCodePoint(charCode);
-}
-// Encode 64-bit number into 5 chars (5 × 13 bits)
-function encode64Bit(num) {
-    const chars = [];
-    let v = BigInt(num);
-    for (let i = 4; i >= 0; i--) {
-        const shift = BigInt(i * 13);
-        const part13 = Number((v >> shift) & 0x1FFFn);
-        const part16 = part13 << 3;
-        chars.push(getCharFromIndex(part16));
-    }
-    return chars.join('');
-}
-function compressData({
-    x,
-    y,
-    scale,
-    rotation,
-    visible,
-    page
-}) {
+function compressData({x,y,scale,rotation,visible,page,cropLeft,cropTop,cropRight,cropBottom}){
     let v = 0n;
-    v |= BigInt(x & 0x3FFF) << 50n;
-    v |= BigInt(y & 0x3FFF) << 36n;
-    v |= BigInt(scale & 0xFFFF) << 20n;
-    const rotBits = (rotation / 90) & 0x3; // rotation = 0,90,180,270 → rotBits = 0..3
-    v |= BigInt(rotBits & 0x3) << 18n;
-    v |= BigInt(visible ? 1 : 0) << 17n;
-    v |= BigInt(page & 0x1FFFF);
-    return encode64Bit(v);
+    v |= BigInt(x & 0x3FFF) << 90n;
+    v |= BigInt(y & 0x3FFF) << 76n;
+    v |= BigInt(scale & 0x1FFF) << 63n;
+    const rotBits = (rotation/90) & 0x3;
+    v |= BigInt(rotBits) << 61n;
+    v |= BigInt(visible?1:0) << 60n;
+    v |= BigInt(page & 0xFFF) << 48n;
+    v |= BigInt(cropLeft & 0xFFF) << 36n;
+    v |= BigInt(cropTop & 0xFFF) << 24n;
+    v |= BigInt(cropRight & 0xFFF) << 12n;
+    v |= BigInt(cropBottom & 0xFFF);
+
+    const chars = [];
+    const numChars = 8;
+    const base = 8192;
+
+    const availableChars = [];
+    let count = 0;
+    for(const [start,end] of ranges){
+        for(let code=start;code<=end && count<base;code++){
+            availableChars.push(String.fromCodePoint(code));
+            count++;
+        }
+        if(count>=base) break;
+    }
+    for(let i=0;i<numChars;i++){
+        const index = Number(v % BigInt(base));
+        v /= BigInt(base);
+        chars.push(availableChars[index]);
+    }
+    return chars.reverse().join('');
+}
+function updateCompressed(){
+    const data={
+        x: parseInt(posXInput.value || 0)+8191,
+        y: parseInt(posYInput.value || 0)+8191,
+        scale: parseInt(scaleInput.value)||100,
+        rotation: parseInt(rotationInput.value)||0,
+        visible: visibleInput.checked,
+        page: parseInt(pageInputField.value)||0,
+        cropLeft: parseInt(cropLeft.value)||0,
+        cropTop: parseInt(cropTop.value)||0,
+        cropRight: parseInt(cropRight.value)||0,
+        cropBottom: parseInt(cropBottom.value)||0
+    };
+    compressedInput.value="!pdfconfig "+compressData(data);
 }
 
 const previewWrapper = document.getElementById('preview-wrapper');
@@ -647,6 +672,10 @@ const refreshBtn = document.getElementById('refreshBtn');
 const manualScaleSlider = document.getElementById('manualScaleSlider');
 const manualScaleValue = document.getElementById('manualScaleValue');
 const fitToScreenBtn = document.getElementById('fitToScreenBtn');
+const cropLeft = document.getElementById('crop-left');
+const cropRight = document.getElementById('crop-right');
+const cropTop = document.getElementById('crop-top');
+const cropBottom = document.getElementById('crop-bottom');
 
 function parseResolution(res) {
     const [w, h] = res.split('x').map(Number);
@@ -684,8 +713,7 @@ function updatePreview() {
     rotate(rotationInput.value);
     jumpToPage(pageInputField.value);
     ChangePosition("7 " + posXInput.value + " " + posYInput.value);
-    updateHelperLines();
-    updateCompressed();
+    updateNonPDF();
 
     if (renderTimeout)
         clearTimeout(renderTimeout);
@@ -694,19 +722,6 @@ function updatePreview() {
     }, 50); // 50ms Debounce
 }
 window.addEventListener('resize', updatePreview);
-
-// --- Compressed data ---
-function updateCompressed() {
-    const data = {
-        x: parseInt(posXInput.value) + 8191 || 0 + 8191,
-        y: parseInt(posYInput.value) + 8191 || 0 + 8191,
-        scale: parseFloat(scaleInput.value) || 100,
-        rotation: parseInt(rotationInput.value) || 0,
-        visible: visibleInput.checked,
-        page: parseInt(pageInputField.value) || 0
-    };
-    compressedInput.value = "!pdfconfig " + compressData(data);
-}
 
 let isDragging = false;
 let dragStartX = 0;
@@ -734,7 +749,7 @@ document.addEventListener('mousemove', (e) => {
     posYInput.value = newPosY;
 
     ChangePosition(`7 ${newPosX} ${newPosY}`);
-    updateHelperLines();
+    updateNonPDF();
 });
 document.addEventListener('mouseup', () => {
     if (isDragging) {
@@ -762,6 +777,7 @@ All.addEventListener('wheel', (e) => {
     scaleInput.value = Math.round(currentScale * 100) / 100;
     fixedscale(currentScale);
     renderPage(currentPage);
+    updateNonPDF();
 });
 document.addEventListener('keydown', (e) => {
     let step = 20;
@@ -792,8 +808,7 @@ document.addEventListener('keydown', (e) => {
     posXInput.value = posX;
     posYInput.value = posY;
     ChangePosition(`7 ${posX} ${posY}`);
-    updateHelperLines();
-    updateCompressed();
+    updateNonPDF();
 
     e.preventDefault(); // prevent scrolling
 });
@@ -880,6 +895,7 @@ const lines = {
 function updateHelperLines() {
     const scale = parseFloat(previewWrapper.style.transform.replace('scale(','').replace(')','')) || 1;
     const thickness = parseFloat(helperLineThicknessInput.value) || 1;
+    const scale2 = 100 / 4095;
     
     const rect = pdfCanvas.getBoundingClientRect();
     const parentRect = All.getBoundingClientRect();
@@ -887,10 +903,36 @@ function updateHelperLines() {
     const left = (rect.left - parentRect.left) / scale;
     const width = pdfCanvas.width;
     const height = pdfCanvas.height;
-    lines.top.style.top=(top-thickness)+"px";
-    lines.bottom.style.top=(top+height+0)+"px";
-    lines.left.style.left=(left-thickness)+"px";
-    lines.right.style.left=(left+width+0)+"px";
+
+    let cropL = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.width / 100;
+    let cropR = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.width / 100;
+    let cropT = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.height / 100;
+    let cropB = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.height / 100;
+    switch (rotationInput.value){
+        case "90":
+            cropL = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropR = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropT = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.height / 100;
+            cropB = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.height / 100;
+            break;
+        case "180":
+            cropL = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropR = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropT = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.height / 100;
+            cropB = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.height / 100;
+            break;
+        case "270":
+            cropL = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropR = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropT = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.height / 100;
+            cropB = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.height / 100;
+            break;
+    }
+    
+    lines.top.style.top=(top-thickness+cropT)+"px";
+    lines.bottom.style.top=(top+height+0-cropB)+"px";
+    lines.left.style.left=(left-thickness+cropL)+"px";
+    lines.right.style.left=(left+width+0-cropR)+"px";
 }
 const toggleHelperLines = document.getElementById('toggleHelperLines');
 toggleHelperLines.addEventListener('change', () => {
@@ -969,6 +1011,145 @@ fitToScreenBtn.addEventListener('click', () => {
 window.addEventListener('resize', updateScaleSliderLimits);
 updateScaleSliderLimits();
 
+
+function updateCanvasCrop() {
+    const scale = parseFloat(scaleInput.value)/100;
+    let cropL = parseInt(cropLeft.value)/4095*100 || 0;
+    let cropR = parseInt(cropRight.value)/4095*100 || 0;
+    let cropT = parseInt(cropTop.value)/4095*100 || 0;
+    let cropB = parseInt(cropBottom.value)/4095*100 || 0;
+
+    switch (rotationInput.value){
+        case "0":
+            pdfCanvas.style.clipPath = `inset(${cropT}% ${cropR}% ${cropB}% ${cropL}%)`;
+            break;
+        case "90":
+            pdfCanvas.style.clipPath = `inset(${cropL}% ${cropT}% ${cropR}% ${cropB}%)`;
+            break;
+        case "180":
+            pdfCanvas.style.clipPath = `inset(${cropB}% ${cropL}% ${cropT}% ${cropR}%)`;
+            break;
+        case "270":
+            pdfCanvas.style.clipPath = `inset(${cropR}% ${cropB}% ${cropL}% ${cropT}%)`;
+            break;
+    }
+    updateHelperLines();
+}
+["crop-left","crop-right","crop-top","crop-bottom"].forEach(id => {document.getElementById(id).addEventListener("input", updateNonPDF);});
+
+const cropHandles = {
+    top: document.getElementById("crop-handle-top"),
+    bottom: document.getElementById("crop-handle-bottom"),
+    left: document.getElementById("crop-handle-left"),
+    right: document.getElementById("crop-handle-right"),
+};
+function updateCropHandles() {
+    const scale = parseFloat(previewWrapper.style.transform.replace('scale(','').replace(')','')) || 1;
+    const thickness = 20/2;
+    const scale2 = 100 / 4095;
+
+    let cropL = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.width / 100;
+    let cropR = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.width / 100;
+    let cropT = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.height / 100;
+    let cropB = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.height / 100;
+    switch (rotationInput.value){
+        case "90":
+            cropL = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropR = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropT = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.height / 100;
+            cropB = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.height / 100;
+            break;
+        case "180":
+            cropL = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropR = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropT = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.height / 100;
+            cropB = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.height / 100;
+            break;
+        case "270":
+            cropL = (parseInt(cropTop.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropR = (parseInt(cropBottom.value) || 0) * scale2 * pdfCanvas.width / 100;
+            cropT = (parseInt(cropRight.value) || 0) * scale2 * pdfCanvas.height / 100;
+            cropB = (parseInt(cropLeft.value) || 0) * scale2 * pdfCanvas.height / 100;
+            break;
+    }
+
+    const rect = pdfCanvas.getBoundingClientRect();
+    const parentRect = All.getBoundingClientRect();
+
+    const top = (rect.top - parentRect.top) / scale;
+    const left = (rect.left - parentRect.left) / scale;
+    const width = pdfCanvas.width;
+    const height = pdfCanvas.height;
+
+    const croppedWidth = width - cropL - cropR;
+    const croppedHeight = height - cropT - cropB;
+
+    cropHandles.top.style.top = (top + cropT - thickness) + "px";
+    cropHandles.bottom.style.top = (top + height - cropB - thickness) + "px";
+    cropHandles.left.style.left = (left + cropL - thickness) + "px";
+    cropHandles.right.style.left = (left + width - cropR - thickness) + "px";
+
+    cropHandles.top.style.left = (left + cropL + croppedWidth/2 - thickness) + "px";
+    cropHandles.bottom.style.left = (left + cropL + croppedWidth/2 - thickness) + "px";
+    cropHandles.left.style.top = (top + cropT + croppedHeight/2 - thickness) + "px";
+    cropHandles.right.style.top = (top + cropT + croppedHeight/2 - thickness) + "px";
+}
+updateCropHandles();
+let draggingCropSide = null;
+let startY, startX;
+Object.entries(cropHandles).forEach(([side, el]) => {
+    el.addEventListener("mousedown", e => {
+        draggingCropSide = side;
+        e.stopPropagation();
+        e.preventDefault();
+        startX = e.clientX;
+        startY = e.clientY;
+    });
+});
+document.addEventListener("mousemove", e => {
+    if (!draggingCropSide) return;
+    let step = 1;
+    if (e.shiftKey)
+        step = 5;
+    if (e.ctrlKey)
+        step = 10;
+        
+    const rect = pdfCanvas.getBoundingClientRect();
+    const canvasWidth = rect.width;
+    const canvasHeight = rect.height;
+    const dx = (e.clientX - startX)*4095 / canvasWidth/step;
+    const dy = (e.clientY - startY)*4095 / canvasWidth/step;
+    const manualScale = parseFloat(scaleInput.value) / 100 || 1;
+    const cropval=[cropTop,cropRight,cropBottom,cropLeft,cropTop,cropRight,cropBottom,cropLeft];
+    switch (draggingCropSide) {
+        case "top":
+            cropval[4-rotationInput.value/90].value = Math.max(0, Math.min(4095, parseFloat(cropval[4-rotationInput.value/90].value) + dy)).toFixed(0);
+            break;
+        case "bottom":
+            cropval[6-rotationInput.value/90].value = Math.max(0, Math.min(4095, parseFloat(cropval[6-rotationInput.value/90].value) - dy)).toFixed(0);
+            break;
+        case "left":
+            cropval[7-rotationInput.value/90].value = Math.max(0, Math.min(4095, parseFloat(cropval[7-rotationInput.value/90].value) + dx)).toFixed(0);
+            break;
+        case "right":
+            cropval[5-rotationInput.value/90].value = Math.max(0, Math.min(4095, parseFloat(cropval[5-rotationInput.value/90].value) - dx)).toFixed(0);
+            break;
+    }
+    updateNonPDF();
+    startX = e.clientX;
+    startY = e.clientY;
+});
+document.addEventListener("mouseup", () => {
+    draggingCropSide = null;
+    
+});
+
+function updateNonPDF(){
+    updateCompressed();
+    updateHelperLines();
+    updateCanvasCrop();
+    updateCropHandles();
+}
 updatePreview();
 loadChannelPreview();
 </script>
