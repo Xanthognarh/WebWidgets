@@ -22,7 +22,8 @@ Take a look at an [alternative version by DasCleverle](https://github.com/DasCle
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a bar chart. Only the first number of each user is accepted until a new vote is started. 
 ![Example Chart for a vote between a,b,c and d.](Examples/Xanthograph.png)
 
-### Config via URL-Parameters:
+<details><summary>Config via URL-Parameters:</summary>
+
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 - `min`: lowest accepted value for vote [default: 1]
 - `max`: highest accepted value for vote [default: 5]
@@ -31,9 +32,10 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 You can click on the plot to open/close the config editor or edit the values manually. Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatSurvey.htm?channel=Channelname&min=1&max=5&bg=50,70,100,0.3`
+</details>
 
+<details><summary>Chat Commands:</summary>
 
-### Chat Commands:
 - `!newvote`: Reset votes and user blocklist, show the chart
 - `!newvote min-max`: Reset votes and user blocklist, show the chart and set range. Example for negative values: `!newvote -3--1`; Min/Max can be letters (case-insensitive)
 - `!resetvote`: Alias for `!newvote` (shared command with Chat12)
@@ -42,6 +44,7 @@ You can click on the plot to open/close the config editor or edit the values man
 - `!voteagain`: Allow all users to submit new votes. These votes are added to the old votes.
 - `!hidevote`: Change the visibility of the chart. Votes will be still counted.
 - `!showvote`: Change the visibility of the chart. Votes will be still counted.
+</details>
 
 ### Feature Ideas
 - `!vote Text` e.g. Names
@@ -49,7 +52,8 @@ You can click on the plot to open/close the config editor or edit the values man
 ## ChatStat (still in developement)
 Reads the chat of a Twitch channel and interprets messages consisting of numbers (e.g. “1”, “2”, “3”) as votes. The voting result is displayed as a KDE chart. Only the first number of each user is accepted until a new vote is started. 
 
-### Config via URL-Parameters:
+<details><summary>Config via URL-Parameters:</summary>
+
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 - `kernel`: Kernel of the KDE Plot. Choose one of [Normal, Epanechnikov, Box, Biweight, Triweight, Triangular]  [default: normal]
 - `bg`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: white-transparent (230,230,255,0.8)]
@@ -61,9 +65,10 @@ Reads the chat of a Twitch channel and interprets messages consisting of numbers
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?channel=Channelname&debug=1`
+</details>
 
+<details><summary>Chat Commands:</summary>
 
-### Chat Commands:
 - `!newvote KDE`: Reset votes and user blocklist, show the chart
 - `!resetvote`: Alias for `!newvote` (shared command with Chat12)
 - `!stopvote`: Disable new entries (freeze the current view)
@@ -77,6 +82,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/ChatStat.htm?chan
 - `!limit min-max`: Set the range of displayed values. If no min or max is given, it is unlimited.
 - `!testdata n [modes max digits]`: Generate n random votes with given modes [default: 2], from 0 to max [default: 100] and rounds the result to digits [default: 2].
 Use negative values for n to load example testdata (-1,...,-25). 
+</details>
 
 ## Chat12
 Reads the chat of a Twitch channel and interprets the messages "1" and "2" as votes. The voting result is displayed as a bar with a marker at the center.
@@ -84,7 +90,8 @@ Only the first number of each user is accepted until a new vote is started. Afte
 
 ![Example vote in different !votestyle ](Examples/Xanthobar.png)
 
-### Config via URL-Parameters:
+<details><summary>Config via URL-Parameters:</summary>
+
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 - `to`: Approximate time in seconds after the last vote to reset the voting [default: 30]
 - `minvotes`: Necessary amount of votes to display the bar [default: 3]
@@ -96,8 +103,10 @@ Only the first number of each user is accepted until a new vote is started. Afte
 - `debug`: Allow multiple votes per user and commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channel=Channelname&to=10`
+</details>
 
-### Chat Commands:
+<details><summary>Chat Commands:</summary>
+
 - `!hidevote`: Reset votes and user blocklist and hide the bar (shared command with ChatSurvey, but without background voting)
 - `!resetvote`: Reset votes and user blocklist (shared command with ChatSurvey); like `!hidevote` 
 - `!disablevote`: Disable new votes until `!enablevote` and hides the bar
@@ -107,12 +116,14 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Chat12.htm?channe
 
 
 The bar is deactivated during an ongoing ChatSurvey-Vote (from !newvote to !hidevote).
+</details>
 
 ## Sublist
 Shows a list of Subs/Bits for future interaction. The listet users can display a message using `!pick message`. After a timeout or `!RemoveUser username` this entry is removed. If there are multiple entries of one user, only the first entry will be removed.
 ![Example table of Subs](Examples/Xanthosub.png)
 
-### Config via URL-Parameters:
+<details><summary>Config via URL-Parameters:</summary>
+
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 - `len`: max Number of Entries displayed [default: 5]
 - `bitprice`: Amount of Bits that equals 1 [default: 300]
@@ -122,13 +133,17 @@ Shows a list of Subs/Bits for future interaction. The listet users can display a
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/sublist.htm?channel=channelname&len=3` 
 If you want a background-color add this custom CSS in OBS: `table{background-color:rgba(255,255,255,0.4)}`
-### Chat Commands:
+</details>
+
+<details><summary>Chat Commands:</summary>
+
 - `!pick message`: Command for the person shown in table to send a Message
 - `!pick username message`: Mod command to send a message instead
 - `!AddUser username [amount][type]`: Add username to the queue, amount and type can be empty
 - `!RemoveUser username [Pos=0]`: Remove the pos-th entry of the given user
 - `!ShowType`: Show the column with the Sub/Resub/Bit info
 - `!HideType`: Hide the column with the Sub/Resub/Bit info
+</details>
 
 ### Feature Ideas
 - `!Purgeuser`: Remove all entries of this user
@@ -138,7 +153,8 @@ If you want a background-color add this custom CSS in OBS: `table{background-col
 ## Overlay
 Allows mods to display an overlay with custom text at a custom position. Set the browser source to fullscreen.
 
-### Config via URL-Parameters:
+<details><summary>Config via URL-Parameters:</summary>
+
 - `channel`: Name of Twitch Channel you want to listen
 - `c1`: r,g,b,a value  for the background-color (0-255) and alpha (0-1) [default: black (0,0,0,0.7)]
 - `c2`: r,g,b,a value  for the font-color (0-255) and alpha (0-1) [default: white (255,255,255,1)]
@@ -148,8 +164,10 @@ Allows mods to display an overlay with custom text at a custom position. Set the
 - `debug`: Commands can be used by everyone
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?channel=Channelname&c1=0,0,0,0.7&c2=255,255,255,1`
+</details>
 
-### Chat Commands:
+<details><summary>Chat Commands:</summary>
+
 - `!overlay Content`: Display an overlay with the content
 - `!showoverlay`: Show the overlay
 - `!hideoverlay`: Hide the overlay
@@ -161,6 +179,7 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/Overlay.htm?chann
 
 You can create a table by using "|" to divide the cells and "\\" for a new row. Start Text with "!!" to span the cell over the row.
 Twitch Emotes are possible.
+</details>
 
 ### Alternativ to this tool
 A more convenient way for overlays could be MS PowerPoint or Google Slides. The method described here has the flaw to show (anti-aliasing?) contures and doesn't allow transparency.
@@ -178,12 +197,15 @@ To reduce the contures, you could increase the step 3 resolution (and update the
 ## PDF-Overlay
 Shows a PDF file as an overlay. To select the pdf file you have to enter the interactive mode in OBS and click anywhere on the page. Then you can leave the interactive mode.
 
-### Config via URL-Parameters:
+<details><summary>Config via URL-Parameters:</summary>
+
 - `channel`: Name of Twitch Channel(s) you want to listen (also works for Shared Chat). Separate Channels with comma.
 
 Embed the link like: `https://xanthognarh.github.io/WebWidgets/pdfoverlay.htm?channel=channelname`
+</details>
 
-### Chat Commands:
+<details><summary>Chat Commands:</summary>
+
 - `!hidepdf`: Hide the pdf
 - `!showpdf`: Show the pdf
 - `!pdf+ [amount]`: Turn to the next page
@@ -196,4 +218,4 @@ Embed the link like: `https://xanthognarh.github.io/WebWidgets/pdfoverlay.htm?ch
 - `!pdfcrop top right bottom left`: Crop PDF by %.
 
 Or use the [PDF Config Preview](https://xanthognarh.github.io/WebWidgets/pdfoverlay-config.htm) to preview your changes and send them all in one !pdfconfig command.
-
+</details>
