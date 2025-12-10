@@ -295,7 +295,7 @@ use them like: ChatSurvey.htm?channel=Testchannel&min=1&max=5
 				switch (message.split(" ")[0]){
 					case ResetCommand:
 					case StartNewVoteCommand:
-						if (message.split(" ")[1].toLowerCase()=="kde"){
+						if (message.split(" ")[1] && message.split(" ")[1].toLowerCase()=="kde"){
 							//Other tool
 							document.getElementById("container").style.display="none";
 							break;
