@@ -62,7 +62,7 @@ A KDE (Kernel Density Estimation) Chart is useful for showing how values are spr
 Think of it like the game “Connect Four”: when you place a piece in the fourth column, instead of just adding one piece there, you also add a little bit to the columns on either side, the third and fifth columns. This means that votes that are close together (like 13 and 15) can affect each other. But if most votes are close, the chart can show these smaller differences (like 13 and 13.5) clearly.
 That start is a clear and engaging introduction! Here's a polished version that flows well into the kernel explanations:
 
-The way you add small amounts to the left and right of the vote is called the **Kernel**. You can change the kernel shape with the command **!setkernel**. 
+The way you add small amounts to the left and right of the vote is called the **Kernel**. You can change the kernel shape with the command `!setkernel`. 
 Think of “Connect Four.” You could add the same amount of pieces to the left and right; this is the **Box Kernel**. Alternatively, you might add them in a triangular fashion, like 1-2-1 or even 1-2-3-2-1, which represents the **Triangular Kernel**. Choose between those kernel shapes:
 - **Normal**: Bell-shaped curve ⁔ that is smooth and balanced, making it best for votes that clusters evenly around a central value like people's average estimates.
 - **Epanechnikov**: Parabolic shape ⋂ that highlights the center while considering nearby values, which is good when most responses are around a central estimate allowing for slight variations.
@@ -72,9 +72,9 @@ Think of “Connect Four.” You could add the same amount of pieces to the left
 - **Triangular**: Simple triangle shape ⋀ that quickly emphasizes central values, making it good for quick surveys to show a general trend without detailing every estimate.
 ![Shape of different Kernels](Examples/Kernel.png)
 
-The width of the kernel on either side of a vote is controlled by the command **!seth width**. This parameter, known as bandwidth (h), affects how smooth or rough the KDE Chart appears. A smaller bandwidth shows more detail and highlights variations, while a larger bandwidth results in a smoother chart.
+The width of the kernel on either side of a vote is controlled by the command `!seth width`. This parameter, known as bandwidth (h), affects how smooth or rough the KDE Chart appears. A smaller bandwidth shows more detail and highlights variations, while a larger bandwidth results in a smoother chart.
 
-To handle potential trolling or outlier votes, you can automatically adjust the range of displayed values with the command **!setp percent**. Setting it to 0% uses no data, while 100% includes everything. For example, using **!setp 90** will show the most relevant parts of the votes while ignoring the 10% extreme values. At 100 votes, the 5 lowest and 5 highest votes are not displayed.
+To handle potential trolling or outlier votes, you can automatically adjust the range of displayed values with the command `!setp percent`. Setting it to 0% uses no data, while 100% includes everything. For example, using `!setp 90` will show the most relevant parts of the votes while ignoring the 10% extreme values. At 100 votes, the 5 lowest and 5 highest votes are not displayed.
 </details>
 <details><summary>Config via URL-Parameters:</summary>
 
