@@ -120,7 +120,9 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 		extraMods=[]; //only lower-case usernames (like in the url): extraMods=["name1","name2"];
 	
 		siteURL=new URL(window.location);
-		TwitchChannel=siteURL.searchParams.get("channel").toLowerCase().split(",");
+		TwitchChannel=siteURL.searchParams.get("channel")
+		if (TwitchChannel==null){TwitchChannel="Twitch";}
+		TwitchChannel=TwitchChannel.toLowerCase().split(",");
 		timeout=siteURL.searchParams.get("to");
 		if (timeout==null){timeout=30;}
 		timeout*=1;
