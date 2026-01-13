@@ -136,8 +136,8 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 		document.getElementById("bgbar").style.fill="rgba("+c2+")";
 		document.getElementById("direct").style.backgroundColor="rgba("+c2+")";
 		stats=siteURL.searchParams.get("stats");
-		if (stats==null){stats="0"}
-		if (stats=="0"){document.getElementById("t1").style.display="None";document.getElementById("t2").style.display="None";}
+		if (stats==null){stats=0;}
+		if (stats==0){document.getElementById("t1").style.display="None";document.getElementById("t2").style.display="None";}
 		fontsize=siteURL.searchParams.get("fontsize");
 		if (fontsize==null){fontsize=50;}
 		fontsize*=1;
@@ -192,16 +192,6 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 			if (borderstyle==0){
 				document.getElementById("Overlay").style.display="none";
 				document.getElementById("direct").style.display="unset";
-
-                if (anon){
-                    document.getElementById("t1e").style.display="none";                    
-                    document.getElementById("t2e").style.display="none";
-                    document.getElementById("bar2").style.backgroundColor="rgba("+c2+")";
-                }else{
-                    document.getElementById("t1e").style.display="unset";                    
-                    document.getElementById("t2e").style.display="unset";
-                    document.getElementById("bar2").style.backgroundColor="rgba("+c1+")";
-                }
 			}else{
 				document.getElementById("direct").style.display="none";
 				document.getElementById("Overlay").style.display="unset";
@@ -220,17 +210,21 @@ use them like: Chat12.htm?channel=Testchannel&to=10
 				document.getElementById("t3").setAttribute("x",border[borderstyle][11]);
 				document.getElementById("t3").setAttribute("y",border[borderstyle][12]);
 				document.getElementById("t3").setAttribute("text-anchor",border[borderstyle][13]);
-
-                if (anon){
-                    document.getElementById("t1").style.display="none";
-                    document.getElementById("t2").style.display="none";
-                    document.getElementById("bar").style.fill="rgba("+c2+")";
-                }else{
-                    document.getElementById("bar").style.fill="rgba("+c1+")";
-                    document.getElementById("t1").style.display="unset";
-                    document.getElementById("t2").style.display="unset";
-                }
 			}
+			if (anon){
+				document.getElementById("t1").style.display="none";
+				document.getElementById("t2").style.display="none";
+				document.getElementById("bar").style.fill="rgba("+c2+")";
+			}else{
+				document.getElementById("bar").style.fill="rgba("+c1+")";
+				document.getElementById("t1").style.display="unset";
+				document.getElementById("t2").style.display="unset";
+			}
+			if (stats==0){
+				document.getElementById("t1").style.display="none";
+				document.getElementById("t2").style.display="none";
+			}
+			
 		}
 		changeStyle(borderstyle);
 		/*
