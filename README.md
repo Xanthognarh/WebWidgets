@@ -116,6 +116,8 @@ For an alternative version, check out [DasCleverle's implementation](https://git
 ![Example vote in different !votestyle ](Examples/Xanthobar.png)
 
 <details><summary>Config via URL-Parameters:</summary>
+You can use the [Chat12-config Editor](https://xanthognarh.github.io/WebWidgets/Chat12-config.htm) to modify your overlay and get an link to embed. 
+Or you modify the url manually:
 
 - `channel`: Name(s) of the Twitch channel(s) to monitor (supports Shared Chat). Separate multiple channels with a comma.
 - `to`: Approximate time in seconds after the last vote for resetting voting [default: 30]
