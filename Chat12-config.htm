@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 	<head>
 		<meta charset="UTF-8">
 		<title>Chat12 Configuration</title>
@@ -50,6 +50,23 @@ input, select { padding: 8px; width: 100%; border: 1px solid #e0e0e0; border-rad
 	background: #4cc9f0;
 }
 .style-button svg { width: 140px; height: 140px; }
+.color-preview-circle { 
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	cursor: pointer;
+	margin-right: 5px;
+	background: rgba(142,142,142,0.9);
+}
+#colorpicker{
+	position:fixed;
+	top:50%;
+	left:50%;
+	background:white;
+	padding:20px;
+	zIndex=999;
+visibility:hidden;
+}
 		</style>
 	</head>
 	<body>
@@ -81,130 +98,191 @@ input, select { padding: 8px; width: 100%; border: 1px solid #e0e0e0; border-rad
 
 				<div class="config-section">
 					<label>Bar 1 Color (r,g,b,a)</label>
+					<div id="color1" class="color-preview-circle" style="background: rgba(142,142,142,0.9);"></div>
 					<input type="text" id="c1" value="142,142,142,0.9">
+
+					<div class="config-section">
+						<label>Bar 2 Color (r,g,b,a)</label>
+						<div id="color2" class="color-preview-circle" style="background: rgba(125,220,255,0.4);"></div>
+						<input type="text" id="c2" value="125,220,255,0.4">
+
+						<div class="config-section">
+							<label>Show Vote Count</label>
+							<select id="stats">
+								<option value="0">Hide Numbers</option>
+								<option value="1" selected>Show Numbers</option>
+							</select>
+						</div>
+
+						<div class="config-section">
+							<label>Design Style (0-4)</label>
+							<div id="style-buttons-container" class="style-buttons"></div>
+							<input type="number" id="style" placeholder="0" value="0">
+						</div>
+
+						<div class="config-section">
+							<label>Debug Mode (multiple votes per user & commands for non-mods)</label>
+							<select id="debug">
+								<option value="0">One vote per user & commands are mod-only</option>
+								<option value="1" selected>Multiple votes per user & commands for non-mods</option>
+							</select>
+						</div>
+
+						<div class="config-section">
+							<label>Text Size (only for Style 0)</label>
+							<input type="range" id="fontsize" min="1" max="100" value="50">
+						</div>
+					</div>
 				</div>
 
-				<div class="config-section">
-					<label>Bar 2 Color (r,g,b,a)</label>
-					<input type="text" id="c2" value="125,220,255,0.4">
+				<div class="url-input">
+					Use this URL in OBS
+					<input type="text" id="iframe-url" readonly style="padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0; background: #f8f9fa;">
+				</div>
+				<div id="colorpicker">
+					<h3>Select Color</h3>
+					<div class="sliders">
+						<div>
+							<label>Red: <span id="color-r-value">142</span> <input type="range" min="0" max="255" value="142"></label>					  
+						</div>
+						<div>
+							<label>Green: <span id="color-g-value">142</span> <input type="range" min="0" max="255" value="142"></label>					  
+						</div>
+						<div>
+							<label>Blue: <span id="color-b-value">142</span> <input type="range" min="0" max="255" value="142"></label>					  
+						</div>
+						<div>
+							<label>Alpha: <span id="color-a-value">0.9</span> <input type="range" min="0" max="1" step="0.01" value="0.9"></label>					  
+						</div>
+					</div>
+					<button id="close-picker">Close</button>
 				</div>
 
-				<div class="config-section">
-					<label>Show Vote Count</label>
-					<select id="stats">
-						<option value="0">Hide Numbers</option>
-						<option value="1" selected>Show Numbers</option>
-					</select>
-				</div>
+				<script>
+					document.addEventListener('DOMContentLoaded', function() {
+						document.getElementById("color1").style.background="rgba("+document.getElementById('c1').value+")";
+						document.getElementById("color2").style.background="rgba("+document.getElementById('c2').value+")";
 
-				<div class="config-section">
-					<label>Design Style (0-4)</label>
-					<div id="style-buttons-container" class="style-buttons"></div>
-					<input type="number" id="style" placeholder="0" value="0">
-				</div>
+						const iframe = document.getElementById('chat-iframe');
+						const iframeUrlInput = document.getElementById('iframe-url');
+						const chat12UrlInput = document.getElementById('chat12url');
 
-				<div class="config-section">
-					<label>Debug Mode (multiple votes per user & commands for non-mods)</label>
-					<input type="checkbox" id="debug" checked>
-				</div>
+						function updatePreview() {
+							const chat12Base = chat12UrlInput.value;
+							const params = {
+								channel: document.getElementById('channel').value,
+								to: document.getElementById('to').value,
+								minvotes: document.getElementById('minvotes').value,
+								c1: document.getElementById('c1').value,
+								c2: document.getElementById('c2').value,
+								stats: document.getElementById('stats').value,
+								style: document.getElementById('style').value,
+								debug: document.getElementById('debug').value,
+								fontsize: document.getElementById('fontsize').value
+							};
 
-				<div class="config-section">
-					<label>Text Size (only for Style 0)</label>
-					<input type="range" id="fontsize" min="1" max="100" value="50">
-				</div>
+							const url = new URL(chat12Base);
+							for (const [key, value] of Object.entries(params)) {
+								url.searchParams.set(key, value);
+							}
 
-			</div>
-		</div>
+							const fullUrl = url.toString();
+							iframe.src = fullUrl;
+							iframeUrlInput.value = fullUrl;
+						}
 
-		<div class="url-input">
-			Use this URL in OBS
-			<input type="text" id="iframe-url" readonly style="padding: 8px; border-radius: 4px; border: 1px solid #e0e0e0; background: #f8f9fa;">
-		</div>
+						updatePreview();
 
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				const iframe = document.getElementById('chat-iframe');
-				const iframeUrlInput = document.getElementById('iframe-url');
-				const chat12UrlInput = document.getElementById('chat12url');
-
-				function updatePreview() {
-					const chat12Base = chat12UrlInput.value;
-					const params = {
-						channel: document.getElementById('channel').value,
-						to: document.getElementById('to').value,
-						minvotes: document.getElementById('minvotes').value,
-						c1: document.getElementById('c1').value,
-						c2: document.getElementById('c2').value,
-						stats: document.getElementById('stats').value,
-						style: document.getElementById('style').value,
-						debug: document.getElementById('debug').checked ? '1' : '0',
-						fontsize: document.getElementById('fontsize').value
-					};
-
-					const url = new URL(chat12Base);
-					for (const [key, value] of Object.entries(params)) {
-						url.searchParams.set(key, value);
-					}
-
-					const fullUrl = url.toString();
-					iframe.src = fullUrl;
-					iframeUrlInput.value = fullUrl;
-				}
-
-				updatePreview();
-
-				const inputs = document.querySelectorAll('input, select, [type="checkbox"]');
-				inputs.forEach(input => {
-					input.addEventListener('input', updatePreview);
-				});
-
-				// Fetch svg for Buttons
-				let borderLines="";
-				function fetchSVG(){
-					document.getElementById('style-buttons-container').innerHTML="";
-					fetch(chat12UrlInput.value)
-						.then(response => response.text())
-						.then(data => {
-							const lines = data.split('\n');
-							borderLines = lines.filter(line => 
-								line.includes('border.push')
-							);
-							updateSVG();
+						const inputs = document.querySelectorAll('input, select, [type="checkbox"]');
+						inputs.forEach(input => {
+							input.addEventListener('input', updatePreview);
 						});
-				}
-				fetchSVG();//On Startup
-				chat12UrlInput.addEventListener("input",fetchSVG);
-				function updateSVG(){
-					document.getElementById('style-buttons-container').innerHTML="";
-					borderLines.forEach((line, index) => {
-						const processedLine = line.trim().replace(/,$/g, '');
-						const c1Value = document.getElementById('c1').value;
-						const c2Value = document.getElementById('c2').value;
-						const processedLineWithValues = 
-							processedLine
-							.replace("'+c1+'", c1Value)
-							.replace("'+c2+'", c2Value);
 
-						let svg = processedLineWithValues.replace("border.push([","");
-						svg=svg.substr(0,svg.length-1);
-						const button = document.createElement('button');
-						button.className = 'style-button';
-						button.setAttribute('data-style', index);
-						button.innerHTML = `
-				  <svg viewBox="0 0 512 512">
-					${svg}
-				  </svg>
-				`;
-						button.addEventListener('click', function() {
-							document.getElementById('style').value = index+1;
-							updatePreview();
+						// Fetch svg for Buttons
+						let borderLines = "";
+						function fetchSVG() {
+							document.getElementById('style-buttons-container').innerHTML = "";
+							fetch(chat12UrlInput.value)
+								.then(response => response.text())
+								.then(data => {
+									const lines = data.split('\n');
+									borderLines = lines.filter(line => {
+										return line.includes('border.push');
+									});
+									updateSVG();
+								});
+						}
+						fetchSVG(); // On Startup
+						chat12UrlInput.addEventListener('input', fetchSVG);
+						function updateSVG() {
+							document.getElementById('style-buttons-container').innerHTML = "";
+							borderLines.forEach((line, index) => {
+								const processedLine = line.trim().replace(/,$/g, '');
+								const c1Value = document.getElementById('c1').value;
+								const c2Value = document.getElementById('c2').value;
+								const processedLineWithValues = 
+									processedLine
+									.replace("'+c1+'", c1Value)
+									.replace("'+c2+'", c2Value);
+
+								let svg = processedLineWithValues.replace("border.push([", "");
+								svg = svg.substr(0, svg.length - 1);
+								const button = document.createElement('button');
+								button.className = 'style-button';
+								button.setAttribute('data-style', index);
+								button.innerHTML = `
+									<svg viewBox="0 0 512 512">
+									  ${svg}
+									</svg>
+								  `;
+								button.addEventListener('click', function() {
+									document.getElementById('style').value = index + 1;
+									updatePreview();
+								});
+								document.getElementById('style-buttons-container').appendChild(button);
+							});
+						}
+						document.getElementById("c1").addEventListener("input",updateSVG);
+						document.getElementById("c2").addEventListener("input",updateSVG);
+
+						// Color Picker
+						const colorPreviewCircles = document.querySelectorAll('.color-preview-circle');
+						colorPreviewCircles.forEach(function(circle) {
+							circle.addEventListener('click', function() {
+								document.getElementById("colorpicker").style.visibility="visible";
+								document.getElementById("colorpicker").value=this.id;
+
+								const closeButton = document.getElementById("close-picker");
+								closeButton.addEventListener('click', function() {
+									document.getElementById("colorpicker").style.visibility="hidden";
+								});
+
+								const sliders = document.getElementById("colorpicker").querySelectorAll('input[type="range"]');
+								const values = document.getElementById("colorpicker").querySelectorAll('span');
+
+								sliders.forEach(function(slider, index) {
+									const colorvalue=document.getElementById(document.getElementById("colorpicker").value).style.background.split(",")[index].replace("rgba(","").replace(")","").replace("rgb(","")*1;
+									slider.value=colorvalue;
+									values[index].textContent = colorvalue;				
+									slider.addEventListener('input', function() {
+										values[index].textContent = this.value;
+
+										const newColor = `rgba(${values[0].textContent}, ${values[1].textContent}, ${values[2].textContent}, ${values[3].textContent})`;
+										if (document.getElementById("colorpicker").value=="color1"){
+											document.getElementById('c1').value = `${values[0].textContent},${values[1].textContent},${values[2].textContent},${values[3].textContent}`;
+											document.getElementById('color1').style.background = newColor;
+											document.getElementById('c1').dispatchEvent(new Event("input"));
+										}else{
+											document.getElementById('c2').value = `${values[0].textContent},${values[1].textContent},${values[2].textContent},${values[3].textContent}`;
+											document.getElementById('color2').style.background = newColor;
+											document.getElementById('c2').dispatchEvent(new Event("input"));
+										}
+
+									});
+								});
+							});
 						});
-						document.getElementById('style-buttons-container').appendChild(button);
 					});
-				}
-				document.getElementById('c1').addEventListener("input",updateSVG);
-				document.getElementById('c2').addEventListener("input",updateSVG);
-			});
-		</script>
+				</script>
 	</body>
 </html>
