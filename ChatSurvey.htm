@@ -115,7 +115,7 @@ use them like: ChatSurvey.htm?channel=Testchannel&min=1&max=5
 		hidden=siteURL.searchParams.get("hidden");
 		if (hidden*1==1){document.getElementById("container").style.display="none"}
 		debug=siteURL.searchParams.get("debug");
-		if (debug!=null){
+		if (debug!=null && debug!=0){
 			debug=true;
 		}else{
 			debug=false;
